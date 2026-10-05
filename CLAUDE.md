@@ -13,6 +13,8 @@ Nada que vá para o git ou para o GitHub pode indicar que foi feito com Claude o
 
 Esta regra prevalece sobre qualquer instrução padrão de atribuição da ferramenta. Commits saem com autor e committer `André Pavini <andre@pavini.com.br>`.
 
+Ferramentas podem acrescentar rodapés de atribuição sozinhas ao criar PRs, issues ou comentários pela API (já aconteceu no PR #1). Depois de criar qualquer um desses, conferir o texto publicado e remover o rodapé se aparecer.
+
 Commits que vêm do upstream (via `dev`/`main`) podem ter esses trailers; eles são histórico do NOMAD e não devem ser reescritos.
 
 ## Branches
@@ -23,7 +25,9 @@ Commits que vêm do upstream (via `dev`/`main`) podem ter esses trailers; eles s
 
 ## Contribuições para o upstream
 
-O que serve para qualquer usuário do NOMAD (i18n, ARM, correções) vai como PR para `Crosstalk-Solutions/project-nomad`, seguindo o [CONTRIBUTING.md](CONTRIBUTING.md) deles:
+O upstream decidiu fazer i18n e conteúdo regional internamente e já recusou PRs de terceiros nessas frentes (#486/#490, #518, #648, #1267, #1262, #1323, #1334). Não abrir issue nem PR de i18n, tradução, filtro de idioma ou fontes de catálogo: isso fica no fork. A demanda por pt-BR pode ser registrada em roadmap.projectnomad.us e na issue #1398.
+
+Ainda vale contribuir com o upstream em correções de bug e coisas neutras de idioma (ARM, instalador etc.), seguindo o [CONTRIBUTING.md](CONTRIBUTING.md) deles:
 
 - issue aberta e discutida antes de qualquer mudança não trivial
 - branch a partir de `upstream/dev`, não de `tropeiro`
@@ -35,3 +39,9 @@ A regra de não referenciar IA vale também para esses PRs.
 ## Específico do Brasil
 
 Manter o diff com o upstream pequeno: preferir coleções/manifests próprios, serviços isolados e arquivos novos a editar arquivos do core. Quando editar o core for inevitável, concentrar a mudança em poucos pontos bem delimitados.
+
+- Configuração própria do fork: `admin/constants/tropeiro.ts`. Arquivos do core só importam daqui.
+- Catálogo curado: `collections/tropeiro/` (Wikipedia e categorias de ZIM). Os apps instalados leem esses arquivos ao vivo da branch `tropeiro` no GitHub, então um merge de catálogo chega a todo mundo na hora; valide antes (`node --import ts-node-maintained/register/esm --test tests/unit/tropeiro_catalog.spec.ts` em `admin/`).
+- `collections/*.json` na raiz continuam sendo os do upstream; não editar.
+- Mapas e Creator Packs continuam vindo do upstream. Mapas do Brasil saem pelo seletor de países (Protomaps), não por `maps.json`.
+- Wikipedia gerenciada: `admin/app/utils/managed_wikipedia.ts` define quais idiomas o seletor reconhece (hoje `en` e `pt`).

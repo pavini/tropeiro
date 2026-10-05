@@ -10,6 +10,7 @@ import { QueueService } from './queue_service.js'
 import { RunDownloadJob } from '#jobs/run_download_job'
 import { zimCategoriesSpecSchema, mapsSpecSchema, wikipediaSpecSchema, creatorPacksSpecSchema } from '#validators/curated_collections'
 import { isGatedResource } from '../utils/hosted_content.js'
+import { TROPEIRO_WIKIPEDIA_URL, TROPEIRO_ZIM_CATEGORIES_URL } from '../../constants/tropeiro.js'
 import {
   ensureDirectoryExists,
   listDirectoryContents,
@@ -29,9 +30,9 @@ import type {
 } from '../../types/collections.js'
 
 const SPEC_URLS: Record<ManifestType, string> = {
-  zim_categories: 'https://raw.githubusercontent.com/Crosstalk-Solutions/project-nomad/refs/heads/main/collections/kiwix-categories.json',
+  zim_categories: TROPEIRO_ZIM_CATEGORIES_URL,
   maps: 'https://github.com/Crosstalk-Solutions/project-nomad/raw/refs/heads/main/collections/maps.json',
-  wikipedia: 'https://raw.githubusercontent.com/Crosstalk-Solutions/project-nomad/refs/heads/main/collections/wikipedia.json',
+  wikipedia: TROPEIRO_WIKIPEDIA_URL,
   creator_packs: 'https://raw.githubusercontent.com/Crosstalk-Solutions/project-nomad/refs/heads/main/collections/creator-packs.json',
 }
 
