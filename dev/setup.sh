@@ -16,7 +16,7 @@ node_major="$(node -p 'process.versions.node.split(".")[0]')"
 [ "$node_major" -ge 22 ] || { echo "Node $node_major encontrado; é preciso 22 ou mais novo." >&2; exit 1; }
 
 echo "==> Subindo MySQL e Redis"
-docker compose -f "$ROOT/dev/docker-compose.yml" up -d --wait
+docker compose -f "$ROOT/dev/dev-services.yml" up -d --wait
 
 echo "==> Configurando admin/.env"
 mkdir -p "$STORAGE"
@@ -31,8 +31,10 @@ echo "==> Instalando dependências (pode demorar na primeira vez)"
 cd "$ADMIN"
 npm ci --no-audit --no-fund
 
-if grep -q '^APP_KEY=some_random_key' .env; then
-  node ace generate:key
+if grep -qE '^APP_KEY=(some_random_key)?$' .env; then
+  key="$(node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))")"
+  tmp="$(mktemp)"
+  sed -e "s#^APP_KEY=.*#APP_KEY=$key#" .env > "$tmp" && mv "$tmp" .env
 fi
 
 echo "==> Preparando o banco"

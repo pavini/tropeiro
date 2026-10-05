@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT/admin"
 
 [ -f .env ] || { echo "Rode ./dev/setup.sh primeiro." >&2; exit 1; }
-docker compose -f "$ROOT/dev/docker-compose.yml" up -d --wait >/dev/null
+docker compose -f "$ROOT/dev/dev-services.yml" up -d --wait >/dev/null
 
 npm run work:all &
 workers=$!
