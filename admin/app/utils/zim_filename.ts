@@ -21,6 +21,8 @@ export function findReplacedWikipediaFiles(
   const currentStem = zimFilenameStem(currentFilename)
   return existingNames.filter(
     (n) =>
-      n.startsWith('wikipedia_en_') && n !== currentFilename && zimFilenameStem(n) === currentStem
+      /^wikipedia_[a-z]{2,3}_/.test(n) &&
+      n !== currentFilename &&
+      zimFilenameStem(n) === currentStem
   )
 }

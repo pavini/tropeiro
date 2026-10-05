@@ -42,9 +42,11 @@ import { assertNotPrivateUrl } from '#validators/common'
 import { resolveZimDownload } from '../utils/zim_download_resolution.js'
 import { getHostedContentHeaders } from '../utils/hosted_content_auth.js'
 import { KIWIX_CATALOG_BASE_URL } from '../../constants/kiwix.js'
+import { DEFAULT_CONTENT_LANGUAGE, TROPEIRO_WIKIPEDIA_URL } from '../../constants/tropeiro.js'
+import { isManagedWikipediaFile } from '../utils/managed_wikipedia.js'
 
 const ZIM_MIME_TYPES = ['application/x-zim', 'application/x-openzim', 'application/octet-stream']
-const WIKIPEDIA_OPTIONS_URL = 'https://raw.githubusercontent.com/Crosstalk-Solutions/project-nomad/refs/heads/main/collections/wikipedia.json'
+const WIKIPEDIA_OPTIONS_URL = TROPEIRO_WIKIPEDIA_URL
 
 @inject()
 export class ZimService {
@@ -80,7 +82,7 @@ export class ZimService {
     start,
     count,
     query,
-    language = 'eng',
+    language = DEFAULT_CONTENT_LANGUAGE,
   }: {
     start: number
     count: number
@@ -437,7 +439,7 @@ export class ZimService {
   async downloadRemoteSuccessCallback(urls: string[], restart = true) {
     // Check if any URL is a Wikipedia download and handle it
     for (const url of urls) {
-      if (url.includes('wikipedia_en_')) {
+      if (isManagedWikipediaFile(url)) {
         await this.onWikipediaDownloadComplete(url, true)
       }
     }
@@ -503,7 +505,7 @@ export class ZimService {
     let removedSupersededZim = false
     for (const url of urls) {
       // Skip Wikipedia files (managed separately)
-      if (url.includes('wikipedia_en_')) continue
+      if (isManagedWikipediaFile(url)) continue
 
       const filename = url.split('/').pop()
       if (!filename) continue
@@ -665,10 +667,10 @@ export class ZimService {
           }
           logger.info(`[ZimService] Marked Wikipedia option '${matchedOption.id}' as installed from local upload`)
 
-          // Remove any other wikipedia_en_*.zim files, same as the download flow
+          // Remove any other managed Wikipedia files, same as the download flow
           const allFiles = await this.list()
           const staleWikipediaFiles = allFiles.files.filter(
-            (f) => f.name.startsWith('wikipedia_en_') && f.name !== filename
+            (f) => isManagedWikipediaFile(f.name) && f.name !== filename
           )
           for (const stale of staleWikipediaFiles) {
             try {

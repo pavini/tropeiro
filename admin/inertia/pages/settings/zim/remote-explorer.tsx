@@ -40,6 +40,7 @@ import type { CategoryWithStatus, SpecTier } from '../../../../types/collections
 import useDownloads from '~/hooks/useDownloads'
 import ActiveDownloads from '~/components/ActiveDownloads'
 import { SERVICE_NAMES } from '../../../../constants/service_names'
+import { DEFAULT_CONTENT_LANGUAGE } from '../../../../constants/tropeiro'
 import { ZimFileWithMetadata } from '../../../../types/zim'
 
 const CURATED_CATEGORIES_KEY = 'curated-categories'
@@ -87,9 +88,9 @@ export default function ZimRemoteExplorer() {
   // language wants that on every visit, not once per session.
   const [language, setLanguage] = useState<string>(() => {
     try {
-      return localStorage.getItem('nomad:zim-library-language') || 'eng'
+      return localStorage.getItem('nomad:zim-library-language') || DEFAULT_CONTENT_LANGUAGE
     } catch {
-      return 'eng'
+      return DEFAULT_CONTENT_LANGUAGE
     }
   })
   const [browseUrl, setBrowseUrl] = useState<string | null>(null)
