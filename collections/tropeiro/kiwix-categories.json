@@ -1,12 +1,12 @@
 {
-  "spec_version": "2026-10-05",
+  "spec_version": "2026-10-05.1",
   "categories": [
     {
       "name": "Saúde",
       "slug": "medicine",
       "icon": "IconStethoscope",
       "language": "pt",
-      "description": "Referências médicas e de primeiros socorros. A base é em português; os níveis maiores acrescentam materiais em inglês sem equivalente nacional.",
+      "description": "Referências médicas e de primeiros socorros em português, com extras em inglês.",
       "tiers": [
         {
           "name": "Essencial",
@@ -95,7 +95,7 @@
       "slug": "education",
       "icon": "IconSchool",
       "language": "pt",
-      "description": "Livros didáticos, cursos, simulações e enciclopédia infantil em português, para estudo autodirigido e sala de aula.",
+      "description": "Livros didáticos, cursos, simulações e enciclopédia infantil em português.",
       "tiers": [
         {
           "name": "Essencial",
@@ -224,7 +224,7 @@
       "slug": "literature",
       "icon": "IconBooks",
       "language": "pt",
-      "description": "Dicionário, citações, livros em domínio público e textos de referência em língua portuguesa.",
+      "description": "Dicionário, citações e livros em domínio público em português.",
       "tiers": [
         {
           "name": "Essencial",
@@ -289,7 +289,7 @@
       "slug": "diy",
       "icon": "IconTool",
       "language": "pt",
-      "description": "Guias de conserto e manutenção. O iFixit tem tradução para o português; os demais níveis são fóruns em inglês.",
+      "description": "Guias de conserto e manutenção, com o iFixit em português.",
       "tiers": [
         {
           "name": "Essencial",
@@ -354,7 +354,7 @@
       "slug": "computing",
       "icon": "IconCode",
       "language": "pt",
-      "description": "Programação e tecnologia, com cursos e perguntas e respostas em português.",
+      "description": "Programação e tecnologia, com cursos e fórum em português.",
       "tiers": [
         {
           "name": "Essencial",
@@ -467,7 +467,7 @@
       "slug": "brasil",
       "icon": "IconWorld",
       "language": "pt",
-      "description": "Guias de viagem e conteúdo sobre o Brasil e o mundo lusófono.",
+      "description": "Guias de viagem e conteúdo sobre o Brasil e a língua portuguesa.",
       "tiers": [
         {
           "name": "Essencial",
@@ -515,7 +515,7 @@
       "name": "Sobrevivência e Preparação (inglês)",
       "slug": "survival",
       "icon": "IconShieldCheck",
-      "description": "Preparação para emergências, água, alimentos e técnicas de sobrevivência. Não há acervo equivalente em português no Kiwix; este conteúdo é em inglês.",
+      "description": "Emergências, água, alimentos e sobrevivência. Conteúdo em inglês.",
       "language": "en",
       "tiers": [
         {
@@ -668,7 +668,7 @@
       "name": "Agricultura e Alimentos (inglês)",
       "slug": "agriculture",
       "icon": "IconPlant",
-      "description": "Cultivo, culinária e conservação de alimentos. Não há acervo equivalente em português no Kiwix; este conteúdo é em inglês.",
+      "description": "Cultivo, culinária e conservação de alimentos. Conteúdo em inglês.",
       "language": "en",
       "tiers": [
         {
