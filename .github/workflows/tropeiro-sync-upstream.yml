@@ -1,0 +1,120 @@
+# Mantém o fork em dia com o Project NOMAD.
+#
+# - main e dev são espelhos do upstream: avançam só por fast-forward.
+#   Se divergirem (alguém commitou nelas aqui), o job falha de propósito.
+# - tropeiro é a linha do fork: recebe o upstream/dev via PR, nunca por push
+#   direto. Se o merge tiver conflito, abre (ou atualiza) uma issue listando
+#   os arquivos em conflito.
+#
+# Requer o secret SYNC_TOKEN: um fine-grained PAT restrito a pavini/tropeiro
+# com Contents, Workflows, Pull requests e Issues em read/write. O GITHUB_TOKEN
+# não serve porque o GitHub recusa push de commits que alteram
+# .github/workflows sem a permissão "workflows", e o upstream mexe nelas.
+
+name: Tropeiro — sync upstream
+
+on:
+  schedule:
+    - cron: '23 9 * * 1' # segunda, 06:23 em Brasília
+  workflow_dispatch:
+
+concurrency:
+  group: tropeiro-sync-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  UPSTREAM_URL: https://github.com/Crosstalk-Solutions/project-nomad.git
+  FORK_BRANCH: tropeiro
+  MIRRORS: main dev
+  SOURCE_BRANCH: dev
+  CONFLICT_TITLE: 'sync: conflito ao integrar upstream/dev em tropeiro'
+
+jobs:
+  sync:
+    if: github.repository == 'pavini/tropeiro'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar token
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          if [ -z "$SYNC_TOKEN" ]; then
+            echo "::error::Secret SYNC_TOKEN não configurado. Veja o cabeçalho deste workflow."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_TOKEN }}
+
+      - name: Buscar upstream
+        run: |
+          git config user.name "tropeiro-sync[bot]"
+          git config user.email "tropeiro-sync@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM_URL"
+          # shellcheck disable=SC2086 # MIRRORS é uma lista separada por espaço
+          git fetch --no-tags upstream $MIRRORS
+
+      - name: Atualizar espelhos (fast-forward)
+        run: |
+          # shellcheck disable=SC2086
+          for b in $MIRRORS; do
+            git fetch --no-tags origin "$b"
+            if ! git merge-base --is-ancestor "origin/$b" "upstream/$b"; then
+              echo "::error::origin/$b divergiu de upstream/$b. Espelhos não devem receber commits próprios."
+              exit 1
+            fi
+            git push origin "upstream/$b:refs/heads/$b"
+            echo "$b -> $(git rev-parse --short "upstream/$b")"
+          done
+
+      - name: Integrar upstream/dev em tropeiro
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          git fetch --no-tags origin "$FORK_BRANCH"
+          git checkout -B "$FORK_BRANCH" "origin/$FORK_BRANCH"
+
+          behind=$(git rev-list --count "HEAD..upstream/$SOURCE_BRANCH")
+          if [ "$behind" -eq 0 ]; then
+            echo "tropeiro já contém upstream/$SOURCE_BRANCH. Nada a fazer."
+            exit 0
+          fi
+          echo "tropeiro está $behind commit(s) atrás de upstream/$SOURCE_BRANCH."
+
+          existing_issue=$(gh issue list --state open --search "\"$CONFLICT_TITLE\" in:title" --json number --jq '.[0].number // empty')
+
+          if git merge --no-commit --no-ff "upstream/$SOURCE_BRANCH" >/dev/null 2>&1; then
+            git merge --abort
+            echo "Merge limpo."
+            if [ -n "$existing_issue" ]; then
+              gh issue close "$existing_issue" --comment "Conflito resolvido: o merge com upstream/$SOURCE_BRANCH agora é limpo."
+            fi
+            pr=$(gh pr list --state open --base "$FORK_BRANCH" --head "$SOURCE_BRANCH" --json number --jq '.[0].number // empty')
+            if [ -z "$pr" ]; then
+              gh pr create --base "$FORK_BRANCH" --head "$SOURCE_BRANCH" \
+                --title "sync: integrar upstream/$SOURCE_BRANCH ($(date -u +%F))" \
+                --body "Integração automática do Project NOMAD (\`$SOURCE_BRANCH\`) na linha \`$FORK_BRANCH\`. $behind commit(s) novos. Merge sem conflitos; revise e faça merge (merge commit, não squash)."
+            else
+              gh pr comment "$pr" --body "Atualizado: $behind commit(s) do upstream pendentes, merge continua limpo."
+            fi
+          else
+            # shellcheck disable=SC2016 # crases são markdown, não expansão
+            conflicts=$(git diff --name-only --diff-filter=U | sed 's/^/- `/; s/$/`/')
+            git merge --abort
+            # shellcheck disable=SC2016
+            body=$(printf 'O merge de `upstream/%s` em `%s` tem conflitos (%s commit(s) pendentes).\n\nArquivos:\n%s\n\nResolva localmente:\n```bash\ngit fetch upstream\ngit checkout %s\ngit merge upstream/%s\n```\n' \
+              "$SOURCE_BRANCH" "$FORK_BRANCH" "$behind" "$conflicts" "$FORK_BRANCH" "$SOURCE_BRANCH")
+            if [ -n "$existing_issue" ]; then
+              gh issue comment "$existing_issue" --body "$body"
+            else
+              gh issue create --title "$CONFLICT_TITLE" --body "$body"
+            fi
+            echo "::warning::Conflitos ao integrar upstream/$SOURCE_BRANCH. Issue aberta/atualizada."
+          fi

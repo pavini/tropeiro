@@ -1,0 +1,18 @@
+Tropeiro
+Copyright 2026 André Pavini
+
+This product is a fork of Project NOMAD
+(https://github.com/Crosstalk-Solutions/project-nomad),
+Copyright Crosstalk Solutions, LLC, licensed under the Apache License,
+Version 2.0. See the LICENSE file for the full license text.
+
+Files modified from the original are identified by this repository's git
+history relative to the upstream project.
+
+"Project NOMAD", "NOMAD" and the associated logos are trademarks of
+Crosstalk Solutions, LLC. This fork does not use them to identify itself,
+and no endorsement by Crosstalk Solutions, LLC is implied.
+
+Third-party content downloadable through this software (for example
+Wikipedia, Khan Academy, OpenStreetMap and Kiwix ZIM files) is distributed
+under its own licenses, which are not affected by this notice.
