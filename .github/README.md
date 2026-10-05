@@ -12,12 +12,16 @@ Tropeiro é um fork do [Project NOMAD](https://github.com/Crosstalk-Solutions/pr
 
 ## O que muda em relação ao NOMAD
 
-Planejado, em ordem:
+Já feito:
 
-1. **Português do Brasil na interface:** infraestrutura de i18n proposta ao upstream, com pt-BR como primeira tradução.
-2. **Conteúdo brasileiro:** coleções com Wikipedia em português, mapas das regiões do Brasil e cursos do Kolibri em pt.
-3. **IA em português:** modelo padrão bom em PT e RAG ajustado (stopwords, OCR) e medido com a suíte de avaliação do projeto.
-4. **Referências nacionais:** bulário da ANVISA no lugar do openFDA, material de Defesa Civil e de primeiros socorros.
+- **Catálogo em português:** Wikipedia em português no seletor (mantendo as opções em inglês) e categorias de conteúdo com acervo em português: saúde, educação, literatura, faça você mesmo, computação e Brasil. Onde não existe acervo em português, a categoria aparece marcada como "(inglês)".
+- **Biblioteca Kiwix em português por padrão** no explorador de conteúdo.
+
+Planejado:
+
+1. **Interface em português do Brasil.** O upstream decidiu fazer a internacionalização internamente e não aceita PRs de terceiros nessa frente, então ela será feita aqui.
+2. **IA em português:** modelo padrão bom em PT e RAG ajustado (stopwords, OCR) e medido com a suíte de avaliação do projeto.
+3. **Referências nacionais:** bulário da ANVISA no lugar do openFDA, material de Defesa Civil e de primeiros socorros.
 
 ## Branches
 
@@ -30,7 +34,7 @@ A sincronização é feita pelo workflow [`tropeiro-sync-upstream`](workflows/tr
 
 ## Contribuindo
 
-Melhorias que fazem sentido para qualquer usuário do NOMAD (i18n, suporte a ARM, correções) vão primeiro como PR para o upstream, seguindo o [CONTRIBUTING](../CONTRIBUTING.md) deles: issue antes, branch a partir de `dev`, Conventional Commits. O que é específico do Brasil fica aqui, de preferência em coleções e serviços isolados, para manter o diff com o upstream pequeno.
+Correções de bug e melhorias neutras de idioma (suporte a ARM, instalador etc.) vão primeiro como PR para o upstream, seguindo o [CONTRIBUTING](../CONTRIBUTING.md) deles: issue antes, branch a partir de `dev`, Conventional Commits. Tradução, conteúdo em português e o que for específico do Brasil ficam aqui, de preferência em arquivos novos e serviços isolados, para manter o diff com o upstream pequeno.
 
 Para trabalhar localmente:
 
