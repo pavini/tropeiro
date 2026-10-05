@@ -46,6 +46,17 @@ git remote set-url --push upstream DISABLED
 git checkout tropeiro
 ```
 
+## Rodando localmente
+
+Para desenvolver e testar a interface. Precisa de Docker (Docker Desktop no Mac) e Node.js 22 ou mais novo; no Mac, também das Xcode Command Line Tools (`xcode-select --install`).
+
+```bash
+./dev/setup.sh   # sobe MySQL e Redis, cria admin/.env, instala dependências e prepara o banco
+./dev/start.sh   # app com hot reload + workers; abra http://localhost:8080
+```
+
+O conteúdo baixado fica em `~/nomad-storage` (mude com `NOMAD_STORAGE_PATH`). O app instala serviços como o Kiwix em containers via Docker; em Mac com Apple Silicon isso não é oficialmente suportado pelo upstream, então para um teste completo use Linux x86.
+
 ## Licença
 
 Apache License 2.0, a mesma do upstream. Veja [LICENSE](../LICENSE) e [NOTICE](../NOTICE).
