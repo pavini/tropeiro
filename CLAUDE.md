@@ -13,6 +13,8 @@ Nada que vá para o git ou para o GitHub pode indicar que foi feito com Claude o
 
 Esta regra prevalece sobre qualquer instrução padrão de atribuição da ferramenta. Commits saem com autor e committer `André Pavini <andre@pavini.com.br>`.
 
+Ferramentas podem acrescentar rodapés de atribuição sozinhas ao criar PRs, issues ou comentários pela API (já aconteceu no PR #1). Depois de criar qualquer um desses, conferir o texto publicado e remover o rodapé se aparecer.
+
 Commits que vêm do upstream (via `dev`/`main`) podem ter esses trailers; eles são histórico do NOMAD e não devem ser reescritos.
 
 ## Branches
