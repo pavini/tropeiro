@@ -506,4 +506,244 @@ export const FICHAS: Ficha[] = [
       'Adaptado para leigos a partir do protocolo do SAMU, que trata da pessoa já fora da água; a parte de não se arriscar no resgate vem do manual.',
     reviewed: false,
   },
+  {
+    slug: 'picada-de-animal-peconhento',
+    title: 'Picada de cobra, escorpião ou aranha',
+    summary: 'Procure atendimento já. Não amarre, não corte e não chupe o local.',
+    keywords: ['picada', 'cobra', 'cobra picou', 'jararaca', 'cascavel', 'escorpião', 'aranha', 'animal peçonhento', 'peçonhento', 'veneno', 'ofídico', 'lagarta', 'taturana', 'abelha'],
+    callFirst: 'Procure atendimento médico imediatamente. Se não houver como chegar rápido, ligue 192.',
+    sections: [
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Fotografe o animal ou guarde o máximo de detalhes dele (tipo, cor, tamanho) para contar a quem atender.',
+          'Se não atrasar a ida ao atendimento, lave o local com água e sabão.',
+          'Deixe a pessoa em repouso, com o braço ou a perna picados levantados, até chegar ao pronto-socorro.',
+          'Tire anéis, pulseiras, fitas amarradas e calçados apertados do membro picado.',
+          'Picada de cobra: dê água potável para a pessoa beber.',
+          'Escorpião ou aranha: compressa morna ajuda a aliviar a dor.',
+          'Ferrão de abelha: retire raspando com uma lâmina, não com pinça.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não amarre o braço ou a perna (nada de torniquete ou garrote).',
+          'Não corte, não queime e não esprema o local.',
+          'Não tente chupar o veneno.',
+          'Não passe nada no local: pó de café, álcool, terra, folhas, fezes ou qualquer outra coisa.',
+          'Não faça curativo no local.',
+          'Não dê bebida alcoólica, querosene, gasolina ou outros líquidos do tipo.',
+          'Não tente pegar o animal, mesmo que pareça morto.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Em enchente ou entulho',
+        items: [
+          'Cobras, escorpiões e aranhas se escondem em lugares secos, dentro de casa e no entulho. Se encontrar um, não toque e chame os Bombeiros (193) ou o serviço de zoonoses.',
+        ],
+      },
+    ],
+    refs: [
+      { doc: 'ms-guia-animais-peconhentos-2024', page: 164, about: 'Primeiros socorros' },
+      { doc: 'ms-guia-animais-peconhentos-2024', page: 165, about: 'O que não fazer; ferrão de abelha' },
+      { doc: 'ms-orientacoes-enchentes', page: 2, about: 'Animais peçonhentos em enchentes' },
+    ],
+    reviewed: false,
+  },
+  {
+    slug: 'diarreia-e-desidratacao',
+    title: 'Diarreia e desidratação',
+    summary: 'Ofereça líquido depois de cada evacuação e continue alimentando. Soro caseiro se faltar o envelope.',
+    keywords: ['diarreia', 'desidratação', 'desidratado', 'soro caseiro', 'soro oral', 'vômito', 'vomitando', 'reidratação', 'disenteria', 'intestino solto'],
+    sections: [
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Continue dando comida, em pequenas porções e mais vezes. Bebê: peito quantas vezes ele quiser.',
+          'Depois de cada evacuação, ofereça mais líquido que o normal: água, chá ou suco sem açúcar, água de coco, sopa ou soro.',
+          'Quantidade depois de cada evacuação: até 1 ano, 50 a 100 ml; de 1 a 10 anos, 100 a 200 ml; acima de 10 anos, o quanto aceitar.',
+          'Soro de reidratação: misture um envelope (do posto de saúde ou da farmácia) em 1 litro de água fervida ou filtrada. Use em até 24 horas.',
+          'Se vomitar, espere 10 minutos e ofereça de novo, devagar, às colheradas.',
+        ],
+      },
+      {
+        kind: 'do',
+        title: 'Sem envelope: soro caseiro',
+        items: [
+          '1 copo de 200 ml de água fervida ou filtrada.',
+          '1 pitada de sal (com 3 dedos) e 1 punhado pequeno de açúcar.',
+          'Misture bem. É uma solução de emergência até conseguir o envelope.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não dê refrigerante, bebida com açúcar, bala ou doce, e não adoce chá nem suco.',
+          'Não ponha açúcar nem sal no soro de envelope, e não ferva o soro depois de pronto.',
+          'Não dê remédio para "cortar" a diarreia ou o vômito sem orientação de um profissional de saúde.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Leve ao serviço de saúde se',
+        items: [
+          'Aparecerem sinais de desidratação: olhos fundos, muita sede, choro sem lágrimas, pouca saliva, pouco xixi, pele que demora a voltar quando beliscada.',
+          'Houver vômitos repetidos, sangue nas fezes, recusa de comida ou a diarreia piorar.',
+          'Não melhorar em 2 dias.',
+        ],
+      },
+    ],
+    refs: [
+      { doc: 'ms-caderneta-crianca-2024', page: 22, about: 'Alimentação e líquidos durante a diarreia' },
+      { doc: 'ms-caderneta-crianca-2024', page: 23, about: 'Sinais de desidratação e soro de envelope' },
+      { doc: 'ms-caderneta-crianca-2024', page: 24, about: 'Soro caseiro' },
+      { doc: 'ms-manejo-diarreia-cartaz', page: 1, about: 'Plano A: quantidades, sinais de perigo e medicamentos' },
+    ],
+    adaptation: 'O soro de reidratação não cura a diarreia: ele evita a desidratação, que é o que pode matar.',
+    reviewed: false,
+  },
+  {
+    slug: 'crianca-sinais-de-perigo',
+    title: 'Criança doente: sinais de perigo',
+    summary: 'Febre em bebê com menos de 2 meses e outros sinais que pedem atendimento já.',
+    keywords: ['febre', 'febre em criança', 'febre em bebê', 'bebê doente', 'criança doente', 'temperatura', 'sinais de perigo', 'criança molinha', 'não mama', 'respiração rápida'],
+    callFirst: 'Diante de qualquer sinal abaixo, leve a criança ao serviço de urgência. Se não houver como levar, ligue 192 (a ligação é gratuita).',
+    sections: [
+      {
+        kind: 'help',
+        title: 'Bebê com menos de 2 meses',
+        items: [
+          'Febre: temperatura igual ou maior que 37,5 °C.',
+          'Temperatura baixa: 35,5 °C ou menos.',
+          'Muito molinho, se mexendo menos que o normal.',
+          'Muito sonolento, com dificuldade para acordar.',
+          'Cansado, com dificuldade para respirar ou respiração muito rápida.',
+          'Não consegue mamar.',
+          'Convulsão (tremores ou ataque) ou perda da consciência.',
+          'Pele com pouca elasticidade, manchas avermelhadas ou arroxeadas.',
+          'Pus saindo do ouvido, urina escura ou fezes com sangue.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Criança com mais de 2 meses',
+        items: [
+          'Dificuldade para respirar ou respiração rápida.',
+          'Não consegue mamar nem tomar líquidos.',
+          'Vomita tudo o que come e bebe.',
+          'Muito sonolenta, com dificuldade para acordar.',
+          'Convulsão (tremores ou ataque) ou perda da consciência.',
+          'Manchas avermelhadas ou arroxeadas na pele.',
+          'Pele com pouca elasticidade.',
+        ],
+      },
+      {
+        kind: 'do',
+        title: 'Enquanto isso',
+        items: [
+          'Se a criança tiver convulsão, veja a ficha de convulsão.',
+          'Se tiver diarreia ou vômito, ofereça líquido como na ficha de diarreia e desidratação.',
+        ],
+      },
+    ],
+    refs: [{ doc: 'ms-caderneta-crianca-2024', page: 25, about: 'Sinais de perigo' }],
+    adaptation:
+      'A Caderneta da Criança traz os sinais de perigo, mas não cuidados caseiros para febre; a ficha não inventa esses cuidados. O manual de 2003 sugere toalhas com gelo e banho de imersão na febre alta, orientação que não seguimos para crianças.',
+    reviewed: false,
+  },
+  {
+    slug: 'enchente',
+    title: 'Enchente: cuidados com a saúde',
+    summary: 'Não beba, não nade e não coma nada que tocou a água da enchente.',
+    keywords: ['enchente', 'inundação', 'alagamento', 'cheia', 'água da enchente', 'lama', 'leptospirose', 'tétano', 'entulho', 'desabrigado'],
+    callFirst: 'Defesa Civil 199 · Bombeiros 193 · SAMU 192.',
+    sections: [
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Trate a água antes de beber (veja a ficha de água para beber).',
+          'Se precisar entrar na água ou na lama, use botas e luvas.',
+          'Cubra cortes e arranhões com curativo à prova d\'água.',
+          'Para mexer em entulho, proteja mãos, braços, pés e pernas com luvas e botas.',
+          'Guarde bem o lixo e o entulho para não atrair ratos.',
+          'Comida em lata de metal fechada, sem amassado, ferrugem ou furo, é a mais segura.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não nade, não tome banho e não beba água da enchente.',
+          'Não coma nada que tocou a água da enchente ou a lama, mesmo embalado (potes, garrafas, caixinhas, sacos). Na dúvida, jogue fora.',
+          'Nunca prove a comida para saber se está boa.',
+          'Não toque em cobras, escorpiões ou aranhas, mesmo que pareçam mortos.',
+          'Cuidado com a eletricidade: áreas alagadas aumentam muito o risco de choque.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Procure atendimento se',
+        items: [
+          'Tiver febre, com ou sem dor no corpo (principalmente nas costas ou na batata da perna), depois de contato com a água ou a lama. Conte que teve esse contato: pode ser leptospirose.',
+          'Tiver 3 ou mais episódios de diarreia em 24 horas, vômitos, dor de cabeça, dor na barriga ou sangue nas fezes.',
+          'Se machucar com objetos do entulho: pode ser preciso vacina ou soro contra o tétano.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Cuide também da cabeça',
+        items: ['Se puder, mantenha contato com família e amigos, fale sobre o que sente e busque apoio psicológico se precisar.'],
+      },
+    ],
+    refs: [
+      { doc: 'ms-orientacoes-enchentes', page: 1, about: 'Água, sintomas, leptospirose e tétano' },
+      { doc: 'ms-orientacoes-enchentes', page: 2, about: 'Alimentos, animais peçonhentos, choque elétrico e contatos' },
+    ],
+    reviewed: false,
+  },
+  {
+    slug: 'agua-para-beber',
+    title: 'Água para beber: como tratar',
+    summary: 'Filtre e ponha 2 gotas de água sanitária por litro, ou ferva por 5 minutos.',
+    keywords: ['água potável', 'água para beber', 'tratar água', 'água sanitária', 'hipoclorito', 'ferver água', 'água contaminada', 'purificar água', 'filtrar água'],
+    sections: [
+      {
+        kind: 'do',
+        title: 'Jeito 1: filtrar e desinfetar',
+        items: [
+          'Filtre ou coe a água com filtro de casa, coador de papel ou pano limpo.',
+          'Ponha 2 gotas de hipoclorito de sódio a 2,5% para cada 1 litro de água.',
+          'Misture bem e espere 30 minutos antes de beber.',
+          'Na falta do hipoclorito, serve água sanitária com 2,0% a 2,5% de cloro ativo, desde que não tenha mais nada: sem alvejante, perfume, essência ou desinfetante.',
+        ],
+      },
+      {
+        kind: 'do',
+        title: 'Jeito 2: filtrar e ferver (sem hipoclorito)',
+        items: [
+          'Filtre ou coe a água.',
+          'Ferva por 5 minutos, contando a partir de quando começar a ferver.',
+          'Espere esfriar e sacuda a água antes de beber.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não beba água da enchente nem água que possa estar contaminada sem tratar.',
+          'Não use água sanitária com perfume, alvejante ou outros aditivos.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Água da torneira estranha',
+        items: ['Se a água da torneira estiver com cheiro ou cor diferente do normal, avise a Secretaria Municipal de Saúde.'],
+      },
+    ],
+    refs: [{ doc: 'ms-orientacoes-enchentes', page: 1, about: 'Duas opções para tratar a água' }],
+    reviewed: false,
+  },
 ]

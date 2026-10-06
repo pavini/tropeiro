@@ -50,6 +50,12 @@ test('busca acha a ficha certa, com ou sem acento e com palavra incompleta', () 
   assert.equal(first('choque eletrico'), 'choque-eletrico')
   assert.equal(first('osso quebrado'), 'fratura')
   assert.equal(first('afogado'), 'afogamento')
+  assert.equal(first('cobra picou'), 'picada-de-animal-peconhento')
+  assert.equal(first('escorpiao'), 'picada-de-animal-peconhento')
+  assert.equal(first('soro caseiro'), 'diarreia-e-desidratacao')
+  assert.equal(first('febre em bebe'), 'crianca-sinais-de-perigo')
+  assert.equal(first('enchente'), 'enchente')
+  assert.equal(first('agua sanitaria'), 'agua-para-beber')
 })
 
 test('busca sem relação ou curta demais não traz ficha', () => {
