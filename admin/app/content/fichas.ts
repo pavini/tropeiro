@@ -259,4 +259,251 @@ export const FICHAS: Ficha[] = [
       'O manual manda procurar o serviço de saúde interno da Fiocruz; a ficha troca por ligar para o SAMU 192 e procurar um serviço de saúde.',
     reviewed: false,
   },
+  {
+    slug: 'ferimento-a-tiro',
+    title: 'Ferimento a tiro',
+    summary: 'Proteja-se primeiro. Depois, aperte firme onde sangra e não vede ferida no peito.',
+    keywords: ['tiro', 'baleado', 'baleada', 'bala perdida', 'arma de fogo', 'disparo', 'projétil', 'ferimento a bala', 'levou um tiro'],
+    callFirst: 'Ligue 190 (Polícia) e 192 (SAMU). Só se aproxime quando o local estiver seguro.',
+    sections: [
+      {
+        kind: 'do',
+        title: 'Antes de socorrer',
+        items: [
+          'Se ainda há risco (quem atirou por perto, confusão), fique num lugar seguro e espere a polícia. Sua segurança vem primeiro.',
+          'Não toque na arma. Se ela estiver perto e alguém puder usá-la, afaste segurando só pelo cabo, sem tentar descarregar nem travar.',
+        ],
+      },
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Procure todos os ferimentos: pode haver mais de um, inclusive nas costas.',
+          'Onde sangra, coloque um pano limpo e aperte firme, sem soltar (veja a ficha de sangramento).',
+          'Num braço ou numa perna que não para de sangrar, faça um torniquete e anote a hora.',
+          'Ferida no peito: cubra de leve com um pano limpo, sem vedar. Não tape com plástico nem fita. Se a respiração piorar, tire o que estiver por cima.',
+          'Ferida na barriga: se algo estiver saindo, não empurre de volta para dentro. Cubra com um pano limpo umedecido.',
+          'Mantenha a pessoa deitada e coberta com um cobertor.',
+          'Se a pessoa caiu ou pode ter machucado o pescoço ou as costas, mexa nela o mínimo possível.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não tire a bala nem objetos cravados.',
+          'Não dê nada para beber ou comer.',
+          'Não limpe o local nem mexa em objetos além do necessário para socorrer: a polícia vai precisar deles.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Se a pessoa parar de responder e de respirar',
+        items: ['Comece as compressões no peito, como na ficha de parada cardíaca.'],
+      },
+    ],
+    refs: [
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 222, about: 'Protocolo PE1: segurança de cena' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 260, about: 'Protocolo PE17: armas e indícios de crime' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 155, about: 'Protocolo BP8: compressão direta' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 157, about: 'Protocolo BP9: torniquete' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 113, about: 'Protocolo BT8: ferimento aberto no tórax' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 115, about: 'Protocolo BT9: ferimento aberto no abdome' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 71, about: 'Não dar líquidos com suspeita de lesão no abdome' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 136, about: 'Cobertor para prevenir o estado de choque' },
+    ],
+    adaptation:
+      'Adaptado para leigos. Na ferida do peito, o protocolo do SAMU usa um curativo de plástico preso em 3 lados, técnica de equipe treinada que sabe quando soltá-lo; mal feito, ele pode piorar a respiração. A ficha orienta cobrir sem vedar.',
+    reviewed: false,
+  },
+  {
+    slug: 'convulsao',
+    title: 'Convulsão',
+    summary: 'Proteja a cabeça, afaste o que pode machucar e não coloque nada na boca.',
+    keywords: ['convulsão', 'convulsionando', 'ataque epiléptico', 'epilepsia', 'crise convulsiva', 'tremendo', 'se debatendo', 'espuma na boca'],
+    sections: [
+      {
+        kind: 'do',
+        title: 'Durante a crise',
+        items: [
+          'Evite que a pessoa caia de qualquer jeito: deite-a no chão com cuidado, protegendo a cabeça.',
+          'Afaste objetos com que ela possa se machucar e tire-a de perto de escada, vidro, fogo ou máquina.',
+          'Afrouxe a roupa no pescoço e na cintura.',
+          'Vire o rosto dela de lado, para a saliva ou o vômito escorrerem.',
+          'Veja no relógio quanto tempo a crise dura.',
+        ],
+      },
+      {
+        kind: 'do',
+        title: 'Depois da crise',
+        items: [
+          'Deixe a pessoa deitada de lado até ela recuperar a consciência por completo.',
+          'Se ela quiser dormir, deixe. Fique por perto.',
+          'Veja se ela se machucou na queda.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não segure nem tente parar os movimentos.',
+          'Não coloque nada na boca: nem pano, nem colher, nem o dedo.',
+          'Não jogue água no rosto.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Ligue 192 se',
+        items: [
+          'A crise passa de 5 minutos.',
+          'Vem uma crise atrás da outra sem a pessoa acordar entre elas.',
+          'A pessoa se machucou.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Depois',
+        items: ['Mesmo que a pessoa fique bem, procure um serviço de saúde para investigar a causa.'],
+      },
+    ],
+    refs: [
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 59, about: 'Protocolo BC16: crise convulsiva no adulto' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 109, about: 'Primeiros socorros na convulsão' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 110, about: 'Depois da crise' },
+    ],
+    adaptation:
+      'O manual de 2003 sugere pôr um pano entre os dentes para a pessoa não morder a língua. O protocolo do SAMU, mais recente, alerta contra essas medidas, pelo risco de ferir a boca e os dentes; a ficha orienta não colocar nada na boca.',
+    reviewed: false,
+  },
+  {
+    slug: 'choque-eletrico',
+    title: 'Choque elétrico',
+    summary: 'Desligue a energia antes de tocar na pessoa.',
+    keywords: ['choque elétrico', 'choque', 'eletricidade', 'eletrocutado', 'fio desencapado', 'tomada', 'raio', 'fio caído'],
+    callFirst: 'Não toque na pessoa enquanto ela estiver ligada à corrente elétrica.',
+    sections: [
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Desligue a energia: a chave geral, o disjuntor, ou puxe o fio da tomada (só se o fio estiver encapado).',
+          'Se não der para desligar, afaste a pessoa do fio ou do aparelho usando algo seco que não conduza eletricidade: cabo de vassoura de madeira, tapete de borracha, jornal ou pano grosso dobrado, corda.',
+          'Se for fio da rua (rede de poste) caído, não chegue perto: fique longe e ligue 193.',
+          'Se a pessoa não responde e não respira, comece as compressões no peito (ficha de parada cardíaca) e não pare até a ajuda chegar.',
+          'Depois, procure queimaduras e ferimentos da queda.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não toque na pessoa antes de separá-la da corrente.',
+          'Não use nada molhado ou de metal para afastar: a umidade aumenta muito o perigo.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Ligue 192',
+        items: [
+          'Sempre, mesmo que a pessoa pareça bem: a queimadura elétrica pode ser mais funda do que parece e o choque pode afetar o coração.',
+        ],
+      },
+    ],
+    refs: [
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 105, about: 'Desligar a corrente e afastar a vítima' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 106, about: 'Não tocar antes de separar; ressuscitação' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 140, about: 'Queimaduras por eletricidade' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 222, about: 'Protocolo PE1: rede elétrica e segurança de cena' },
+    ],
+    adaptation:
+      'O manual fala em retirar os fusíveis; a ficha usa disjuntor, que é o equivalente nas instalações atuais. A orientação sobre fio de poste vem da segurança de cena do SAMU.',
+    reviewed: false,
+  },
+  {
+    slug: 'fratura',
+    title: 'Fratura (osso quebrado)',
+    summary: 'Imobilize na posição em que está, sem tentar pôr o osso no lugar.',
+    keywords: ['fratura', 'osso quebrado', 'quebrou', 'quebrou o braço', 'quebrou a perna', 'fratura exposta', 'tala', 'torceu', 'luxação'],
+    sections: [
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Se houver sangramento, controle primeiro com um pano limpo e pressão.',
+          'Acalme a pessoa.',
+          'Imobilize na posição em que está, ou na que doer menos. Não force.',
+          'Para uma tala improvisada, use tábua, papelão, revista enrolada ou jornal grosso dobrado, longa o bastante para passar das juntas acima e abaixo do machucado.',
+          'Forre com pano e amarre com tiras em pelo menos quatro pontos, sem apertar a ponto de prender a circulação.',
+          'Depois de imobilizar, confira se a mão ou o pé continua com cor e temperatura normais.',
+        ],
+      },
+      {
+        kind: 'do',
+        title: 'Se o osso está aparecendo (fratura exposta)',
+        items: [
+          'Não toque no osso e não tente pôr de volta para dentro.',
+          'Cubra com um pano limpo e seco, sem apertar o osso.',
+          'Imobilize do mesmo jeito.',
+        ],
+      },
+      {
+        kind: 'dont',
+        items: [
+          'Não tente colocar o osso no lugar.',
+          'Não mova a pessoa antes de imobilizar, a não ser que ela esteja em perigo onde está.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Ligue 192 se',
+        items: [
+          'O osso está aparecendo ou há sangramento forte.',
+          'A mão ou o pé fica frio, roxo ou dormente.',
+          'Pode ter machucado o pescoço ou as costas: nesse caso não mexa na pessoa.',
+        ],
+      },
+    ],
+    refs: [
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 160, about: 'Primeiros socorros e talas improvisadas' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 161, about: 'Fratura exposta' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 121, about: 'Protocolo BT12: trauma de membros' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 123, about: 'Protocolo BT13: fratura exposta' },
+    ],
+    adaptation:
+      'O protocolo do SAMU prevê que a equipe recoloque o membro na posição anatômica; para leigos, a ficha segue o manual, que proíbe tentar pôr o osso no lugar.',
+    reviewed: false,
+  },
+  {
+    slug: 'afogamento',
+    title: 'Afogamento',
+    summary: 'Não se arrisque na água. Fora dela, se não respira, comece as compressões.',
+    keywords: ['afogamento', 'afogado', 'afogada', 'se afogando', 'piscina', 'rio', 'mar', 'enchente', 'engoliu água'],
+    callFirst: 'Ligue 193 (Bombeiros) ou 192 (SAMU).',
+    sections: [
+      {
+        kind: 'do',
+        title: 'Faça',
+        items: [
+          'Só tire a pessoa da água se puder fazer isso sem se arriscar. Se não puder, chame os Bombeiros e não entre.',
+          'Fora da água, se a pessoa não responde e não respira, comece as compressões no peito (ficha de parada cardíaca).',
+          'Se ela respira, acalme-a e deite-a de lado.',
+          'Tire a roupa molhada e aqueça com cobertor.',
+          'Se ela mergulhou ou pode ter batido a cabeça, mexa no pescoço o mínimo possível.',
+        ],
+      },
+      {
+        kind: 'help',
+        title: 'Procure atendimento se',
+        items: [
+          'A pessoa tosse muito, tem falta de ar ou espuma pela boca ou pelo nariz.',
+          'Está confusa, sonolenta ou com os lábios roxos.',
+        ],
+      },
+    ],
+    refs: [
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 11, about: 'Retirar da água só com segurança para quem socorre' },
+      { doc: 'ms-fiocruz-primeiros-socorros-2003', page: 53, about: 'Resgate: não se expor inutilmente' },
+      { doc: 'ms-samu-suporte-basico-de-vida-2016', page: 135, about: 'Protocolo BT22: afogamento' },
+    ],
+    adaptation:
+      'Adaptado para leigos a partir do protocolo do SAMU, que trata da pessoa já fora da água; a parte de não se arriscar no resgate vem do manual.',
+    reviewed: false,
+  },
 ]
