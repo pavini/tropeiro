@@ -227,7 +227,7 @@ export default function Home(props: {
 
   return (
     <AppLayout>
-      <Head title={t('Command Center')} />
+      <Head title={t('Home')} />
       {
         updateInfo?.updateAvailable && (
           <div className='flex justify-center items-center p-4 w-full'>
