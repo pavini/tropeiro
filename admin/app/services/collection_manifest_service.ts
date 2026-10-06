@@ -17,6 +17,7 @@ import {
   getFileStatsIfExists,
   ZIM_STORAGE_PATH,
 } from '../utils/fs.js'
+import { parseMapFilename } from '../utils/map_filename.js'
 import type {
   ManifestType,
   ZimCategoriesSpec,
@@ -407,10 +408,7 @@ export class CollectionManifestService {
   }
 
   static parseMapFilename(filename: string): { resource_id: string; version: string } | null {
-    const name = filename.replace(/\.pmtiles$/, '')
-    const match = name.match(/^(.+)_(\d{4}-\d{2})$/)
-    if (!match) return null
-    return { resource_id: match[1], version: match[2] }
+    return parseMapFilename(filename)
   }
 
   // ---- Filesystem reconciliation ----
@@ -419,7 +417,7 @@ export class CollectionManifestService {
     let zimCount = 0
     let mapCount = 0
 
-    console.log("RECONCILING FILESYSTEM MANIFESTS...")
+    logger.debug("[CollectionManifestService] Reconciling filesystem manifests")
 
     // Reconcile ZIM files
     try {
@@ -428,7 +426,7 @@ export class CollectionManifestService {
       const zimItems = await listDirectoryContents(zimDir)
       const zimFiles = zimItems.filter((f) => f.name.endsWith('.zim'))
 
-      console.log(`Found ${zimFiles.length} ZIM files on disk. Reconciling with database...`)
+      logger.debug(`[CollectionManifestService] Found ${zimFiles.length} ZIM files on disk`)
 
       // Get spec for URL lookup
       const zimSpec = await this.getCachedSpec<ZimCategoriesSpec>('zim_categories')
@@ -454,11 +452,11 @@ export class CollectionManifestService {
       const managedWikipediaFilename = wikipediaSelection?.filename ?? null
 
       for (const file of zimFiles) {
-        console.log(`Processing ZIM file: ${file.name}`)
+        logger.debug(`[CollectionManifestService] Processing ZIM file: ${file.name}`)
         if (managedWikipediaFilename && file.name === managedWikipediaFilename) continue
 
         const parsed = CollectionManifestService.parseZimFilename(file.name)
-        console.log(`Parsed ZIM filename:`, parsed)
+        logger.debug(`[CollectionManifestService] Parsed ZIM filename: ${JSON.stringify(parsed)}`)
         if (!parsed) continue
 
         seenZimIds.add(parsed.resource_id)
