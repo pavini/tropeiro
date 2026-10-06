@@ -646,12 +646,8 @@
   "Write and keep notes on the server.": "Escreva e guarde anotações no servidor.",
   "Yes, stop": "Sim, parar",
   "Your own apps": "Seus apps",
-  "Detailed map of: {{regions}}. Works without internet.": "Mapa detalhado de: {{regions}}. Funciona sem internet.",
-  "Works without internet.": "Funciona sem internet.",
   "The map is not available on this server": "O mapa não está disponível neste servidor",
   "The map files are missing. Whoever manages the server can download them with internet.": "Faltam os arquivos do mapa. Quem cuida do servidor pode baixá-los com internet.",
-  "Only the world overview is on this server": "Este servidor só tem a visão geral do mundo",
-  "To see streets and cities, download the map of Brazil in one of the kits.": "Para ver ruas e cidades, baixe o mapa do Brasil em um dos kits.",
   "Cancel marking": "Cancelar marcação",
   "Mark a place": "Marcar um lugar",
   "Coordinates": "Coordenadas",
@@ -667,5 +663,9 @@
   "Save place": "Salvar lugar",
   "Marked places": "Lugares marcados",
   "No places marked yet. Mark water, shelters and health posts so everyone can find them.": "Nenhum lugar marcado ainda. Marque água, abrigos e postos de saúde para todo mundo encontrar.",
-  "Map": "Mapa"
+  "Map": "Mapa",
+  "Only the world overview is on this server. Download the map of Brazil in a kit to see streets and cities.": "Este servidor só tem a visão geral do mundo. Baixe o mapa do Brasil num kit para ver ruas e cidades.",
+  "Places ({{count}})_one": "Lugares ({{count}})",
+  "Places ({{count}})_many": "Lugares ({{count}})",
+  "Places ({{count}})_other": "Lugares ({{count}})"
 }
