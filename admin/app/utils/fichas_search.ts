@@ -35,9 +35,13 @@ export function searchFichas(fichas: Ficha[], query: string, limit = 3): Ficha[]
     if (keywords.some((k) => k === q)) score += 5
     // Cada palavra-chave contida na busca (ou que contém a busca) soma.
     score += 3 * keywords.filter((k) => k !== q && (k.includes(q) || q.includes(k))).length
-    const vocab = new Set([...words(ficha.title), ...ficha.keywords.flatMap(words)])
+    // Palavras da busca no título valem mais que nas palavras-chave: "água para
+    // beber" deve achar "Água para beber: como tratar" antes de "Afogamento".
+    const titleWords = words(ficha.title)
+    const vocab = new Set([...titleWords, ...ficha.keywords.flatMap(words)])
     for (const w of qWords) {
-      if ([...vocab].some((v) => v === w || v.startsWith(w))) score += 1
+      if (titleWords.some((v) => v === w || v.startsWith(w))) score += 2
+      else if ([...vocab].some((v) => v === w || v.startsWith(w))) score += 1
     }
     return { ficha, score }
   })
