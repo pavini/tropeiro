@@ -4,8 +4,10 @@ import { UsePageProps } from '../../types/system'
 import ThemeToggle from '~/components/ThemeToggle'
 import { IconBug } from '@tabler/icons-react'
 import DebugInfoModal from './DebugInfoModal'
+import { useTranslation } from 'react-i18next'
 
 export default function Footer() {
+  const { t } = useTranslation()
   const { appVersion } = usePage().props as unknown as UsePageProps
   const [debugModalOpen, setDebugModalOpen] = useState(false)
 
@@ -21,7 +23,7 @@ export default function Footer() {
           className="text-sm/6 text-gray-500 hover:text-desert-green flex items-center gap-1 cursor-pointer"
         >
           <IconBug className="size-3.5" />
-          Debug Info
+          {t('Debug Info')}
         </button>
         <ThemeToggle />
       </div>
