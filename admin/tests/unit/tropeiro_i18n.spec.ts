@@ -7,6 +7,7 @@ import { test } from 'node:test'
 const ADMIN_DIR = fileURLToPath(new URL('../../', import.meta.url))
 const INERTIA_DIR = join(ADMIN_DIR, 'inertia')
 const SEEDERS_DIR = join(ADMIN_DIR, 'database/seeders')
+const CONSTANTS_DIR = join(ADMIN_DIR, 'constants')
 
 const ptBR: Record<string, string> = JSON.parse(
   readFileSync(join(INERTIA_DIR, 'i18n/locales/pt-BR.json'), 'utf8')
@@ -19,8 +20,9 @@ function sources(dir: string): string[] {
 }
 
 const frontend = sources(INERTIA_DIR)
-// Nomes e descrições dos serviços vêm do banco e são traduzidos na tela.
-const seeders = sources(SEEDERS_DIR)
+// Textos que chegam ao front por dados (nomes e descrições dos serviços, rótulos
+// de constantes) e são traduzidos na tela.
+const dataSources = [...sources(SEEDERS_DIR), ...sources(CONSTANTS_DIR)]
 
 // Sufixos de plural do i18next. Em pt-BR o Intl.PluralRules usa one (0 e 1),
 // many (milhões) e other; _zero é opcional e vale só para count === 0.
@@ -54,7 +56,7 @@ test('toda chave usada tem tradução em pt-BR', () => {
 })
 
 test('toda chave do pt-BR.json aparece no código', () => {
-  const all = [...frontend, ...seeders].join('\n')
+  const all = [...frontend, ...dataSources].join('\n')
   const quoted = (k: string) =>
     [`'${k.replace(/'/g, "\\'")}'`, `"${k.replace(/"/g, '\\"')}"`, `\`${k}\``].some((q) =>
       all.includes(q)
