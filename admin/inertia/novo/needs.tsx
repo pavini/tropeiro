@@ -38,7 +38,7 @@ function serviceHref(services: ServiceSlim[], name: string): string | null {
 
 const search = (q: string) => `/busca?q=${encodeURIComponent(q)}`
 
-export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: boolean): Need[] {
+export function buildNeeds(services: ServiceSlim[]): Need[] {
   const education =
     serviceHref(services, SERVICE_NAMES.KOLIBRI_GEN2) ?? serviceHref(services, SERVICE_NAMES.KOLIBRI)
   const ollama = services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA && s.installed)
@@ -49,7 +49,7 @@ export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: bool
     { id: 'shelter', label: 'Shelter and safety', icon: ICONS.shelter, iconBg: '#FFF1CC', iconFg: '#7A4B00', href: search('abrigo') },
     { id: 'radio', label: 'Radio and communication', icon: ICONS.radio, iconBg: '#DDEBF7', iconFg: '#1B4F7A', href: '/temas/radio' },
     { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/mapa' },
-    { id: 'medicine', label: 'Medicines', icon: ICONS.medicine, iconBg: '#EDE7F6', iconFg: '#4A2C7A', href: drugReferenceInstalled ? '/drug-reference' : null },
+    { id: 'medicine', label: 'Medicines', icon: ICONS.medicine, iconBg: '#EDE7F6', iconFg: '#4A2C7A', href: '/remedios' },
     { id: 'library', label: 'Encyclopedia', icon: ICONS.library, iconBg: '#E8EEF0', iconFg: '#2C4650', href: serviceHref(services, SERVICE_NAMES.KIWIX), external: true },
     { id: 'learn', label: 'Learn', icon: ICONS.learn, iconBg: '#E8EEF0', iconFg: '#2C4650', href: education, external: true },
     { id: 'ai', label: 'Ask the AI', icon: ICONS.ai, iconBg: '#E3EFE7', iconFg: '#14492F', href: ollama ? '/perguntar' : null },

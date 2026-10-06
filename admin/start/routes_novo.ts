@@ -12,6 +12,7 @@
 import router from '@adonisjs/core/services/router'
 
 const NovoController = () => import('#controllers/novo_controller')
+const RemediosController = () => import('#controllers/remedios_controller')
 
 // Links e favoritos da época em que a interface nova vivia em /novo.
 router.get('/novo', ({ response }) => response.redirect().toPath('/'))
@@ -49,3 +50,10 @@ router.get('/ia/testar', [NovoController, 'iaTestar'])
 router.post('/ia/endereco', [NovoController, 'iaEndereco'])
 router.post('/ia/modelo', [NovoController, 'iaModelo'])
 router.get('/fichas-sugeridas', [NovoController, 'fichasSugeridas'])
+
+router.get('/remedios', [RemediosController, 'index'])
+router.get('/remedios/comparar', [RemediosController, 'comparar'])
+router.get('/remedios/situacao/:slug', [RemediosController, 'situacao'])
+router.get('/remedios/:id', [RemediosController, 'show'])
+router.post('/remedios/instalar', [RemediosController, 'instalar'])
+router.post('/remedios/remover', [RemediosController, 'remover'])

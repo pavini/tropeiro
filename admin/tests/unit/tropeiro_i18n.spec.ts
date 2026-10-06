@@ -22,7 +22,12 @@ function sources(dir: string): string[] {
 const frontend = sources(INERTIA_DIR)
 // Textos que chegam ao front por dados (nomes e descrições dos serviços, rótulos
 // de constantes) e são traduzidos na tela.
-const dataSources = [...sources(SEEDERS_DIR), ...sources(CONSTANTS_DIR)]
+// As situações de Remédios vêm de collections/conditions.json.
+const dataSources = [
+  ...sources(SEEDERS_DIR),
+  ...sources(CONSTANTS_DIR),
+  readFileSync(join(ADMIN_DIR, '../collections/conditions.json'), 'utf8'),
+]
 
 // Sufixos de plural do i18next. Em pt-BR o Intl.PluralRules usa one (0 e 1),
 // many (milhões) e other; _zero é opcional e vale só para count === 0.

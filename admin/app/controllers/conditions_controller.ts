@@ -5,67 +5,12 @@ import { conditionDrugsValidator } from '#validators/conditions'
 import { affirmativeRemediesEnabled } from '../utils/affirmative_remedies.js'
 
 /**
- * "When to use what" — condition-first HTTP boundary (Phase 1).
- *
- * Two Inertia pages (index / show) + a small JSON API (drugs). Mirrors the
- * DrugReferenceController chain:
- *   - index/show render Inertia
- *   - the JSON action returns a plain object
- *   - slug guard on show (404 when not in the curated spine)
- *   - never leak exceptions to the UI
+ * API "por situação": remédios de venda livre para uma situação da lista
+ * curada ou para um texto livre. A tela fica em RemediosController.
  */
 export default class ConditionsController {
   private get service() {
     return new ConditionService()
-  }
-
-  /**
-   * GET /conditions — legacy browse route.
-   * Situation browsing now lives directly on the unified Drug Reference page, so
-   * the standalone browse route permanently redirects there. Any old bookmark or
-   * in-app link lands on the same content. The condition detail route
-   * (/conditions/:slug) is unchanged — situation chips still deep-link to it via
-   * /drug-reference?situation=<slug>.
-   */
-  async index({ response }: HttpContext) {
-    return response.redirect('/drug-reference')
-  }
-
-  /**
-   * GET /conditions/:slug — condition detail page.
-   * 404s when the slug is not a curated condition.
-   */
-  async show({ inertia, params, response }: HttpContext) {
-    const slug = String(params.slug ?? '').trim()
-    if (!slug) {
-      return response.notFound({ error: 'invalid condition' })
-    }
-
-    try {
-      const condition = this.service.findCondition(slug)
-      if (!condition) {
-        return response.notFound({ error: 'Condition not found' })
-      }
-
-      const [result, drugRowCount, remediesOn] = await Promise.all([
-        this.service.drugsForSlug(slug),
-        this.service.drugRowCount(),
-        affirmativeRemediesEnabled(),
-      ])
-
-      return inertia.render('conditions/show', {
-        condition: result?.condition ?? null,
-        drugs: result?.drugs ?? [],
-        // Affirmative remedies gated off by default (#1040); the OTC/condition
-        // match above is regulated label text and stays live.
-        remedies: remediesOn ? (result?.remedies ?? []) : [],
-        drugRowCount,
-      })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      logger.error(`[ConditionsController] show(${slug}) failed: ${msg}`)
-      return response.internalServerError({ error: 'Could not load condition' })
-    }
   }
 
   /**

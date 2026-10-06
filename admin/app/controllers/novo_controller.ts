@@ -27,7 +27,6 @@ import { DOWNLOADED_DIR, contentUpdatesEnabled } from '../content/loader.js'
 import { markPassage } from '../utils/html_snapshot.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
 
 /**
  * Interface nova do Tropeiro, a principal. A clássica segue como administração avançada.
@@ -500,7 +499,6 @@ export default class NovoController {
   private async sharedProps() {
     return {
       services: await this.systemService.getServices({ installedOnly: true }),
-      drugReferenceInstalled: await isDrugReferenceInstalled(),
     }
   }
 }

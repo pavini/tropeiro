@@ -1,95 +1,17 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import logger from '@adonisjs/core/services/logger'
 import { DrugReferenceService } from '#services/drug_reference_service'
-import { ConditionService } from '#services/condition_service'
 import { searchDrugValidator, interactionsValidator } from '#validators/drug_reference'
 import { parseCompareIds } from '../../util/compare_ids.js'
-import { situationsForIndications } from '../../util/conditions.js'
-import { affirmativeRemediesEnabled } from '../utils/affirmative_remedies.js'
 
 /**
- * Drug Reference v1 — HTTP boundary.
- *
- * Two Inertia pages (index / show) + a small JSON API (search / status /
- * download). Mirrors the WorkshopController / InventoryController chain:
- *   - index/show render Inertia
- *   - JSON actions return plain objects
- *   - Integer-id guard on show
- *   - Never leak exceptions to the UI
+ * API das bulas da FDA (busca, situação da base, download e remoção). As
+ * telas ficam em RemediosController, na interface nova. Nunca deixa uma
+ * exceção chegar à resposta.
  */
 export default class DrugReferenceController {
   private get service() {
     return new DrugReferenceService()
-  }
-
-  /**
-   * GET /drug-reference — unified search page.
-   * Passes the current row count and ingest status so the empty-state
-   * "download first" prompt can render server-side. Also passes the curated
-   * condition spine so the always-visible situation chips (and the situation→
-   * drugs direction of the unified surface) can render server-side.
-   */
-  async index({ inertia }: HttpContext) {
-    try {
-      const conditionService = new ConditionService()
-      const [status, count, remediesOn] = await Promise.all([
-        this.service.getIngestStatus(),
-        this.service.rowCount(),
-        affirmativeRemediesEnabled(),
-      ])
-
-      return inertia.render('drug-reference/index', {
-        ingestStatus: status,
-        rowCount: count,
-        conditions: conditionService.listConditions(),
-        // Affirmative remedy content is gated off by default (#1040): keep it out
-        // of the payload entirely when disabled, and tell the page so it can hide
-        // the "Natural" filter too. Drug search + condition matching are unaffected.
-        remedies: remediesOn ? conditionService.listRemedies() : [],
-        remediesEnabled: remediesOn,
-      })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      logger.error(`[DrugReferenceController] index failed: ${msg}`)
-      return inertia.render('drug-reference/index', {
-        ingestStatus: null,
-        rowCount: 0,
-        conditions: [],
-        remedies: [],
-        remediesEnabled: false,
-      })
-    }
-  }
-
-  /**
-   * GET /drug-reference/:id — detail page.
-   */
-  async show({ inertia, params, response }: HttpContext) {
-    const id = Number(params.id)
-    if (!Number.isInteger(id) || id <= 0) {
-      return response.notFound({ error: 'invalid id' })
-    }
-
-    try {
-      const label = await this.service.find(id)
-      if (!label) {
-        return response.notFound({ error: 'Drug label not found' })
-      }
-
-      // Reverse link — the other direction of the symbiotic relationship: which
-      // curated situations does THIS label's indications text treat? Matched
-      // server-side against the curated spine so searchTerms stay server-only.
-      const situations = situationsForIndications(
-        label.indications,
-        new ConditionService().allConditions()
-      )
-
-      return inertia.render('drug-reference/show', { label, situations })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      logger.error(`[DrugReferenceController] show(${id}) failed: ${msg}`)
-      return response.internalServerError({ error: 'Could not load drug label' })
-    }
   }
 
   /**
@@ -127,33 +49,6 @@ export default class DrugReferenceController {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error(`[DrugReferenceController] status failed: ${msg}`)
       return response.internalServerError({ error: 'Could not read ingest status' })
-    }
-  }
-
-  /**
-   * GET /drug-reference/interactions — side-by-side label comparison page.
-   * Passes rowCount + ingestStatus so the empty-state prompt can render,
-   * mirroring the index() pattern. The actual entry data is loaded client-side
-   * via /api/drug-reference/interactions?ids=… so the page is shareable via URL.
-   */
-  async interactions({ inertia }: HttpContext) {
-    try {
-      const [status, count] = await Promise.all([
-        this.service.getIngestStatus(),
-        this.service.rowCount(),
-      ])
-
-      return inertia.render('drug-reference/interactions', {
-        ingestStatus: status,
-        rowCount: count,
-      })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      logger.error(`[DrugReferenceController] interactions page failed: ${msg}`)
-      return inertia.render('drug-reference/interactions', {
-        ingestStatus: null,
-        rowCount: 0,
-      })
     }
   }
 

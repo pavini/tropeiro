@@ -843,15 +843,20 @@ router
   })
   .prefix('/api/benchmark')
 
-// Drug Reference v1 — offline FDA drug-label search.
-// Page GETs ungated (read-only views). The /api/drug-reference group mirrors
-// the /api/maps posture — no localNetworkOnly gate because the only disk write
-// is the background ingest job (server-side, triggered but not executed inline).
-// /drug-reference/interactions must precede /drug-reference/:id so the literal
-// path wins over the param route.
-router.get('/drug-reference', [DrugReferenceController, 'index'])
-router.get('/drug-reference/interactions', [DrugReferenceController, 'interactions'])
-router.get('/drug-reference/:id', [DrugReferenceController, 'show'])
+// Bulas da FDA. As telas ficam na interface nova (/remedios); os endereços
+// antigos redirecionam para lá. A API /api/drug-reference segue disponível,
+// sem trava de rede local: a única escrita em disco é o job de download.
+// /drug-reference/interactions vem antes de /drug-reference/:id.
+router.get('/drug-reference', ({ request, response }) => {
+  const situation = String(request.input('situation', '')).replace(/[^a-z0-9-]/g, '')
+  return response.redirect().toPath(situation ? `/remedios/situacao/${situation}` : '/remedios')
+})
+router.get('/drug-reference/interactions', ({ request, response }) =>
+  response.redirect().toPath(`/remedios/comparar?ids=${encodeURIComponent(String(request.input('ids', '')))}`)
+)
+router.get('/drug-reference/:id', ({ params, response }) =>
+  response.redirect().toPath(`/remedios/${encodeURIComponent(params.id)}`)
+)
 router
   .group(() => {
     documented(router.get('/search', [DrugReferenceController, 'search']), {
@@ -891,14 +896,12 @@ router
   })
   .prefix('/api/drug-reference')
 
-// "When to use what" — condition-first medical reference (Phase 1).
-// Browse a curated grid of first-aid situations (or free-text search a
-// situation) and see the matching OTC drugs, each linking to its Drug Reference
-// detail. Read-only page GETs, ungated like the /drug-reference page GETs; the
-// /api/conditions group only reads drug_labels (no disk write), so it mirrors
-// the ungated /api/drug-reference posture.
-router.get('/conditions', [ConditionsController, 'index'])
-router.get('/conditions/:slug', [ConditionsController, 'show'])
+// "Por situação": os endereços antigos redirecionam para /remedios; a API
+// /api/conditions só lê drug_labels, como a /api/drug-reference.
+router.get('/conditions', ({ response }) => response.redirect().toPath('/remedios'))
+router.get('/conditions/:slug', ({ params, response }) =>
+  response.redirect().toPath(`/remedios/situacao/${encodeURIComponent(params.slug)}`)
+)
 router
   .group(() => {
     documented(router.get('/drugs', [ConditionsController, 'drugsApi']), {
