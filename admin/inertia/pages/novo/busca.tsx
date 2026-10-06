@@ -11,6 +11,7 @@ export default function NovoBusca(props: {
   q: string
   services: ServiceSlim[]
   library: LibrarySearchResult
+  fichas: { slug: string; title: string; summary: string }[]
 }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState(props.q)
@@ -61,6 +62,19 @@ export default function NovoBusca(props: {
 
       {props.q && (
         <section className="nv-results" aria-live="polite">
+          {props.fichas.length > 0 && (
+            <section className="nv-book" aria-labelledby="faca-agora">
+              <h2 id="faca-agora" className="nv-section-label">{t('First aid · do it now')}</h2>
+              {props.fichas.map((ficha) => (
+                <Link key={ficha.slug} href={`/novo/fichas/${ficha.slug}`} className="nv-card nv-card-link nv-card-ficha">
+                  <span className="nv-tile-label">{ficha.title}</span>
+                  <span className="nv-text">{ficha.summary}</span>
+                  <span className="nv-ficha-cta">{t('See step by step')} →</span>
+                </Link>
+              ))}
+            </section>
+          )}
+
           {status === 'ok' && books.length > 0 && (
             <>
               <h1 className="nv-title">{t('Results for “{{q}}”', { q: props.q })}</h1>
@@ -70,7 +84,7 @@ export default function NovoBusca(props: {
             </>
           )}
 
-          {status === 'ok' && books.length === 0 && (
+          {status === 'ok' && books.length === 0 && props.fichas.length === 0 && (
             <div className="nv-card">
               <h1 className="nv-tile-label">{t('Nothing found for “{{q}}”', { q: props.q })}</h1>
               <p className="nv-text">{t('Try a shorter or more common word, or check the spelling.')}</p>

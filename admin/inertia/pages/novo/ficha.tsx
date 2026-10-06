@@ -1,0 +1,116 @@
+import { Head, Link } from '@inertiajs/react'
+import { useTranslation } from 'react-i18next'
+import NovoLayout from '~/novo/NovoLayout'
+import EmergencyNumbers from '~/novo/EmergencyNumbers'
+import type { Ficha, FichaSection, ReferenceDocStatus } from '../../../types/fichas'
+
+/** Ficha de primeiros socorros: o que fazer agora, com a fonte oficial ao lado. */
+export default function NovoFicha(props: {
+  ficha: Ficha
+  docs: ReferenceDocStatus[]
+  related: { slug: string; title: string }[]
+}) {
+  const { t } = useTranslation()
+  const { ficha } = props
+
+  // Fontes agrupadas por documento, na ordem em que aparecem na ficha.
+  const sources = ficha.refs.reduce<{ doc: ReferenceDocStatus; refs: Ficha['refs'] }[]>((acc, ref) => {
+    const doc = props.docs.find((d) => d.id === ref.doc)
+    if (!doc) return acc
+    const group = acc.find((g) => g.doc.id === doc.id)
+    if (group) group.refs.push(ref)
+    else acc.push({ doc, refs: [ref] })
+    return acc
+  }, [])
+
+  return (
+    <NovoLayout>
+      <Head title={ficha.title} />
+
+      <Link href="/novo/fichas" className="nv-back">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M15 5 L8 12 L15 19" />
+        </svg>
+        {t('First aid')}
+      </Link>
+
+      <EmergencyNumbers />
+
+      <h1 className="nv-title">{ficha.title}</h1>
+
+      {ficha.callFirst && (
+        <div className="nv-card nv-call-first" role="alert">
+          <span className="nv-tile-label">{ficha.callFirst}</span>
+        </div>
+      )}
+
+      {ficha.sections.map((section, i) => (
+        <Section key={i} section={section} />
+      ))}
+
+      <div className="nv-card nv-unreviewed" role="note">
+        <span className="nv-tile-label">{t('Not reviewed by a health professional')}</span>
+        <span className="nv-text">
+          {t('Text written from the official documents below. It does not replace emergency care: when in doubt, call 192.')}
+        </span>
+      </div>
+
+      <section className="nv-card nv-sources" aria-labelledby="fontes">
+        <h2 id="fontes" className="nv-section-label">{t('Sources')}</h2>
+        {sources.map(({ doc, refs }) => (
+          <div key={doc.id} className="nv-source">
+            <span className="nv-source-title">
+              {doc.title} — {doc.publisher}, {doc.year}
+            </span>
+            {doc.available ? (
+              <ul className="nv-source-pages">
+                {refs.map((ref) => (
+                  <li key={`${ref.doc}-${ref.page}`}>
+                    <a href={`/novo/referencias/${doc.id}#page=${ref.page}`} target="_blank" rel="noopener">
+                      {t('Open on page {{page}}', { page: ref.page })}
+                    </a>{' '}
+                    <span className="nv-text">({ref.about})</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <span className="nv-text">
+                {t('Not downloaded to this server yet. It will be downloaded automatically when there is internet.')}
+              </span>
+            )}
+          </div>
+        ))}
+        {ficha.adaptation && <p className="nv-text nv-adaptation">{ficha.adaptation}</p>}
+      </section>
+
+      {props.related.length > 0 && (
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <h2 className="nv-section-label">{t('Other first aid cards')}</h2>
+          <div className="nv-chips">
+            {props.related.map((r) => (
+              <Link key={r.slug} href={`/novo/fichas/${r.slug}`} className="nv-chip nv-chip-link">
+                {r.title}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </NovoLayout>
+  )
+}
+
+function Section({ section }: { section: FichaSection }) {
+  const { t } = useTranslation()
+  const fallback = { do: t('Do'), dont: t('Do not'), help: t('Get help') }[section.kind]
+  const List = section.kind === 'do' ? 'ol' : 'ul'
+  return (
+    <section className={`nv-card nv-ficha-${section.kind}`}>
+      <h2 className="nv-ficha-heading">{section.title ?? fallback}</h2>
+      <List className="nv-ficha-list">
+        {section.items.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </List>
+    </section>
+  )
+}

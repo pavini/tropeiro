@@ -43,7 +43,7 @@ export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: bool
   const ollama = services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA && s.installed)
 
   return [
-    { id: 'health', label: 'Health and first aid', icon: ICONS.health, iconBg: '#FCE4E1', iconFg: '#8A1C12', href: search('primeiros socorros') },
+    { id: 'health', label: 'Health and first aid', icon: ICONS.health, iconBg: '#FCE4E1', iconFg: '#8A1C12', href: '/novo/fichas' },
     { id: 'water', label: 'Water and food', icon: ICONS.water, iconBg: '#DDEBF7', iconFg: '#1B4F7A', href: search('água potável') },
     { id: 'shelter', label: 'Shelter and safety', icon: ICONS.shelter, iconBg: '#FFF1CC', iconFg: '#7A4B00', href: search('abrigo') },
     { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/maps' },
