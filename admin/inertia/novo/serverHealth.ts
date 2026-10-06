@@ -1,0 +1,121 @@
+/**
+ * Regras do estado do servidor: transforma os dados brutos em itens com nível
+ * (ok, aviso, problema ou informação), texto e o que fazer. Sem dependências,
+ * para poder testar. Os textos são chaves de tradução.
+ */
+
+export type HealthLevel = 'ok' | 'info' | 'warn' | 'error'
+
+export interface HealthCheck {
+  id: string
+  level: HealthLevel
+  title: string
+  titleParams?: Record<string, string | number>
+  detail?: string
+  detailParams?: Record<string, string | number>
+  action?: { href: string; label: string }
+}
+
+export interface HealthInput {
+  library: { installed: boolean; reachable: boolean; books: number }
+  ai: { installed: boolean; model: string | null }
+  /** Apps instalados que não estão rodando. */
+  stoppedApps: string[]
+  downloads: { workerAlive: boolean | null; active: number; failed: number } | null
+  /** Espaço livre e total do disco, em bytes; null se não deu para medir. */
+  disk: { free: number; total: number } | null
+  references: { total: number; available: number }
+  online: boolean
+}
+
+const GB = 1024 ** 3
+
+export function healthChecks(input: HealthInput): HealthCheck[] {
+  const checks: HealthCheck[] = []
+  const setup = { href: '/novo/montar', label: 'Set up the server' }
+
+  // Biblioteca
+  if (!input.library.installed) {
+    checks.push({ id: 'library', level: 'warn', title: 'No library on this server yet', detail: 'Without it there is no encyclopedia or manuals to search.', action: setup })
+  } else if (!input.library.reachable) {
+    checks.push({ id: 'library', level: 'error', title: 'The library is not responding', detail: 'Search and articles do not work until it comes back. Restarting the server usually solves it.', action: { href: '/supply-depot', label: 'Open the apps' } })
+  } else if (input.library.books === 0) {
+    checks.push({ id: 'library', level: 'warn', title: 'The library is empty', detail: 'Choose a kit to download content.', action: setup })
+  } else {
+    checks.push({ id: 'library', level: 'ok', title: 'Library working', detail: '{{count}} books available', detailParams: { count: input.library.books } })
+  }
+
+  // IA
+  if (!input.ai.installed) {
+    checks.push({ id: 'ai', level: 'info', title: 'AI not installed', detail: 'Optional. Without it, everything else works.', action: { href: '/supply-depot', label: 'Open the apps' } })
+  } else if (!input.ai.model) {
+    checks.push({ id: 'ai', level: 'warn', title: 'AI without a model', detail: 'The AI is installed but has no model to answer with.', action: { href: '/settings/models', label: 'Choose a model' } })
+  } else {
+    checks.push({ id: 'ai', level: 'ok', title: 'AI ready', detail: 'Model: {{model}}', detailParams: { model: input.ai.model } })
+  }
+
+  // Apps parados
+  if (input.stoppedApps.length > 0) {
+    checks.push({ id: 'apps', level: 'warn', title: 'Stopped apps: {{names}}', titleParams: { names: input.stoppedApps.join(', ') }, detail: 'They can be started again in the apps screen.', action: { href: '/supply-depot', label: 'Open the apps' } })
+  } else {
+    checks.push({ id: 'apps', level: 'ok', title: 'All installed apps running' })
+  }
+
+  // Downloads
+  const dl = input.downloads
+  if (dl) {
+    const pending = dl.active > 0
+    if (pending && dl.workerAlive === false) {
+      checks.push({ id: 'downloads', level: 'error', title: 'Downloads are stopped', detail: 'The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.', action: { href: '/novo/montar', label: 'See downloads' } })
+    } else if (dl.failed > 0) {
+      checks.push({ id: 'downloads', level: 'warn', title: '{{count}} downloads failed', titleParams: { count: dl.failed }, detail: 'They can be tried again in the classic content manager.', action: { href: '/novo/montar', label: 'See downloads' } })
+    } else if (pending) {
+      checks.push({ id: 'downloads', level: 'info', title: 'Downloading {{count}} items', titleParams: { count: dl.active }, action: { href: '/novo/montar', label: 'See downloads' } })
+    } else {
+      checks.push({ id: 'downloads', level: 'ok', title: 'No downloads pending' })
+    }
+  }
+
+  // Disco
+  if (input.disk && input.disk.total > 0) {
+    const ratio = input.disk.free / input.disk.total
+    const free = Math.round((input.disk.free / GB) * 10) / 10
+    const level: HealthLevel = ratio < 0.1 ? 'error' : ratio < 0.2 ? 'warn' : 'ok'
+    checks.push({
+      id: 'disk',
+      level,
+      title: level === 'ok' ? 'Disk space is fine' : 'Little disk space left',
+      detail: '{{free}} GB free',
+      detailParams: { free },
+    })
+  }
+
+  // Documentos das fichas
+  const missing = input.references.total - input.references.available
+  if (missing > 0) {
+    checks.push({
+      id: 'references',
+      level: input.online ? 'info' : 'warn',
+      title: '{{count}} reference documents not downloaded yet',
+      titleParams: { count: missing },
+      detail: input.online ? 'They are downloaded automatically.' : 'They will be downloaded when there is internet.',
+    })
+  } else {
+    checks.push({ id: 'references', level: 'ok', title: 'Reference documents available offline' })
+  }
+
+  // Internet não é problema: o servidor existe para funcionar sem ela.
+  checks.push(
+    input.online
+      ? { id: 'internet', level: 'ok', title: 'Connected to the internet' }
+      : { id: 'internet', level: 'info', title: 'No internet', detail: 'Everything keeps working with what is already downloaded.' }
+  )
+
+  return checks
+}
+
+/** Pior nível da lista: define o resumo do topo. */
+export function overallLevel(checks: HealthCheck[]): HealthLevel {
+  const order: HealthLevel[] = ['ok', 'info', 'warn', 'error']
+  return checks.reduce<HealthLevel>((worst, c) => (order.indexOf(c.level) > order.indexOf(worst) ? c.level : worst), 'ok')
+}

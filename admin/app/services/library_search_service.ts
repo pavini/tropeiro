@@ -69,6 +69,17 @@ export class LibrarySearchService {
     return { status: 'ok', books: found }
   }
 
+  /** Biblioteca instalada, respondendo e quantos livros tem (para o estado do servidor). */
+  async status(): Promise<{ installed: boolean; reachable: boolean; books: number }> {
+    const baseUrl = await resolveKiwixInternalUrl(this.dockerService)
+    if (!baseUrl) return { installed: false, reachable: false, books: 0 }
+    try {
+      return { installed: true, reachable: true, books: (await this.listBooks(baseUrl)).length }
+    } catch {
+      return { installed: true, reachable: false, books: 0 }
+    }
+  }
+
   private async listBooks(baseUrl: string): Promise<KiwixBook[]> {
     const res = await axios.get(`${baseUrl}/catalog/v2/entries`, {
       params: { count: -1 },

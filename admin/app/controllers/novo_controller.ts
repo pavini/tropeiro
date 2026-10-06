@@ -8,6 +8,7 @@ import { isWorkerAlive } from '../utils/worker_heartbeat.js'
 import logger from '@adonisjs/core/services/logger'
 import vine from '@vinejs/vine'
 import { KITS } from '../../constants/kits.js'
+import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
 import KVStore from '#models/kv_store'
@@ -126,6 +127,32 @@ export default class NovoController {
     } catch {
       return null
     }
+  }
+
+  /** Estado do servidor para quem cuida dele. */
+  async estado({ inertia }: HttpContext) {
+    const [services, library, model, docs] = await Promise.all([
+      this.systemService.getServices({ installedOnly: true }),
+      this.librarySearch.status(),
+      this.chatModel(),
+      new ReferenceDocsService().status(),
+    ])
+    return inertia.render('novo/estado', {
+      services: services
+        .filter((s) => !s.is_link_tile)
+        .map((s) => ({
+          name: s.service_name,
+          label: s.friendly_name || s.service_name,
+          isCustom: !!s.is_custom,
+          status: s.status ?? 'unknown',
+        })),
+      library,
+      ai: {
+        installed: services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA),
+        model,
+      },
+      references: { total: docs.length, available: docs.filter((d) => d.available).length },
+    })
   }
 
   /** Fichas de primeiros socorros. */
