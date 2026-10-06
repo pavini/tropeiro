@@ -4,13 +4,13 @@
 
 Tropeiro é um servidor de conhecimento e educação offline, pensado para o Brasil: enciclopédia, mapas, cursos, referências de saúde e um assistente de IA local, tudo rodando numa máquina só, sem depender de internet depois de instalado.
 
-> **Status:** em preparação. Por enquanto este repositório é idêntico ao upstream, mais a infraestrutura do fork. Ainda não há release próprio do Tropeiro. Para instalar hoje, use o [Project NOMAD](https://github.com/Crosstalk-Solutions/project-nomad).
+> **Status:** em preparação. Ainda não há release próprio do Tropeiro.
 
 ## Origem
 
-Tropeiro é um fork do [Project NOMAD](https://github.com/Crosstalk-Solutions/project-nomad), da Crosstalk Solutions, LLC, distribuído sob a [Apache License 2.0](../LICENSE). Todo o crédito pela base do projeto é deles. "Project NOMAD" e o logo do NOMAD são marcas da Crosstalk Solutions e não fazem parte deste fork; veja o [NOTICE](../NOTICE).
+Tropeiro nasceu como fork do [Project NOMAD](https://github.com/Crosstalk-Solutions/project-nomad), da Crosstalk Solutions, LLC, distribuído sob a [Apache License 2.0](../LICENSE), e usa o código dele como base. Todo o crédito por essa base é deles. Desde então o Tropeiro segue como projeto independente: não acompanha mais o NOMAD e tem rumo e interface próprios. "Project NOMAD" e o logo do NOMAD são marcas da Crosstalk Solutions e não fazem parte deste fork; veja o [NOTICE](../NOTICE).
 
-## O que muda em relação ao NOMAD
+## O que já é diferente
 
 Já feito:
 
@@ -19,7 +19,7 @@ Já feito:
 
 Planejado:
 
-1. **Interface em português do Brasil.** O upstream decidiu fazer a internacionalização internamente e não aceita PRs de terceiros nessa frente, então ela será feita aqui.
+1. **Interface em português do Brasil.**
 2. **IA em português:** modelo padrão bom em PT e RAG ajustado (stopwords, OCR) e medido com a suíte de avaliação do projeto.
 3. **Referências nacionais:** bulário da ANVISA no lugar do openFDA, material de Defesa Civil e de primeiros socorros.
 
@@ -27,22 +27,16 @@ Planejado:
 
 | Branch | Papel |
 |---|---|
-| `tropeiro` | Linha principal do fork. Todo trabalho próprio parte daqui. |
-| `dev`, `main` | Espelhos do upstream, atualizados por fast-forward. Nunca recebem commits deste fork. |
-
-A sincronização é feita pelo workflow [`tropeiro-sync-upstream`](workflows/tropeiro-sync-upstream.yml), toda segunda-feira. Ele atualiza os espelhos e abre um PR de `dev` para `tropeiro`. Se houver conflito, abre uma issue no lugar do PR.
+| `tropeiro` | Linha principal. Todo trabalho parte daqui. |
+| `dev`, `main` | Cópias congeladas do NOMAD do momento da separação. Não recebem mais atualizações. |
 
 ## Contribuindo
 
-Correções de bug e melhorias neutras de idioma (suporte a ARM, instalador etc.) vão primeiro como PR para o upstream, seguindo o [CONTRIBUTING](../CONTRIBUTING.md) deles: issue antes, branch a partir de `dev`, Conventional Commits. Tradução, conteúdo em português e o que for específico do Brasil ficam aqui, de preferência em arquivos novos e serviços isolados, para manter o diff com o upstream pequeno.
-
-Para trabalhar localmente:
+PRs contra a branch `tropeiro`, com Conventional Commits. Correções publicadas no NOMAD podem ser trazidas à mão, num PR que cite a origem.
 
 ```bash
 git clone git@github.com:pavini/tropeiro.git
 cd tropeiro
-git remote add upstream https://github.com/Crosstalk-Solutions/project-nomad.git
-git remote set-url --push upstream DISABLED
 git checkout tropeiro
 ```
 
@@ -55,8 +49,8 @@ Para desenvolver e testar a interface. Precisa de Docker (Docker Desktop no Mac)
 ./dev/start.sh   # app com hot reload + workers; abra http://localhost:8080
 ```
 
-O conteúdo baixado fica em `~/nomad-storage` (mude com `NOMAD_STORAGE_PATH`). O app instala serviços como o Kiwix em containers via Docker; em Mac com Apple Silicon isso não é oficialmente suportado pelo upstream, então para um teste completo use Linux x86.
+O conteúdo baixado fica em `~/nomad-storage` (mude com `NOMAD_STORAGE_PATH`). O app instala serviços como o Kiwix em containers via Docker; em Mac com Apple Silicon isso não é oficialmente suportado, então para um teste completo use Linux x86.
 
 ## Licença
 
-Apache License 2.0, a mesma do upstream. Veja [LICENSE](../LICENSE) e [NOTICE](../NOTICE).
+Apache License 2.0, a mesma do Project NOMAD. Veja [LICENSE](../LICENSE) e [NOTICE](../NOTICE).
