@@ -10,8 +10,9 @@ export default class HomeController {
     ) { }
 
     async index({ response }: HttpContext) {
-        // Redirect / to /home
-        return response.redirect().toPath('/home');
+        // A interface nova é a porta de entrada; a clássica segue em /home como
+        // administração avançada.
+        return response.redirect().toPath('/novo');
     }
 
     async home({ inertia }: HttpContext) {

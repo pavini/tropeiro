@@ -40,7 +40,7 @@ export default function NovoLayout({ children }: { children: React.ReactNode }) 
       <main className="nv-main">{children}</main>
 
       <footer className="nv-footer">
-        <a href="/home">{t('Back to the classic interface')}</a>
+        <a href="/home">{t('Advanced administration')}</a>
       </footer>
     </div>
   )

@@ -420,9 +420,7 @@
   "Force Reinstall": "Forçar reinstalação",
   "In progress…": "Em andamento…",
   "Installed apps": "Instalados",
-  "Try the new interface": "Experimentar a nova interface",
   "Works without internet": "Funciona sem internet",
-  "Back to the classic interface": "Voltar para a interface clássica",
   "What do you need?": "O que você precisa?",
   "E.g.: burn, water, fever": "Ex.: queimadura, água, febre",
   "Search": "Buscar",
@@ -516,5 +514,7 @@
   "Your question": "Sua pergunta",
   "E.g.: how do I make water safe to drink?": "Ex.: como deixar a água boa para beber?",
   "Ask": "Perguntar",
-  "AI answers can be wrong. In an emergency, follow the first aid cards and call 192.": "As respostas da IA podem ter erros. Numa emergência, siga as fichas de primeiros socorros e ligue 192."
+  "AI answers can be wrong. In an emergency, follow the first aid cards and call 192.": "As respostas da IA podem ter erros. Numa emergência, siga as fichas de primeiros socorros e ligue 192.",
+  "Advanced administration": "Administração avançada",
+  "Go to the main interface": "Ir para a interface principal"
 }
