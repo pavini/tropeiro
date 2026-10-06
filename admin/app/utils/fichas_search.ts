@@ -33,7 +33,8 @@ export function searchFichas(fichas: Ficha[], query: string, limit = 3): Ficha[]
     let score = 0
     if (title.includes(q)) score += 5
     if (keywords.some((k) => k === q)) score += 5
-    else if (keywords.some((k) => k.includes(q) || q.includes(k))) score += 3
+    // Cada palavra-chave contida na busca (ou que contém a busca) soma.
+    score += 3 * keywords.filter((k) => k !== q && (k.includes(q) || q.includes(k))).length
     const vocab = new Set([...words(ficha.title), ...ficha.keywords.flatMap(words)])
     for (const w of qWords) {
       if ([...vocab].some((v) => v === w || v.startsWith(w))) score += 1

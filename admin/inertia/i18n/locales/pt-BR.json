@@ -503,5 +503,18 @@
   "Official source:": "Fonte oficial:",
   "First aid · do it now": "Primeiros socorros · faça agora",
   "See step by step": "Ver passo a passo",
-  "Police": "Polícia"
+  "Police": "Polícia",
+  "The AI could not answer. Try again.": "A IA não conseguiu responder. Tente de novo.",
+  "Ask {{name}}": "Fale com {{name}}",
+  "It answers using the content on this server, without internet.": "Responde com base no conteúdo deste servidor, sem internet.",
+  "The AI is not available on this server": "A IA não está disponível neste servidor",
+  "Whoever manages the server can install the AI assistant and a model in the classic interface.": "Quem cuida do servidor pode instalar o assistente de IA e um modelo pela interface clássica.",
+  "Thinking…": "Pensando…",
+  "Stopped.": "Interrompido.",
+  "Based on": "Com base em",
+  "Another question": "Outra pergunta",
+  "Your question": "Sua pergunta",
+  "E.g.: how do I make water safe to drink?": "Ex.: como deixar a água boa para beber?",
+  "Ask": "Perguntar",
+  "AI answers can be wrong. In an emergency, follow the first aid cards and call 192.": "As respostas da IA podem ter erros. Numa emergência, siga as fichas de primeiros socorros e ligue 192."
 }

@@ -23,5 +23,7 @@ router
     router.get('/fichas', [NovoController, 'fichas'])
     router.get('/fichas/:slug', [NovoController, 'ficha'])
     router.get('/referencias/:id', [NovoController, 'referencia'])
+    router.get('/perguntar', [NovoController, 'perguntar'])
+    router.get('/fichas-sugeridas', [NovoController, 'fichasSugeridas'])
   })
   .prefix('/novo')

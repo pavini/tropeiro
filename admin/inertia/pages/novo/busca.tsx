@@ -110,7 +110,7 @@ export default function NovoBusca(props: {
           )}
 
           {ollama && (
-            <Link className="nv-card nv-card-link nv-card-ai" href="/chat">
+            <Link className="nv-card nv-card-link nv-card-ai" href={`/novo/perguntar?q=${encodeURIComponent(props.q)}`}>
               <span className="nv-tile-label">{t('Didn’t find it? Ask the AI')}</span>
               <span className="nv-text">{t('It answers using the content on this server.')}</span>
             </Link>
