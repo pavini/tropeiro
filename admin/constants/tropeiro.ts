@@ -60,5 +60,14 @@ Regras:
 - Nunca recomende algo que o contexto manda não fazer.
 - Use frases curtas e palavras simples.`
 
+/**
+ * Conteúdo do Tropeiro (pasta conteudo/ do repositório), baixado pelos
+ * servidores quando há internet, para correções chegarem sem esperar versão.
+ */
+export const TROPEIRO_CONTENT_REPO = { owner: 'pavini', repo: 'tropeiro', branch: 'tropeiro', path: 'conteudo' }
+
+/** Versão do formato de conteudo/ que esta versão do Tropeiro sabe ler (conteudo/formato.yml). */
+export const CONTENT_FORMAT_VERSION = 1
+
 /** Nome do produto na interface (título da aba, rodapé, cabeçalho). */
 export const APP_NAME = 'Tropeiro'

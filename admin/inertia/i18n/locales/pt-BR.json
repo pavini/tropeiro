@@ -760,5 +760,20 @@
   "Reviewed by {{name}}.": "Revisado por {{name}}.",
   "See also": "Veja também",
   "Tropeiro content": "Conteúdo do Tropeiro",
-  "All content by topic": "Todo o conteúdo, por tema"
+  "All content by topic": "Todo o conteúdo, por tema",
+  "Check for updates now": "Procurar atualização agora",
+  "Checking…": "Procurando…",
+  "Content from the repository folder": "Conteúdo da pasta do repositório",
+  "In development, the conteudo/ folder you are editing is used; nothing is downloaded.": "Em desenvolvimento vale a pasta conteudo/ que você está editando; nada é baixado.",
+  "New content had problems and was not used": "O conteúdo novo tinha problemas e não foi usado",
+  "The previous content is still in use.": "Continua valendo o conteúdo anterior.",
+  "There is new content, but the Tropeiro needs to be updated first": "Há conteúdo novo, mas antes é preciso atualizar o Tropeiro",
+  "Could not check for new content": "Não deu para procurar conteúdo novo",
+  "It tries again in a few hours.": "Ele tenta de novo em algumas horas.",
+  "Content updated from the internet": "Conteúdo atualizado pela internet",
+  "Content that came with this Tropeiro version": "Conteúdo que veio com esta versão do Tropeiro",
+  "Updated on {{date}}": "Atualizado em {{date}}",
+  "New content applied": "Conteúdo novo aplicado",
+  "Content is already up to date": "O conteúdo já está em dia",
+  "No internet to check for new content": "Sem internet para procurar conteúdo novo"
 }

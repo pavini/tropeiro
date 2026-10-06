@@ -13,7 +13,8 @@ export interface HealthCheck {
   titleParams?: Record<string, string | number>
   detail?: string
   detailParams?: Record<string, string | number>
-  action?: { href: string; label: string }
+  /** `post`: botão que faz a ação no servidor (em vez de link). */
+  action?: { href: string; label: string; method?: 'post' }
 }
 
 export interface HealthInput {
@@ -36,6 +37,15 @@ export interface HealthInput {
     ai?: { total: number; ready: number; failed: number } | null
   }
   online: boolean
+  /** Conteúdo do Tropeiro (fichas, guias) e a atualização pela internet. */
+  content?: {
+    enabled: boolean
+    source: 'downloaded' | 'bundled'
+    updatedAt?: string
+    lastCheckAt?: string
+    lastResult?: string
+    lastMessage?: string
+  }
 }
 
 const GB = 1024 ** 3
@@ -149,6 +159,31 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
         level: 'ok',
         title: 'Official documents ready for the AI',
         detail: 'Health answers cite the Ministry of Health manuals, with the page.',
+      })
+    }
+  }
+
+  // Conteúdo do Tropeiro e a atualização pela internet
+  const content = input.content
+  if (content) {
+    const check = { href: '/estado/conteudo', label: 'Check for updates now', method: 'post' as const }
+    if (!content.enabled) {
+      checks.push({ id: 'content', level: 'info', title: 'Content from the repository folder', detail: 'In development, the conteudo/ folder you are editing is used; nothing is downloaded.' })
+    } else if (content.lastResult === 'invalido') {
+      checks.push({ id: 'content', level: 'warn', title: 'New content had problems and was not used', detail: 'The previous content is still in use.', action: check })
+    } else if (content.lastResult === 'formato-novo') {
+      checks.push({ id: 'content', level: 'warn', title: 'There is new content, but the Tropeiro needs to be updated first', action: check })
+    } else if (content.lastResult === 'erro') {
+      checks.push({ id: 'content', level: 'info', title: 'Could not check for new content', detail: 'It tries again in a few hours.', action: check })
+    } else {
+      checks.push({
+        id: 'content',
+        level: 'ok',
+        title: content.source === 'downloaded' ? 'Content updated from the internet' : 'Content that came with this Tropeiro version',
+        ...(content.updatedAt && content.source === 'downloaded'
+          ? { detail: 'Updated on {{date}}', detailParams: { date: content.updatedAt.slice(0, 10).split('-').reverse().join('/') } }
+          : {}),
+        action: check,
       })
     }
   }

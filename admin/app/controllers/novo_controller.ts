@@ -22,7 +22,8 @@ import { PlaceSearchService } from '#services/place_search_service'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
-import { CONTENT_ITEMS, CONTENT_THEMES } from '../content/index.js'
+import { CONTENT, CONTENT_ITEMS, CONTENT_THEMES } from '../content/index.js'
+import { DOWNLOADED_DIR, contentUpdatesEnabled } from '../content/loader.js'
 import { markPassage } from '../utils/html_snapshot.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -366,7 +367,29 @@ export default class NovoController {
         available: docs.filter((d) => d.available).length,
         ai: await new ReferenceDocsService().aiStatus().catch(() => null),
       },
+      content: await this.contentStatus(),
     })
+  }
+
+  /** Conteúdo do Tropeiro em uso e o resultado da última busca por conteúdo novo. */
+  private async contentStatus() {
+    const { ContentUpdateService } = await import('#services/content_update_service')
+    const state = await new ContentUpdateService().state()
+    return {
+      enabled: contentUpdatesEnabled(),
+      source: CONTENT.dir === DOWNLOADED_DIR ? ('downloaded' as const) : ('bundled' as const),
+      updatedAt: state.updatedAt,
+      lastCheckAt: state.lastCheckAt,
+      lastResult: state.lastResult,
+      lastMessage: state.lastMessage,
+    }
+  }
+
+  /** Procura conteúdo novo agora (botão no estado do servidor). */
+  async atualizarConteudo({ response }: HttpContext) {
+    const { ContentUpdateService } = await import('#services/content_update_service')
+    const state = await new ContentUpdateService().check()
+    return response.redirect().toPath(`/estado?conteudo=${state.lastResult ?? 'erro'}`)
   }
 
   /** Conteúdos por tema (pasta conteudo/). */

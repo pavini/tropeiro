@@ -71,7 +71,8 @@ export class ReferenceDocsService {
     const rag = await app.container.make(RagService)
     let queued = 0
     for (const doc of REFERENCE_DOCS) {
-      if (!(await this.isAvailable(doc))) continue
+      // A base da IA lê os PDFs; normas guardadas como página só abrem no navegador.
+      if (doc.format === 'html' || !(await this.isAvailable(doc))) continue
       const path = this.filePath(doc)
       const state = await KbIngestState.findBy('file_path', path)
       if (state && state.state !== 'failed') continue
@@ -86,15 +87,15 @@ export class ReferenceDocsService {
   }
 
   /**
-   * Quantos documentos baixados a IA já leu e quantos falharam; null quando a
-   * IA ou a base de conhecimento não estão instaladas.
+   * Quantos documentos baixados (os PDFs, que a base lê) a IA já leu e quantos
+   * falharam; null quando a IA ou a base de conhecimento não estão instaladas.
    */
   async aiStatus(): Promise<{ total: number; ready: number; failed: number } | null> {
     if (!(await aiServicesInstalled())) return null
     const { default: KbIngestState } = await import('#models/kb_ingest_state')
     const paths: string[] = []
     for (const doc of REFERENCE_DOCS) {
-      if (await this.isAvailable(doc)) paths.push(this.filePath(doc))
+      if (doc.format !== 'html' && (await this.isAvailable(doc))) paths.push(this.filePath(doc))
     }
     const rows = paths.length ? await KbIngestState.query().whereIn('file_path', paths) : []
     return {

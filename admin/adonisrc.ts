@@ -61,6 +61,7 @@ export default defineConfig({
     () => import('#providers/drug_install_row_provider'),
     () => import('#providers/storage_reconcile_provider'),
     () => import('#providers/reference_docs_provider'),
+    () => import('#providers/content_update_provider'),
   ],
 
   /*

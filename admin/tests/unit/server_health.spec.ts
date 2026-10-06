@@ -104,3 +104,14 @@ test('com IA em outro endereço, o contêiner local parado não conta como app p
     ['nomad_ollama', 'nomad_flatnotes']
   )
 })
+
+test('conteúdo do Tropeiro: em dia é ok com botão; inválido é aviso; desenvolvimento é informação', () => {
+  const item = (content: HealthInput['content']) => healthChecks({ ...healthy, content }).find((c) => c.id === 'content')
+  const ok = item({ enabled: true, source: 'downloaded', updatedAt: '2026-10-06T12:00:00Z', lastResult: 'em-dia' })
+  assert.equal(ok?.level, 'ok')
+  assert.equal(ok?.detailParams?.date, '06/10/2026')
+  assert.equal(ok?.action?.method, 'post')
+  assert.equal(item({ enabled: true, source: 'bundled', lastResult: 'invalido' })?.level, 'warn')
+  assert.equal(item({ enabled: false, source: 'bundled' })?.level, 'info')
+  assert.equal(item(undefined), undefined)
+})

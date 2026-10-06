@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 import { parseContent, toFicha } from '../utils/conteudo.js'
+import { contentSetHash, gitBlobSha, isContentPath } from '../utils/conteudo_atualizacao.js'
 import type { ContentItem, ContentProblem, ContentTheme } from '../../types/conteudo.js'
 import type { Ficha, ReferenceDoc } from '../../types/fichas.js'
 
@@ -11,7 +12,7 @@ import type { Ficha, ReferenceDoc } from '../../types/fichas.js'
  * o validador (npm run conteudo:validar) impede que isso chegue a um PR.
  */
 
-/** conteudo/ fica na raiz do repositório; na imagem Docker, ao lado do app. */
+/** A pasta conteudo/ que veio com esta versão do Tropeiro: na raiz do repositório, ou ao lado do app na imagem Docker. */
 export function contentDir(): string {
   const candidates = [process.env.TROPEIRO_CONTEUDO_DIR, join(process.cwd(), 'conteudo'), join(process.cwd(), '..', 'conteudo')]
   const dir = candidates.find((d) => d && existsSync(join(d, 'fontes.yml')))
@@ -57,8 +58,70 @@ export function parseThemes(text: string): ContentTheme[] {
   return list.map((t: any) => ({ id: String(t.id), title: String(t.titulo), description: String(t.descricao ?? '') }))
 }
 
+/** Impressão (do git) de cada arquivo que o Tropeiro lê, pelo caminho relativo a conteudo/. */
+export function localFileShas(dir: string): Map<string, string> {
+  const out = new Map<string, string>()
+  const walk = (sub: string) => {
+    for (const name of readdirSync(join(dir, sub))) {
+      const rel = sub ? `${sub}/${name}` : name
+      if (statSync(join(dir, rel)).isDirectory()) {
+        if (!name.startsWith('.')) walk(rel)
+      } else if (isContentPath(rel)) out.set(rel, gitBlobSha(readFileSync(join(dir, rel))))
+    }
+  }
+  walk('')
+  return out
+}
+
+/** Conteúdo baixado pela internet (ContentUpdateService) e o registro do último download. */
+export const DOWNLOADED_DIR = join(process.cwd(), 'storage', 'conteudo')
+export const UPDATE_STATE_FILE = join(process.cwd(), 'storage', 'conteudo-atualizacao.json')
+
+export interface UpdateState {
+  /** Impressão do conteúdo baixado em uso. */
+  version?: string
+  /** Impressão do conteúdo que veio com o Tropeiro quando o download foi feito. */
+  base?: string
+  updatedAt?: string
+  lastCheckAt?: string
+  lastResult?: 'em-dia' | 'atualizado' | 'invalido' | 'formato-novo' | 'sem-internet' | 'erro' | 'desativado'
+  lastMessage?: string
+}
+
+export function readUpdateState(file = UPDATE_STATE_FILE): UpdateState {
+  try {
+    return JSON.parse(readFileSync(file, 'utf-8'))
+  } catch {
+    return {}
+  }
+}
+
+/** Em desenvolvimento vale a pasta do repositório, que você está editando; nada é baixado. */
+export function contentUpdatesEnabled(): boolean {
+  if (process.env.TROPEIRO_CONTEUDO_ATUALIZAR === '1') return true
+  if (process.env.TROPEIRO_CONTEUDO_ATUALIZAR === '0') return false
+  return process.env.NODE_ENV === 'production'
+}
+
+/**
+ * A pasta que vale agora: a baixada, se houver e se o Tropeiro não tiver sido
+ * atualizado depois do download (aí vale o conteúdo que veio com a versão
+ * nova); senão, a que veio com o Tropeiro.
+ */
+export function activeContentDir(
+  opts: { bundled?: string; downloaded?: string; stateFile?: string; enabled?: boolean } = {}
+): string {
+  const bundled = opts.bundled ?? contentDir()
+  const downloaded = opts.downloaded ?? DOWNLOADED_DIR
+  if (!(opts.enabled ?? contentUpdatesEnabled()) || !existsSync(join(downloaded, 'fontes.yml'))) return bundled
+  const state = readUpdateState(opts.stateFile ?? UPDATE_STATE_FILE)
+  return state.base && state.base === contentSetHash(localFileShas(bundled)) ? downloaded : bundled
+}
+
 export interface LoadedContent {
   dir: string
+  /** Versão do formato (conteudo/formato.yml). */
+  format: number
   sources: ReferenceDoc[]
   themes: ContentTheme[]
   items: ContentItem[]
@@ -85,5 +148,7 @@ export function loadContent(dir = contentDir()): LoadedContent {
     }
     items.push(parsed.item)
   }
-  return { dir, sources, themes, items, fichas, problems }
+  const formatFile = join(dir, 'formato.yml')
+  const format = existsSync(formatFile) ? Number(parseYaml(readFileSync(formatFile, 'utf-8'))?.versao ?? 1) : 1
+  return { dir, format, sources, themes, items, fichas, problems }
 }
