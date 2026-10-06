@@ -420,9 +420,7 @@
   "Force Reinstall": "Forçar reinstalação",
   "In progress…": "Em andamento…",
   "Installed apps": "Instalados",
-  "Try the new interface": "Experimentar a nova interface",
   "Works without internet": "Funciona sem internet",
-  "Back to the classic interface": "Voltar para a interface clássica",
   "What do you need?": "O que você precisa?",
   "E.g.: burn, water, fever": "Ex.: queimadura, água, febre",
   "Search": "Buscar",
@@ -564,5 +562,7 @@
   "Downloading {{count}} items_other": "Baixando {{count}} itens",
   "{{count}} reference documents not downloaded yet_one": "{{count}} documento de referência ainda não baixado",
   "{{count}} reference documents not downloaded yet_many": "{{count}} documentos de referência ainda não baixados",
-  "{{count}} reference documents not downloaded yet_other": "{{count}} documentos de referência ainda não baixados"
+  "{{count}} reference documents not downloaded yet_other": "{{count}} documentos de referência ainda não baixados",
+  "Advanced administration": "Administração avançada",
+  "Go to the main interface": "Ir para a interface principal"
 }

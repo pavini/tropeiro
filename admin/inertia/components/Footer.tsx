@@ -28,7 +28,7 @@ export default function Footer() {
         <ThemeToggle />
         <span className="text-gray-300">|</span>
         <a href="/novo" className="text-sm/6 font-semibold text-desert-green hover:underline">
-          {t('Try the new interface')}
+          {t('Go to the main interface')}
         </a>
       </div>
       <DebugInfoModal open={debugModalOpen} onClose={() => setDebugModalOpen(false)} />
