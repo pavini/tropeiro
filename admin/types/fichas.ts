@@ -13,6 +13,11 @@ export interface ReferenceDoc {
   sizeBytes: number
   /** Trecho da própria publicação sobre reprodução, ou a falta dele. */
   license: string
+  /**
+   * Para quem o documento foi escrito. Protocolos profissionais (SAMU) trazem
+   * condutas com oxigênio, remédio e aparelho que não servem para leigo.
+   */
+  audience: 'public' | 'professional'
 }
 
 export interface FichaRef {

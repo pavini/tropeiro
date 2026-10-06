@@ -17,6 +17,7 @@
 import { parseParameterBillions } from './context_window.js'
 import type { ChatSource } from '../../types/chat.js'
 import { groupReferencePages, referenceHref } from './reference_pages.js'
+import { REFERENCE_DOCS } from '../content/referencias.js'
 
 export type ContextLimits = { maxResults: number; maxTokens: number }
 export type ContextLimitTier = { maxParams: number; maxResults: number; maxTokens: number }
@@ -68,8 +69,12 @@ export function buildContextBlock(docs: BudgetableChunk[]): string {
       const date = doc.metadata?.archive_date
       // Documento oficial das fichas: a página, para a resposta poder citá-la.
       const page = doc.metadata?.page ? `, p. ${doc.metadata.page}` : ''
+      const audience =
+        REFERENCE_DOCS.find((d) => d.id === doc.metadata?.reference_id)?.audience === 'professional'
+          ? ' — protocolo para profissionais de saúde'
+          : ''
       const label = title
-        ? `[Context ${idx + 1} — ${title}${date ? ` (${date})` : ''}${page}]`
+        ? `[Context ${idx + 1} — ${title}${date ? ` (${date})` : ''}${page}${audience}]`
         : `[Context ${idx + 1}]`
       return `${label}\n${doc.text}`
     })
@@ -93,6 +98,14 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   const seen = new Set<string>()
   const sources: ChatSource[] = []
 
+  // A ficha do Tropeiro usada na resposta vem antes de tudo.
+  for (const doc of docs) {
+    const slug = doc.metadata?.ficha_slug as string | undefined
+    if (!slug || seen.has(`ficha:${slug}`)) continue
+    seen.add(`ficha:${slug}`)
+    sources.push({ title: doc.metadata!.archive_title as string, href: `/fichas/${slug}` })
+  }
+
   // Documentos oficiais das fichas vêm primeiro, um por documento, com as
   // páginas usadas e o link que abre o PDF guardado na primeira delas.
   const references = groupReferencePages(
@@ -113,7 +126,7 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   }
 
   for (const doc of docs) {
-    if (doc.metadata?.reference_id) continue
+    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug) continue
     const title =
       doc.metadata?.archive_title || doc.metadata?.full_title || doc.metadata?.article_title
     const path = doc.metadata?.source as string | undefined
