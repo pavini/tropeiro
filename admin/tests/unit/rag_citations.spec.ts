@@ -150,3 +150,11 @@ test('a ficha do Tropeiro vem antes de tudo nas fontes, com link para ela', () =
   assert.equal(sources[1].href, '/referencias/ms-samu#page=133')
   assert.equal(sources.length, 2)
 })
+
+test('guia do Tropeiro usado na resposta aparece com link para ele', () => {
+  const sources = buildCitations([
+    chunk({ source: '/x/storage/guias/radio-uso-livre.md', archive_title: 'Guia do Tropeiro: Rádios sem licença', guide_slug: 'radio-uso-livre' }),
+    chunk({ source: '/x/storage/guias/radio-uso-livre.md', archive_title: 'Guia do Tropeiro: Rádios sem licença', guide_slug: 'radio-uso-livre' }),
+  ])
+  assert.deepEqual(sources, [{ title: 'Guia do Tropeiro: Rádios sem licença', href: '/guias/radio-uso-livre' }])
+})

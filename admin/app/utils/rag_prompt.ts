@@ -98,12 +98,17 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   const seen = new Set<string>()
   const sources: ChatSource[] = []
 
-  // A ficha do Tropeiro usada na resposta vem antes de tudo.
-  for (const doc of docs) {
-    const slug = doc.metadata?.ficha_slug as string | undefined
-    if (!slug || seen.has(`ficha:${slug}`)) continue
-    seen.add(`ficha:${slug}`)
-    sources.push({ title: doc.metadata!.archive_title as string, href: `/fichas/${slug}` })
+  // A ficha e os guias do Tropeiro usados na resposta vêm antes de tudo.
+  for (const [campo, base] of [
+    ['ficha_slug', '/fichas'],
+    ['guide_slug', '/guias'],
+  ] as const) {
+    for (const doc of docs) {
+      const slug = doc.metadata?.[campo] as string | undefined
+      if (!slug || seen.has(`${base}/${slug}`)) continue
+      seen.add(`${base}/${slug}`)
+      sources.push({ title: doc.metadata!.archive_title as string, href: `${base}/${slug}` })
+    }
   }
 
   // Documentos oficiais das fichas vêm primeiro, um por documento, com as
@@ -126,7 +131,7 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   }
 
   for (const doc of docs) {
-    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug) continue
+    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug || doc.metadata?.guide_slug) continue
     const title =
       doc.metadata?.archive_title || doc.metadata?.full_title || doc.metadata?.article_title
     const path = doc.metadata?.source as string | undefined

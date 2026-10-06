@@ -1,0 +1,142 @@
+[
+  {
+    "id": "walkie-licenca",
+    "pergunta": "Preciso de licença para usar walkie-talkie? Quais canais posso usar?",
+    "precisa": [
+      {
+        "descricao": "não precisa de licença",
+        "padroes": [
+          "nao (precisa|e necessari[oa]|exige)[^.]{0,15}licenca|sem licenca|dispensa|independe"
+        ]
+      },
+      {
+        "descricao": "frequências de 462/467 MHz",
+        "padroes": [
+          "462|467"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "exige licença ou cadastro",
+        "padroes": [
+          "(precisa|necessario|exige)[^.]{0,20}(de )?(licenca|cadastro|autorizacao)"
+        ]
+      }
+    ],
+    "semSocorro": false,
+    "fonteOficial": true
+  },
+  {
+    "id": "walkie-potencia",
+    "pergunta": "Qual a potência máxima do walkie-talkie que não precisa de licença?",
+    "precisa": [
+      {
+        "descricao": "0,5 W ou 500 mW",
+        "padroes": [
+          "0,5 ?w|500 ?mw"
+        ]
+      }
+    ],
+    "naoPode": [],
+    "semSocorro": false,
+    "fonteOficial": true
+  },
+  {
+    "id": "px-como-usar",
+    "pergunta": "Como faço para usar rádio PX? Precisa de licença?",
+    "precisa": [
+      {
+        "descricao": "cadastro no Mosaico",
+        "padroes": [
+          "mosaico"
+        ]
+      },
+      {
+        "descricao": "gratuito",
+        "padroes": [
+          "gratuit|sem custo|sem pagar|sem nenhum pagamento"
+        ]
+      },
+      {
+        "descricao": "indicativo PX",
+        "padroes": [
+          "indicativo"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "exige prova",
+        "padroes": [
+          "fazer (uma )?prova|passar (na|em uma) prova|exame"
+        ]
+      }
+    ],
+    "semSocorro": false,
+    "fonteOficial": true
+  },
+  {
+    "id": "px-canal-emergencia",
+    "pergunta": "Qual canal do PX é de emergência?",
+    "precisa": [
+      {
+        "descricao": "canal 9",
+        "padroes": [
+          "canal 9"
+        ]
+      },
+      {
+        "descricao": "diz que é costume ou norma antiga",
+        "padroes": [
+          "costume|revogad|norma antiga|nao ha (uma )?norma|nenhuma norma|nao existe (uma )?norma"
+        ]
+      }
+    ],
+    "naoPode": [],
+    "semSocorro": false,
+    "fonteOficial": true
+  },
+  {
+    "id": "repetidora",
+    "pergunta": "O que é uma repetidora de rádio?",
+    "precisa": [
+      {
+        "descricao": "recebe numa frequência",
+        "padroes": [
+          "recebe|entrada|escuta"
+        ]
+      },
+      {
+        "descricao": "retransmite em outra",
+        "padroes": [
+          "retransmit|outra frequencia|saida"
+        ]
+      }
+    ],
+    "naoPode": [],
+    "semSocorro": false,
+    "fonteOficial": true
+  },
+  {
+    "id": "alcance-vhf",
+    "pergunta": "Por que meu rádio VHF não alcança longe atrás de um morro?",
+    "precisa": [
+      {
+        "descricao": "linha reta / visada",
+        "padroes": [
+          "linha reta|visada|linha de visada"
+        ]
+      },
+      {
+        "descricao": "antena mais alta ajuda",
+        "padroes": [
+          "alto|altura|elevad"
+        ]
+      }
+    ],
+    "naoPode": [],
+    "semSocorro": false,
+    "fonteOficial": true
+  }
+]

@@ -4,14 +4,19 @@ import { FICHAS } from '../../app/content/fichas.js'
 import { REFERENCE_DOCS } from '../../app/content/referencias.js'
 import { searchFichas, normalizeText } from '../../app/utils/fichas_search.js'
 
-test('documentos de referência têm id único, endereço oficial https e sha256', () => {
+test('documentos de referência têm id único, endereço oficial https e forma de conferir', () => {
   const ids = REFERENCE_DOCS.map((d) => d.id)
   assert.equal(new Set(ids).size, ids.length)
   for (const doc of REFERENCE_DOCS) {
     assert.match(doc.url, /^https:\/\/[^/]+\.gov\.br\//, `${doc.id}: fonte deve ser oficial (gov.br)`)
-    assert.match(doc.sha256, /^[0-9a-f]{64}$/, `${doc.id}: sha256 inválido`)
-    assert.ok(doc.sizeBytes > 0)
     assert.ok(doc.license.trim(), `${doc.id}: sem nota de licença`)
+    if (doc.format === 'html') {
+      // Página muda de data e layout: confere pelos trechos, não pelo sha256.
+      assert.ok(doc.mustContain?.length, `${doc.id}: página sem trecho para conferir`)
+    } else {
+      assert.match(doc.sha256, /^[0-9a-f]{64}$/, `${doc.id}: sha256 inválido`)
+      assert.ok(doc.sizeBytes > 0)
+    }
   }
 })
 
@@ -26,7 +31,7 @@ test('fichas têm slug único, o que fazer e fontes que existem', () => {
     assert.ok(ficha.refs.length > 0, `${ficha.slug}: sem fonte`)
     for (const ref of ficha.refs) {
       assert.ok(REFERENCE_DOCS.some((d) => d.id === ref.doc), `${ficha.slug}: documento ${ref.doc} não existe`)
-      assert.ok(Number.isInteger(ref.page) && ref.page > 0, `${ficha.slug}: página inválida`)
+      assert.ok(Number.isInteger(ref.page) && ref.page! > 0, `${ficha.slug}: página inválida`)
     }
   }
 })
@@ -69,4 +74,16 @@ test('busca acha a ficha certa, com ou sem acento e com palavra incompleta', () 
 test('busca sem relação ou curta demais não traz ficha', () => {
   assert.deepEqual(searchFichas(FICHAS, 'xilofone'), [])
   assert.deepEqual(searchFichas(FICHAS, 'ab'), [])
+})
+
+test('pergunta de outro assunto não puxa ficha só por palavra de pergunta ("como")', () => {
+  assert.deepEqual(searchFichas(FICHAS, 'Como faço para usar rádio PX? Precisa de licença?', 1, 3), [])
+  assert.equal(searchFichas(FICHAS, 'Como tratar uma queimadura?', 1, 3)[0]?.slug, 'queimadura')
+  assert.equal(searchFichas(FICHAS, 'Uma pessoa desmaiou. O que fazer?', 1, 3)[0]?.slug, 'desmaio')
+})
+
+test('perguntas do teste de emergência encontram a ficha certa', () => {
+  const ficha = (q: string) => searchFichas(FICHAS, q, 1, 3)[0]?.slug
+  assert.equal(ficha('Uma pessoa cortou a perna e está sangrando muito. O que eu faço?'), 'sangramento')
+  assert.equal(ficha('Um escorpião picou meu filho. O que eu faço?'), 'picada-de-animal-peconhento')
 })

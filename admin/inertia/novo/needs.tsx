@@ -26,6 +26,7 @@ const ICONS = {
   medicine: 'M5 15 L15 5 A3.5 3.5 0 0 1 20 10 L10 20 A3.5 3.5 0 0 1 5 15 Z M9.5 9.5 L14.5 14.5',
   learn: 'M3 6 C6 5 9 5 12 7 C15 5 18 5 21 6 V19 C18 18 15 18 12 20 C9 18 6 18 3 19 Z M12 7 V20',
   ai: 'M4 5 H20 V16 H10 L5 20 V16 H4 Z',
+  radio: 'M12 11 V21 M8 21 H16 M6.5 5.5 A7.5 7.5 0 0 1 17.5 5.5 M9 8 A4 4 0 0 1 15 8 M12 11 A0.5 0.5 0 1 0 12.01 11',
   library: 'M5 4 H9 V20 H5 Z M10 4 H14 V20 H10 Z M15 5 L19 4 L21 19 L17 20 Z',
 }
 
@@ -46,6 +47,7 @@ export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: bool
     { id: 'health', label: 'Health and first aid', icon: ICONS.health, iconBg: '#FCE4E1', iconFg: '#8A1C12', href: '/fichas' },
     { id: 'water', label: 'Water and food', icon: ICONS.water, iconBg: '#DDEBF7', iconFg: '#1B4F7A', href: search('água potável') },
     { id: 'shelter', label: 'Shelter and safety', icon: ICONS.shelter, iconBg: '#FFF1CC', iconFg: '#7A4B00', href: search('abrigo') },
+    { id: 'radio', label: 'Radio and communication', icon: ICONS.radio, iconBg: '#DDEBF7', iconFg: '#1B4F7A', href: '/guias' },
     { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/mapa' },
     { id: 'medicine', label: 'Medicines', icon: ICONS.medicine, iconBg: '#EDE7F6', iconFg: '#4A2C7A', href: drugReferenceInstalled ? '/drug-reference' : null },
     { id: 'library', label: 'Encyclopedia', icon: ICONS.library, iconBg: '#E8EEF0', iconFg: '#2C4650', href: serviceHref(services, SERVICE_NAMES.KIWIX), external: true },

@@ -194,11 +194,14 @@ export class RagPipelineService {
 
     // --- Ficha de primeiros socorros e instruções de emergência -------------
     // Quando a pergunta combina com uma ficha, ela entra como o primeiro trecho:
-    // é o conteúdo mais confiável do servidor. Ficha ou documento oficial no
-    // contexto indicam pergunta de emergência, e só então entram as instruções
-    // de emergência, para não mudar respostas de outros assuntos.
+    // é o conteúdo mais confiável do servidor. As instruções de emergência só
+    // entram com ficha ou quando o trecho mais relevante é de um documento de
+    // saúde, para não mudar respostas de outros assuntos (como rádio).
     if (!opts.oracleContext && !opts.skipRetrieval) {
-      const [ficha] = searchFichas(FICHAS, String(query.content ?? ''), 1)
+      // Só ficha que combina de verdade (palavra-chave ou título), não por uma palavra solta.
+      const [ficha] = searchFichas(FICHAS, String(query.content ?? ''), 1, 3)
+      // O trecho mais relevante da busca, antes de a ficha entrar na frente.
+      const topChunk = relevantDocs[0]
       if (ficha) {
         relevantDocs = [
           {
@@ -209,7 +212,10 @@ export class RagPipelineService {
           ...relevantDocs,
         ]
       }
-      if (ficha || relevantDocs.some((d) => d.metadata?.reference_id)) {
+      // Um trecho de saúde perdido no meio (o protocolo do SAMU também fala de
+      // rádio) não basta: vale o mais relevante.
+      const healthTop = REFERENCE_DOCS.find((r) => r.id === topChunk?.metadata?.reference_id)?.topic === 'health'
+      if (ficha || healthTop) {
         systemBlocks.push({ role: 'system', content: EMERGENCY_PROMPT })
       }
     }

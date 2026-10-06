@@ -1453,3 +1453,110 @@ a.nv-app-button:not(.nv-secondary) {
   font-weight: 700;
   text-decoration: underline;
 }
+
+/* Guias */
+.nv-guide-lessons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nv-guide-lesson {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.nv-guide-number {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--nv-accent-tint);
+  color: var(--nv-accent-dark);
+  font-weight: 700;
+}
+
+.nv-guide-section {
+  gap: 12px;
+}
+
+.nv-guide-text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--nv-ink-2);
+}
+
+.nv-guide-note {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid #b07400;
+  border-radius: 8px;
+  background: #fff1cc;
+  color: #4a3200;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.nv-guide-table-wrap {
+  overflow-x: auto;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+
+.nv-guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nv-guide-table caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: 8px;
+  color: var(--nv-ink);
+}
+
+.nv-guide-table th,
+.nv-guide-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--nv-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.nv-guide-table thead th {
+  background: var(--nv-accent-tint);
+  color: var(--nv-accent-dark);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.nv-guide-table tbody th {
+  font-weight: 700;
+}
+
+.nv-guide-table-note {
+  font-size: 14px;
+  color: var(--nv-muted);
+  margin: 8px 0 0;
+}
+
+.nv-guide-nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.nv-guide-next {
+  text-align: right;
+  align-items: flex-end;
+}

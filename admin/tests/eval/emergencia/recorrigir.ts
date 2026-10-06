@@ -16,7 +16,10 @@ if (!arquivo) {
   console.error('Informe o relatório: recorrigir.ts tests/eval/reports/emergencia-....json')
   process.exit(1)
 }
-const perguntas: Pergunta[] = JSON.parse(await readFile(join(aqui, 'perguntas.json'), 'utf-8'))
+const perguntas: Pergunta[] = [
+  ...JSON.parse(await readFile(join(aqui, 'perguntas.json'), 'utf-8')),
+  ...JSON.parse(await readFile(join(aqui, 'radio.json'), 'utf-8')),
+]
 const relatorio = JSON.parse(await readFile(arquivo, 'utf-8'))
 
 let acertos = 0

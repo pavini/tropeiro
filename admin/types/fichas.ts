@@ -8,9 +8,19 @@ export interface ReferenceDoc {
   year: number
   /** Endereço oficial de onde o servidor baixa o documento. */
   url: string
-  /** Para conferir que o arquivo baixado é o original. */
+  /**
+   * PDF (padrão) é conferido pelo sha256 e pelo tamanho. Norma que só existe
+   * como página (portal de legislação da Anatel, Planalto) é guardada como
+   * cópia limpa em HTML; como a página muda de data e de layout, ela é
+   * conferida pelos trechos de `mustContain`, não pelo sha256.
+   */
+  format?: 'pdf' | 'html'
+  /** Para conferir que o arquivo baixado é o original (só PDF). */
   sha256: string
+  /** Tamanho do PDF em bytes (só PDF). */
   sizeBytes: number
+  /** Trechos que a página tem que conter para ser a norma certa (só HTML). */
+  mustContain?: string[]
   /** Trecho da própria publicação sobre reprodução, ou a falta dele. */
   license: string
   /**
@@ -18,12 +28,16 @@ export interface ReferenceDoc {
    * condutas com oxigênio, remédio e aparelho que não servem para leigo.
    */
   audience: 'public' | 'professional'
+  /** Assunto do documento. Só documento de saúde liga as instruções de emergência da IA. */
+  topic: 'health' | 'radio'
 }
 
 export interface FichaRef {
   doc: string
   /** Página do PDF (não a numeração impressa), para abrir já no lugar certo. */
-  page: number
+  page?: number
+  /** Em norma guardada como página: trecho exato do texto, para abrir já nele. */
+  anchor?: string
   /** O que foi tirado desta parte do documento. */
   about: string
 }
