@@ -1,6 +1,7 @@
 // Tropeiro: PMTILES_BIN permite apontar para outro binário em desenvolvimento
 // local (fora do container). Este módulo também é importado pelo frontend,
-// onde `process` não existe.
+// onde `process` não existe. O valor é lido na importação: no worker isso
+// acontece antes do boot carregar o .env, por isso o dev/start.sh exporta.
 export const PMTILES_BINARY_PATH =
   (typeof process !== 'undefined' && process.env?.PMTILES_BIN) || '/usr/local/bin/pmtiles'
 
