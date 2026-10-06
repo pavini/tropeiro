@@ -5,7 +5,10 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ADMIN="$ROOT/admin"
-STORAGE="${NOMAD_STORAGE_PATH:-$HOME/nomad-storage}"
+# Rodando direto na máquina, o app grava em admin/storage (relativo à pasta
+# dele). Os containers que ele cria (Kiwix etc.) precisam montar a mesma pasta,
+# então NOMAD_STORAGE_PATH aponta sempre para ela.
+STORAGE="$ADMIN/storage"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Faltando: $1. $2" >&2; exit 1; }; }
 need docker "Instale o Docker Desktop (Mac) ou Docker Engine (Linux)."
@@ -21,10 +24,12 @@ docker compose -f "$ROOT/dev/dev-services.yml" up -d --wait
 
 echo "==> Configurando admin/.env"
 mkdir -p "$STORAGE"
-if [ ! -f "$ADMIN/.env" ]; then
-  cp "$ADMIN/.env.example" "$ADMIN/.env"
+[ -f "$ADMIN/.env" ] || cp "$ADMIN/.env.example" "$ADMIN/.env"
+if grep -q '^NOMAD_STORAGE_PATH=' "$ADMIN/.env"; then
   tmp="$(mktemp)"
   sed -e "s#^NOMAD_STORAGE_PATH=.*#NOMAD_STORAGE_PATH=$STORAGE#" "$ADMIN/.env" > "$tmp" && mv "$tmp" "$ADMIN/.env"
+else
+  printf 'NOMAD_STORAGE_PATH=%s\n' "$STORAGE" >> "$ADMIN/.env"
 fi
 grep -q '^URL=' "$ADMIN/.env" || printf '\nURL=http://localhost:8080\n' >> "$ADMIN/.env"
 
@@ -70,6 +75,16 @@ fi
 echo "==> Preparando o banco"
 node ace migration:run --force
 node ace db:seed
+
+# A biblioteca (Kiwix) lê os ZIMs que o app grava. Se o container foi criado
+# antes desta correção, ele monta a pasta antiga e não acha nada. Os outros
+# apps (Ollama, Qdrant) conversam com o app por API e podem ficar como estão.
+if docker inspect nomad_kiwix_server --format '{{range .Mounts}}{{.Source}}{{"\n"}}{{end}}' 2>/dev/null \
+  | grep -qv "^$STORAGE/"; then
+  echo
+  echo "Atenção: a biblioteca (Kiwix) ainda usa uma pasta antiga e não vai achar o conteúdo."
+  echo "Depois de subir o app, recrie-a em Depósito de apps > Biblioteca de Informações > Gerenciar > Forçar reinstalação."
+fi
 
 echo
 echo "Pronto. Para rodar: ./dev/start.sh  e abra http://localhost:8080"

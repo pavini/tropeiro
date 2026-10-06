@@ -49,7 +49,7 @@ Para desenvolver e testar a interface. Precisa de Docker (Docker Desktop no Mac)
 ./dev/start.sh   # app com hot reload + workers; abra http://localhost:8080
 ```
 
-O conteúdo baixado fica em `~/nomad-storage` (mude com `NOMAD_STORAGE_PATH`). O app instala serviços como o Kiwix em containers via Docker; em Mac com Apple Silicon isso não é oficialmente suportado, então para um teste completo use Linux x86.
+O conteúdo baixado fica em `admin/storage`, a mesma pasta que os containers do Kiwix e dos outros apps montam. O app instala serviços como o Kiwix em containers via Docker; em Mac com Apple Silicon isso não é oficialmente suportado, então para um teste completo use Linux x86.
 
 ## Licença
 
