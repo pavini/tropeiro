@@ -2,6 +2,9 @@ import { SystemService } from '#services/system_service'
 import { LibrarySearchService } from '#services/library_search_service'
 import { LibraryReaderService } from '#services/library_reader_service'
 import { KitService } from '#services/kit_service'
+import { DownloadService } from '#services/download_service'
+import queueConfig from '#config/queue'
+import { isWorkerAlive } from '../utils/worker_heartbeat.js'
 import logger from '@adonisjs/core/services/logger'
 import vine from '@vinejs/vine'
 import { KITS } from '../../constants/kits.js'
@@ -23,7 +26,8 @@ export default class NovoController {
     private systemService: SystemService,
     private librarySearch: LibrarySearchService,
     private libraryReader: LibraryReaderService,
-    private kits: KitService
+    private kits: KitService,
+    private downloads: DownloadService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -79,6 +83,15 @@ export default class NovoController {
       logger.error(`[NovoController] falha ao aplicar o kit ${kit}: ${(err as Error).message}`)
       return response.redirect().toPath('/novo/montar?resultado=erro')
     }
+  }
+
+  /** Downloads em andamento e se o worker que os processa está vivo. */
+  async downloadStatus({}: HttpContext) {
+    const [jobs, workerAlive] = await Promise.all([
+      this.downloads.listDownloadJobs().catch(() => []),
+      isWorkerAlive(queueConfig.connection),
+    ])
+    return { workerAlive, jobs }
   }
 
   /** Parte do caminho depois do prefixo, ainda codificada como veio na URL. */
