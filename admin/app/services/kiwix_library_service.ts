@@ -5,6 +5,7 @@ import { Archive } from '@openzim/libzim'
 import { KIWIX_LIBRARY_XML_PATH, ZIM_STORAGE_PATH, ensureDirectoryExists, isValidZimFile } from '../utils/fs.js'
 import logger from '@adonisjs/core/services/logger'
 import { randomUUID } from 'node:crypto'
+import { readZimMetadata } from '../utils/zim_metadata.js'
 
 const CONTAINER_DATA_PATH = '/data'
 const XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -62,13 +63,7 @@ export class KiwixLibraryService {
       }
       const archive = new Archive(zimFilePath)
 
-      const getMeta = (key: string): string | undefined => {
-        try {
-          return archive.getMetadata(key) || undefined
-        } catch {
-          return undefined
-        }
-      }
+      const getMeta = (key: string) => readZimMetadata(archive, key)
 
       let favicon: string | undefined
       let faviconMimeType: string | undefined
