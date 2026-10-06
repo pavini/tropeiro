@@ -44,6 +44,12 @@ test('busca acha a ficha certa, com ou sem acento e com palavra incompleta', () 
   assert.equal(first('massagem cardiaca'), 'parada-cardiaca')
   assert.equal(first('corte na mão'), 'sangramento')
   assert.equal(first('desmaiou'), 'desmaio')
+  assert.equal(first('levou um tiro'), 'ferimento-a-tiro')
+  assert.equal(first('baleado'), 'ferimento-a-tiro')
+  assert.equal(first('convulsao'), 'convulsao')
+  assert.equal(first('choque eletrico'), 'choque-eletrico')
+  assert.equal(first('osso quebrado'), 'fratura')
+  assert.equal(first('afogado'), 'afogamento')
 })
 
 test('busca sem relação ou curta demais não traz ficha', () => {

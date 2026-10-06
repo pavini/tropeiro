@@ -6,6 +6,7 @@ export default function EmergencyNumbers() {
   const numbers = [
     { number: '192', label: t('SAMU') },
     { number: '193', label: t('Fire department') },
+    { number: '190', label: t('Police') },
   ]
   return (
     <div className="nv-emergency" role="note" aria-label={t('Emergency numbers')}>
