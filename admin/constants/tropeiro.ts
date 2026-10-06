@@ -26,3 +26,11 @@ export const DEFAULT_CONTENT_LANGUAGE = 'por'
  * código e servem de chave; a tradução sai de `inertia/i18n/locales/`.
  */
 export const DEFAULT_UI_LANGUAGE = 'pt-BR'
+
+/**
+ * Idioma das respostas da IA. Entra como prompt de sistema em toda conversa:
+ * sem isso, modelos pequenos respondem em espanhol a perguntas curtas como
+ * "esta funcionando?", que valem nas duas línguas.
+ */
+export const AI_LANGUAGE_PROMPT = `Responda sempre em português do Brasil, mesmo quando a pergunta for curta, ambígua ou parecer escrita em outra língua próxima, como o espanhol. Só use outro idioma se a pessoa pedir explicitamente.
+Quando o assunto for emergência, use as referências do Brasil: SAMU 192, Bombeiros 193, Polícia Militar 190 e Defesa Civil 199.`
