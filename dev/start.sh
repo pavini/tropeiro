@@ -17,8 +17,18 @@ if [ -z "${PMTILES_BIN:-}" ]; then
   export PMTILES_BIN
 fi
 
-npm run work:all &
-workers=$!
-trap 'kill $workers 2>/dev/null || true' EXIT INT TERM
+# O worker de filas é reiniciado se cair, como em produção (entrypoint.sh).
+supervise_worker() {
+  while true; do
+    # set -e não pode encerrar o laço justamente quando o worker cai.
+    code=0
+    npm run work:all || code=$?
+    echo "O worker de filas saiu (código $code). Reiniciando em 5s..." >&2
+    sleep 5
+  done
+}
+supervise_worker &
+# Ctrl+C encerra o grupo inteiro: app, laço e worker.
+trap 'trap - EXIT INT TERM; kill 0' EXIT INT TERM
 
 npm run dev

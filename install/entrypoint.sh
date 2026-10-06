@@ -38,9 +38,19 @@ node ace migration:run --force
 echo "Seeding the database..."
 node ace db:seed
 
-# Start background workers for all queues
+# Start background workers for all queues. Supervised: if the worker process
+# dies (e.g. a native crash in a library), it is restarted instead of leaving
+# every download silently stuck while the web server keeps running.
 echo "Starting background workers for all queues..."
-node ace queue:work --all &
+(
+  while true; do
+    # `|| code=$?` keeps `set -e` from ending the loop exactly when the worker dies.
+    code=0
+    node ace queue:work --all || code=$?
+    echo "Queue worker exited (code $code). Restarting in 5s..." >&2
+    sleep 5
+  done
+) &
 
 # Start the AdonisJS application
 echo "Starting AdonisJS application..."

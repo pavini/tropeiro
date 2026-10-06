@@ -481,5 +481,8 @@
   "Downloads in progress": "Downloads em andamento",
   "In line": "Na fila",
   "For whoever manages the server": "Para quem cuida do servidor",
-  "Choose which content this server keeps.": "Escolha o conteúdo que este servidor guarda."
+  "Choose which content this server keeps.": "Escolha o conteúdo que este servidor guarda.",
+  "Downloads are stopped": "Os downloads estão parados",
+  "The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.": "O processo que baixa os arquivos não está respondendo. Ele costuma voltar sozinho em alguns minutos; se não voltar, reinicie o servidor.",
+  "No progress": "Sem progresso"
 }

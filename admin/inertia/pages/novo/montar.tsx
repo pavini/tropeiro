@@ -3,15 +3,25 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import NovoLayout from '~/novo/NovoLayout'
-import api from '~/lib/api'
 import { useSystemInfo } from '~/hooks/useSystemInfo'
 import { getPrimaryDiskInfo } from '~/hooks/useDiskDisplayData'
 import useInternetStatus from '~/hooks/useInternetStatus'
 import type { KitPlan } from '../../../types/kits'
 import type { KitId } from '../../../constants/kits'
+import type { DownloadJobWithProgress } from '../../../types/downloads'
 
 /** Folga exigida no disco além do tamanho do kit. */
 const DISK_MARGIN = 1.15
+/** Download ativo sem avançar há mais que isso aparece como parado. */
+const STALLED_MS = 5 * 60_000
+
+interface DownloadStatus {
+  workerAlive: boolean | null
+  jobs: DownloadJobWithProgress[]
+}
+
+const isStalled = (job: DownloadJobWithProgress, now: number) =>
+  job.status === 'active' && !!job.lastProgressTime && now - job.lastProgressTime > STALLED_MS
 
 /** Montagem do servidor por kits de conteúdo. */
 export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
@@ -32,11 +42,18 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
   const gb = (mb: number) =>
     new Intl.NumberFormat(i18n.language, { maximumFractionDigits: mb < 10240 ? 1 : 0 }).format(mb / 1024)
 
-  const { data: jobs } = useQuery({
+  const { data: downloads } = useQuery({
     queryKey: ['novo-montar-downloads'],
-    queryFn: () => api.listDownloadJobs(),
-    refetchInterval: (query) => ((query.state.data?.length ?? 0) > 0 ? 3000 : 15000),
+    queryFn: async (): Promise<DownloadStatus> => {
+      const res = await fetch('/novo/downloads', { headers: { Accept: 'application/json' } })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      return res.json()
+    },
+    refetchInterval: (query) => ((query.state.data?.jobs.length ?? 0) > 0 ? 3000 : 15000),
   })
+  const jobs = downloads?.jobs
+  const now = Date.now()
+  const workerDown = downloads?.workerAlive === false && (jobs?.length ?? 0) > 0
 
   const apply = () => {
     if (!selectedKit || selectedKit.status !== 'available' || !isOnline) return
@@ -143,6 +160,15 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
         </div>
       )}
 
+      {workerDown && (
+        <div className="nv-card nv-card-error" role="alert">
+          <span className="nv-tile-label">{t('Downloads are stopped')}</span>
+          <span className="nv-text">
+            {t('The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.')}
+          </span>
+        </div>
+      )}
+
       {jobs && jobs.length > 0 && (
         <section className="nv-card" aria-live="polite">
           <h2 className="nv-section-label">{t('Downloads in progress')}</h2>
@@ -153,7 +179,9 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
                 <span className="nv-progress-status">
                   {job.status === 'failed'
                     ? t('Failed')
-                    : job.status === 'waiting' || job.status === 'delayed'
+                    : isStalled(job, now)
+                      ? t('No progress')
+                      : job.status === 'waiting' || job.status === 'delayed'
                       ? t('In line')
                       : `${Math.round(job.progress)}%`}
                 </span>

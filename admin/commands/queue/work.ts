@@ -2,6 +2,7 @@ import { BaseCommand, flags } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import { Worker } from 'bullmq'
 import queueConfig from '#config/queue'
+import { writeWorkerHeartbeat, WORKER_HEARTBEAT_INTERVAL_MS } from '../../app/utils/worker_heartbeat.js'
 import { RunDownloadJob } from '#jobs/run_download_job'
 import { RunExtractPmtilesJob } from '#jobs/run_extract_pmtiles_job'
 import { DownloadModelJob } from '#jobs/download_model_job'
@@ -51,6 +52,14 @@ export default class QueueWork extends BaseCommand {
     this.logger.info(`Starting workers for queues: ${queuesToProcess.join(', ')}`)
 
     const workers: Worker[] = []
+
+    // Sinal de vida para a interface saber se a fila está sendo processada.
+    const beat = () =>
+      writeWorkerHeartbeat(queueConfig.connection).catch((err) =>
+        this.logger.error(`Não foi possível gravar o sinal de vida do worker: ${err.message}`)
+      )
+    void beat()
+    setInterval(beat, WORKER_HEARTBEAT_INTERVAL_MS)
 
     // Create a worker for each queue
     for (const queueName of queuesToProcess) {

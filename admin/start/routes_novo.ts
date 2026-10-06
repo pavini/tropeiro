@@ -19,5 +19,6 @@ router
     router.get('/arquivo/*', [NovoController, 'arquivo'])
     router.get('/montar', [NovoController, 'montar'])
     router.post('/montar', [NovoController, 'aplicarKit'])
+    router.get('/downloads', [NovoController, 'downloadStatus'])
   })
   .prefix('/novo')
