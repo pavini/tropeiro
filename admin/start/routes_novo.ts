@@ -28,6 +28,8 @@ router
     router.get('/conteudo', [NovoController, 'conteudo'])
     router.post('/conteudo/apagar', [NovoController, 'apagarConteudo'])
     router.get('/apps', [NovoController, 'apps'])
+    router.get('/mapa', [NovoController, 'mapa'])
+    router.get('/mapa/estilo', [NovoController, 'mapaEstilo'])
     router.post('/apps', [NovoController, 'appAcao'])
     router.get('/fichas-sugeridas', [NovoController, 'fichasSugeridas'])
   })
