@@ -27,7 +27,7 @@ export default function NovoFicha(props: {
     <NovoLayout>
       <Head title={ficha.title} />
 
-      <Link href="/novo/fichas" className="nv-back">
+      <Link href="/fichas" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>
@@ -66,7 +66,7 @@ export default function NovoFicha(props: {
               <ul className="nv-source-pages">
                 {refs.map((ref) => (
                   <li key={`${ref.doc}-${ref.page}`}>
-                    <a href={`/novo/referencias/${doc.id}#page=${ref.page}`} target="_blank" rel="noopener">
+                    <a href={`/referencias/${doc.id}#page=${ref.page}`} target="_blank" rel="noopener">
                       {t('Open on page {{page}}', { page: ref.page })}
                     </a>{' '}
                     <span className="nv-text">({ref.about})</span>
@@ -88,7 +88,7 @@ export default function NovoFicha(props: {
           <h2 className="nv-section-label">{t('Other first aid cards')}</h2>
           <div className="nv-chips">
             {props.related.map((r) => (
-              <Link key={r.slug} href={`/novo/fichas/${r.slug}`} className="nv-chip nv-chip-link">
+              <Link key={r.slug} href={`/fichas/${r.slug}`} className="nv-chip nv-chip-link">
                 {r.title}
               </Link>
             ))}

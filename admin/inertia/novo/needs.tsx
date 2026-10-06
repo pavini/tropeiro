@@ -35,7 +35,7 @@ function serviceHref(services: ServiceSlim[], name: string): string | null {
   return getServiceLink(s.ui_location || '', s.custom_url)
 }
 
-const search = (q: string) => `/novo/busca?q=${encodeURIComponent(q)}`
+const search = (q: string) => `/busca?q=${encodeURIComponent(q)}`
 
 export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: boolean): Need[] {
   const education =
@@ -43,13 +43,13 @@ export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: bool
   const ollama = services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA && s.installed)
 
   return [
-    { id: 'health', label: 'Health and first aid', icon: ICONS.health, iconBg: '#FCE4E1', iconFg: '#8A1C12', href: '/novo/fichas' },
+    { id: 'health', label: 'Health and first aid', icon: ICONS.health, iconBg: '#FCE4E1', iconFg: '#8A1C12', href: '/fichas' },
     { id: 'water', label: 'Water and food', icon: ICONS.water, iconBg: '#DDEBF7', iconFg: '#1B4F7A', href: search('água potável') },
     { id: 'shelter', label: 'Shelter and safety', icon: ICONS.shelter, iconBg: '#FFF1CC', iconFg: '#7A4B00', href: search('abrigo') },
-    { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/novo/mapa' },
+    { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/mapa' },
     { id: 'medicine', label: 'Medicines', icon: ICONS.medicine, iconBg: '#EDE7F6', iconFg: '#4A2C7A', href: drugReferenceInstalled ? '/drug-reference' : null },
     { id: 'library', label: 'Encyclopedia', icon: ICONS.library, iconBg: '#E8EEF0', iconFg: '#2C4650', href: serviceHref(services, SERVICE_NAMES.KIWIX), external: true },
     { id: 'learn', label: 'Learn', icon: ICONS.learn, iconBg: '#E8EEF0', iconFg: '#2C4650', href: education, external: true },
-    { id: 'ai', label: 'Ask the AI', icon: ICONS.ai, iconBg: '#E3EFE7', iconFg: '#14492F', href: ollama ? '/novo/perguntar' : null },
+    { id: 'ai', label: 'Ask the AI', icon: ICONS.ai, iconBg: '#E3EFE7', iconFg: '#14492F', href: ollama ? '/perguntar' : null },
   ]
 }

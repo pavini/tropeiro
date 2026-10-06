@@ -18,7 +18,7 @@ export default function NovoInicio(props: {
 
   const search = (q: string) => {
     const trimmed = q.trim()
-    if (trimmed) router.get('/novo/busca', { q: trimmed })
+    if (trimmed) router.get('/busca', { q: trimmed })
   }
 
   return (
@@ -73,10 +73,10 @@ export default function NovoInicio(props: {
       <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         <h2 className="nv-section-label">{t('For whoever manages the server')}</h2>
         <div className="nv-fichas">
-          <AdminLink href="/novo/estado" title={t('Server status')} text={t('See if everything is working.')} />
-          <AdminLink href="/novo/montar" title={t('Set up the server')} text={t('Choose which content this server keeps.')} />
-          <AdminLink href="/novo/apps" title={t('Apps')} text={t('Install, start and stop the programs on the server.')} />
-          <AdminLink href="/novo/conteudo" title={t('Installed content')} text={t('See what is on the server and free up space.')} />
+          <AdminLink href="/estado" title={t('Server status')} text={t('See if everything is working.')} />
+          <AdminLink href="/montar" title={t('Set up the server')} text={t('Choose which content this server keeps.')} />
+          <AdminLink href="/apps" title={t('Apps')} text={t('Install, start and stop the programs on the server.')} />
+          <AdminLink href="/conteudo" title={t('Installed content')} text={t('See what is on the server and free up space.')} />
         </div>
       </section>
     </NovoLayout>

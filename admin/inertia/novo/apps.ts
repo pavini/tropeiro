@@ -30,8 +30,8 @@ interface AppInfo {
 }
 
 const INFO: Record<string, AppInfo> = {
-  nomad_kiwix_server: { title: 'Information Library', what: 'Wikipedia, manuals and guides, searchable without internet.', group: 'essentials', href: '/novo' },
-  nomad_ollama: { title: 'AI Assistant', what: 'Answers questions using the content on this server.', group: 'essentials', href: '/novo/perguntar' },
+  nomad_kiwix_server: { title: 'Information Library', what: 'Wikipedia, manuals and guides, searchable without internet.', group: 'essentials', href: '/' },
+  nomad_ollama: { title: 'AI Assistant', what: 'Answers questions using the content on this server.', group: 'essentials', href: '/perguntar' },
   nomad_translate: { title: 'Translated Library', what: 'Reads library books in another language, translated on this server.', group: 'essentials' },
   nomad_meshtastic_web: { title: 'Radio messages (Meshtastic)', what: 'Send messages over Meshtastic radios, without internet or phone signal.', group: 'communication' },
   nomad_meshcore_web: { title: 'Radio messages (MeshCore)', what: 'Send messages over MeshCore radios, without internet or phone signal.', group: 'communication' },

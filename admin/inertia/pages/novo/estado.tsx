@@ -32,7 +32,7 @@ export default function NovoEstado(props: Props) {
   const { data: downloads } = useQuery({
     queryKey: ['novo-estado-downloads'],
     queryFn: async (): Promise<{ workerAlive: boolean | null; jobs: DownloadJobWithProgress[] }> => {
-      const res = await fetch('/novo/downloads', { headers: { Accept: 'application/json' } })
+      const res = await fetch('/downloads', { headers: { Accept: 'application/json' } })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return res.json()
     },
@@ -62,7 +62,7 @@ export default function NovoEstado(props: Props) {
     <NovoLayout>
       <Head title={t('Server status')} />
 
-      <Link href="/novo" className="nv-back">
+      <Link href="/" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>
@@ -87,9 +87,12 @@ export default function NovoEstado(props: Props) {
   )
 }
 
+/** Telas da interface clássica: abrem com a página inteira, que tem outro layout. */
+const CLASSIC = ['/home', '/settings', '/supply-depot', '/chat', '/maps']
+
 function CheckRow({ check }: { check: HealthCheck }) {
   const { t } = useTranslation()
-  const external = check.action && !check.action.href.startsWith('/novo')
+  const external = check.action && CLASSIC.some((p) => check.action!.href.startsWith(p))
   return (
     <li className={`nv-card nv-health-item nv-health-${check.level}`}>
       <span className="nv-health-icon" aria-hidden="true">

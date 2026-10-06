@@ -46,7 +46,7 @@ export default function NovoApps(props: { apps: NovoApp[]; result: string }) {
   const act = (app: NovoApp, action: Action) => {
     setSending(`${app.name}:${action}`)
     router.post(
-      '/novo/apps',
+      '/apps',
       { service: app.name, action },
       {
         onFinish: () => {
@@ -142,7 +142,7 @@ export default function NovoApps(props: { apps: NovoApp[]; result: string }) {
     <NovoLayout>
       <Head title={t('Apps')} />
 
-      <Link href="/novo" className="nv-back">
+      <Link href="/" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>

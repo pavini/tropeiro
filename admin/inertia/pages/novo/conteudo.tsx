@@ -43,7 +43,7 @@ export default function NovoConteudo(props: Props) {
   const remove = (item: InstalledItem) => {
     setDeleting(`${item.kind}:${item.id}`)
     router.post(
-      '/novo/conteudo/apagar',
+      '/conteudo/apagar',
       { kind: item.kind, id: item.id },
       {
         onFinish: () => {
@@ -64,7 +64,7 @@ export default function NovoConteudo(props: Props) {
     <NovoLayout>
       <Head title={t('Installed content')} />
 
-      <Link href="/novo" className="nv-back">
+      <Link href="/" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>
@@ -151,7 +151,7 @@ export default function NovoConteudo(props: Props) {
         </section>
       ))}
 
-      <Link href="/novo/montar" className="nv-card nv-card-link">
+      <Link href="/montar" className="nv-card nv-card-link">
         <span className="nv-tile-label">{t('Add content')}</span>
         <span className="nv-text">{t('Choose a kit to download more.')}</span>
       </Link>

@@ -9,12 +9,6 @@ export default class HomeController {
         private systemService: SystemService,
     ) { }
 
-    async index({ response }: HttpContext) {
-        // A interface nova é a porta de entrada; a clássica segue em /home como
-        // administração avançada.
-        return response.redirect().toPath('/novo');
-    }
-
     async home({ inertia }: HttpContext) {
         const services = await this.systemService.getServices({ installedOnly: true });
         return inertia.render('home', {

@@ -12,15 +12,15 @@ export default function NovoLer(props: {
 }) {
   const { t } = useTranslation()
   const back = props.q
-    ? { href: `/novo/busca?q=${encodeURIComponent(props.q)}`, label: t('Results') }
-    : { href: '/novo', label: t('Home') }
+    ? { href: `/busca?q=${encodeURIComponent(props.q)}`, label: t('Results') }
+    : { href: '/', label: t('Home') }
 
   // Links para outros artigos navegam sem recarregar a página.
   const onArticleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
     const link = (e.target as HTMLElement).closest('a')
     const href = link?.getAttribute('href')
-    if (!href || link?.target === '_blank' || !href.startsWith('/novo/ler/')) return
+    if (!href || link?.target === '_blank' || !href.startsWith('/ler/')) return
     e.preventDefault()
     router.visit(href)
   }

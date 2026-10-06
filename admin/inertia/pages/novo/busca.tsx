@@ -23,7 +23,7 @@ export default function NovoBusca(props: {
     <NovoLayout>
       <Head title={props.q ? t('Search: {{q}}', { q: props.q }) : t('Search')} />
 
-      <Link href="/novo" className="nv-back">
+      <Link href="/" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>
@@ -36,7 +36,7 @@ export default function NovoBusca(props: {
         onSubmit={(e) => {
           e.preventDefault()
           const trimmed = query.trim()
-          if (trimmed) router.get('/novo/busca', { q: trimmed })
+          if (trimmed) router.get('/busca', { q: trimmed })
         }}
       >
         <label htmlFor="nv-busca" className="nv-section-label">
@@ -66,7 +66,7 @@ export default function NovoBusca(props: {
             <section className="nv-book" aria-labelledby="faca-agora">
               <h2 id="faca-agora" className="nv-section-label">{t('First aid · do it now')}</h2>
               {props.fichas.map((ficha) => (
-                <Link key={ficha.slug} href={`/novo/fichas/${ficha.slug}`} className="nv-card nv-card-link nv-card-ficha">
+                <Link key={ficha.slug} href={`/fichas/${ficha.slug}`} className="nv-card nv-card-link nv-card-ficha">
                   <span className="nv-tile-label">{ficha.title}</span>
                   <span className="nv-text">{ficha.summary}</span>
                   <span className="nv-ficha-cta">{t('See step by step')} →</span>
@@ -110,7 +110,7 @@ export default function NovoBusca(props: {
           )}
 
           {ollama && (
-            <Link className="nv-card nv-card-link nv-card-ai" href={`/novo/perguntar?q=${encodeURIComponent(props.q)}`}>
+            <Link className="nv-card nv-card-link nv-card-ai" href={`/perguntar?q=${encodeURIComponent(props.q)}`}>
               <span className="nv-tile-label">{t('Didn’t find it? Ask the AI')}</span>
               <span className="nv-text">{t('It answers using the content on this server.')}</span>
             </Link>
@@ -123,7 +123,7 @@ export default function NovoBusca(props: {
 
 /** `/content/livro/Artigo` → leitura dentro do Tropeiro, levando a busca junto. */
 function readHref(contentPath: string, q: string): string {
-  return `/novo/ler/${contentPath.replace(/^\/content\//, '')}?q=${encodeURIComponent(q)}`
+  return `/ler/${contentPath.replace(/^\/content\//, '')}?q=${encodeURIComponent(q)}`
 }
 
 function BookResults({ book, q }: { book: LibraryBookResult; q: string }) {

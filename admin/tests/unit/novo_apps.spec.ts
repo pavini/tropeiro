@@ -25,8 +25,8 @@ test('estado do app', () => {
 })
 
 test('biblioteca e IA abrem dentro da interface nova', () => {
-  assert.equal(appInfo(app({ name: 'nomad_kiwix_server' })).href, '/novo')
-  assert.equal(appInfo(app({ name: 'nomad_ollama' })).href, '/novo/perguntar')
+  assert.equal(appInfo(app({ name: 'nomad_kiwix_server' })).href, '/')
+  assert.equal(appInfo(app({ name: 'nomad_ollama' })).href, '/perguntar')
   assert.equal(appInfo(app({})).href, undefined)
 })
 

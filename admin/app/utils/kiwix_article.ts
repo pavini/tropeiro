@@ -11,8 +11,8 @@ import sanitizeHtml from 'sanitize-html'
 const ORIGIN = 'http://kiwix.invalid'
 
 /** Prefixo das rotas de leitura e de arquivos da interface nova. */
-export const READ_PREFIX = '/novo/ler'
-export const ASSET_PREFIX = '/novo/arquivo'
+export const READ_PREFIX = '/ler'
+export const ASSET_PREFIX = '/arquivo'
 
 /** Partes da página que não são conteúdo. */
 const REMOVE = [
@@ -33,13 +33,13 @@ const REMOVE = [
   '.toc',
 ].join(', ')
 
-/** `/content/livro/Artigo` → `/novo/ler/livro/Artigo?q=...` */
+/** `/content/livro/Artigo` → `/ler/livro/Artigo?q=...` */
 export function readUrl(contentPath: string, q?: string): string {
   const rest = contentPath.replace(/^\/content\//, '')
   return `${READ_PREFIX}/${rest}${q ? `?q=${encodeURIComponent(q)}` : ''}`
 }
 
-/** `/content/livro/_res_/x.png` → `/novo/arquivo/livro/_res_/x.png` */
+/** `/content/livro/_res_/x.png` → `/arquivo/livro/_res_/x.png` */
 export function assetUrl(contentPath: string): string {
   return `${ASSET_PREFIX}/${contentPath.replace(/^\/content\//, '')}`
 }

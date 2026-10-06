@@ -27,7 +27,7 @@ export default function NovoLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="nv">
       <header className="nv-header">
-        <Link href="/novo" className="nv-brand">
+        <Link href="/" className="nv-brand">
           <TropeiroMark />
           Tropeiro
         </Link>
