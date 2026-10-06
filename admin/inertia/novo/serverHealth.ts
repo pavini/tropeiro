@@ -87,6 +87,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
       title: level === 'ok' ? 'Disk space is fine' : 'Little disk space left',
       detail: '{{free}} GB free',
       detailParams: { free },
+      ...(level === 'ok' ? {} : { action: { href: '/novo/conteudo', label: 'Free up space' } }),
     })
   }
 

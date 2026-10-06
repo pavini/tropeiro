@@ -45,6 +45,8 @@ test('disco: menos de 10% livre é problema, menos de 20% é aviso', () => {
   assert.equal(level({ ...healthy, disk: { free: 40 * GB, total: 500 * GB } }, 'disk'), 'error')
   assert.equal(level({ ...healthy, disk: { free: 80 * GB, total: 500 * GB } }, 'disk'), 'warn')
   assert.equal(level({ ...healthy, disk: null }, 'disk'), undefined)
+  const low = healthChecks({ ...healthy, disk: { free: 40 * GB, total: 500 * GB } }).find((c) => c.id === 'disk')
+  assert.equal(low?.action?.href, '/novo/conteudo')
 })
 
 test('app parado é aviso e aparece pelo nome', () => {

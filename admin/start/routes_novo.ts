@@ -25,6 +25,8 @@ router
     router.get('/referencias/:id', [NovoController, 'referencia'])
     router.get('/perguntar', [NovoController, 'perguntar'])
     router.get('/estado', [NovoController, 'estado'])
+    router.get('/conteudo', [NovoController, 'conteudo'])
+    router.post('/conteudo/apagar', [NovoController, 'apagarConteudo'])
     router.get('/fichas-sugeridas', [NovoController, 'fichasSugeridas'])
   })
   .prefix('/novo')

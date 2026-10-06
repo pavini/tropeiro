@@ -10,7 +10,7 @@ import { readZimMetadata } from '../utils/zim_metadata.js'
 const CONTAINER_DATA_PATH = '/data'
 const XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
-interface KiwixBook {
+export interface KiwixBook {
   id: string
   path: string
   title: string
@@ -180,6 +180,16 @@ export class KiwixLibraryService {
         size: b['@_size'] !== undefined ? Number(b['@_size']) : undefined,
       }))
       .filter((b) => b.id && b.path)
+  }
+
+  /** Livros listados no library XML; vazio se ele ainda não existe. */
+  async listBooks(): Promise<KiwixBook[]> {
+    try {
+      return this._parseExistingBooks(await readFile(this.getLibraryFilePath(), 'utf-8'))
+    } catch (err: any) {
+      if (err.code === 'ENOENT') return []
+      throw err
+    }
   }
 
   /**

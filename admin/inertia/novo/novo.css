@@ -959,3 +959,84 @@ ul.nv-ficha-list {
   color: var(--nv-accent) !important;
   font-weight: 700;
 }
+
+/* Conteúdo instalado */
+.nv-content-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nv-content-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nv-content-item {
+  gap: 6px;
+}
+
+.nv-content-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.nv-content-head .nv-tile-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nv-content-size {
+  flex: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--nv-accent-dark);
+}
+
+.nv-link-button {
+  align-self: flex-start;
+  padding: 6px 0;
+  border: none;
+  background: none;
+  color: #b42318;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nv-content-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fce4e1;
+}
+
+.nv-content-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nv-content-actions .nv-primary {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.nv-danger {
+  background: #b42318;
+}
+
+.nv-danger:hover {
+  background: #8a1c12;
+}

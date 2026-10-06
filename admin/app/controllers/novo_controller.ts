@@ -11,6 +11,7 @@ import { KITS } from '../../constants/kits.js'
 import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
+import { InstalledContentService } from '#services/installed_content_service'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
@@ -25,6 +26,9 @@ import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
 const applyKitValidator = vine.compile(
   vine.object({ kit: vine.enum(KITS.map((k) => k.id)) })
 )
+const removeContentValidator = vine.compile(
+  vine.object({ kind: vine.enum(['book', 'map', 'model'] as const), id: vine.string().trim().minLength(1).maxLength(255) })
+)
 
 @inject()
 export default class NovoController {
@@ -34,7 +38,8 @@ export default class NovoController {
     private libraryReader: LibraryReaderService,
     private kits: KitService,
     private downloads: DownloadService,
-    private ollama: OllamaService
+    private ollama: OllamaService,
+    private installed: InstalledContentService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -100,6 +105,25 @@ export default class NovoController {
       isWorkerAlive(queueConfig.connection),
     ])
     return { workerAlive, jobs }
+  }
+
+  /** O que está instalado no servidor, para ver e apagar. */
+  async conteudo({ inertia, request }: HttpContext) {
+    return inertia.render('novo/conteudo', {
+      ...(await this.installed.list()),
+      result: String(request.input('resultado', '')),
+    })
+  }
+
+  async apagarConteudo({ request, response }: HttpContext) {
+    const { kind, id } = await request.validateUsing(removeContentValidator)
+    try {
+      await this.installed.remove(kind, id)
+      return response.redirect().toPath('/novo/conteudo?resultado=apagado')
+    } catch (err) {
+      logger.error(`[NovoController] falha ao apagar ${kind} ${id}: ${(err as Error).message}`)
+      return response.redirect().toPath('/novo/conteudo?resultado=erro')
+    }
   }
 
   /** Pergunta à IA local, que responde com base no acervo do servidor. */
