@@ -1590,3 +1590,105 @@ a.nv-app-button:not(.nv-secondary) {
   width: 100%;
   margin: 0;
 }
+
+/* Remédios */
+.nv-drug {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.nv-drug-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+
+.nv-drug-maker {
+  font-size: 14px;
+  color: var(--nv-muted);
+}
+
+.nv-drug-compare {
+  flex-shrink: 0;
+}
+
+.nv-drug-compare-on {
+  background: var(--nv-accent-tint);
+  border-color: var(--nv-accent);
+  color: var(--nv-accent-dark);
+  font-weight: 700;
+}
+
+.nv-compare-bar {
+  border-color: var(--nv-accent);
+}
+
+.nv-guide-note .nv-chip {
+  align-self: flex-start;
+}
+
+.nv-compare-bar .nv-content-actions {
+  align-items: center;
+}
+
+.nv-label-section {
+  gap: 10px;
+}
+
+.nv-label-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--nv-ink-2);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.nv-label-text p,
+.nv-label-text ul {
+  margin: 0;
+}
+
+.nv-label-text ul {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nv-label-subhead {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--nv-muted);
+}
+
+.nv-label-number {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--nv-ground);
+  color: var(--nv-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nv-compare {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 520px) {
+  .nv-drug {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

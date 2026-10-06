@@ -10,11 +10,10 @@ const SUGGESTIONS = ['queimadura', 'água potável', 'febre em criança', 'corte
 
 export default function NovoInicio(props: {
   services: ServiceSlim[]
-  drugReferenceInstalled: boolean
 }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
-  const needs = buildNeeds(props.services, props.drugReferenceInstalled)
+  const needs = buildNeeds(props.services)
 
   const search = (q: string) => {
     const trimmed = q.trim()
