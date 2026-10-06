@@ -9,6 +9,8 @@ import logger from '@adonisjs/core/services/logger'
 import vine from '@vinejs/vine'
 import { KITS } from '../../constants/kits.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
+import { OllamaService } from '#services/ollama_service'
+import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
 import { inject } from '@adonisjs/core'
@@ -30,7 +32,8 @@ export default class NovoController {
     private librarySearch: LibrarySearchService,
     private libraryReader: LibraryReaderService,
     private kits: KitService,
-    private downloads: DownloadService
+    private downloads: DownloadService,
+    private ollama: OllamaService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -96,6 +99,33 @@ export default class NovoController {
       isWorkerAlive(queueConfig.connection),
     ])
     return { workerAlive, jobs }
+  }
+
+  /** Pergunta à IA local, que responde com base no acervo do servidor. */
+  async perguntar({ inertia, request }: HttpContext) {
+    const q = String(request.input('q', '')).trim().slice(0, 500)
+    return inertia.render('novo/perguntar', { q, model: await this.chatModel() })
+  }
+
+  /** Fichas que combinam com uma pergunta, para mostrar antes da resposta da IA. */
+  async fichasSugeridas({ request }: HttpContext) {
+    const q = String(request.input('q', '')).slice(0, 500)
+    return searchFichas(FICHAS, q, 2).map(({ slug, title, summary }) => ({ slug, title, summary }))
+  }
+
+  /**
+   * Modelo de conversa: o último usado no chat, se ainda estiver instalado; senão
+   * o primeiro instalado. null quando não há IA ou modelo.
+   */
+  private async chatModel(): Promise<string | null> {
+    try {
+      const models = await this.ollama.getModels()
+      if (models.length === 0) return null
+      const last = await KVStore.getValue('chat.lastModel')
+      return models.some((m) => m.name === last) ? (last as string) : models[0].name
+    } catch {
+      return null
+    }
   }
 
   /** Fichas de primeiros socorros. */

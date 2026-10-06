@@ -56,6 +56,10 @@ test('busca acha a ficha certa, com ou sem acento e com palavra incompleta', () 
   assert.equal(first('febre em bebe'), 'crianca-sinais-de-perigo')
   assert.equal(first('enchente'), 'enchente')
   assert.equal(first('agua sanitaria'), 'agua-para-beber')
+  assert.deepEqual(
+    searchFichas(FICHAS, 'como tratar água da enchente').map((f) => f.slug).slice(0, 2).sort(),
+    ['agua-para-beber', 'enchente']
+  )
 })
 
 test('busca sem relação ou curta demais não traz ficha', () => {
