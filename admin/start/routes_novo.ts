@@ -15,5 +15,7 @@ router
   .group(() => {
     router.get('/', [NovoController, 'inicio'])
     router.get('/busca', [NovoController, 'busca'])
+    router.get('/ler/*', [NovoController, 'ler'])
+    router.get('/arquivo/*', [NovoController, 'arquivo'])
   })
   .prefix('/novo')
