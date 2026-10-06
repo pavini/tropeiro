@@ -102,6 +102,8 @@ RUN echo "{\"version\":\"${VERSION}\"}" > /app/version.json
 
 # Copy docs and README for access within the container
 COPY admin/docs /app/docs
+# Conteúdo do Tropeiro (fichas, guias, fontes oficiais), lido por app/content/loader.ts
+COPY conteudo /app/conteudo
 COPY README.md /app/README.md
 
 # Empty Calibre library, seeded into storage/books on Calibre-Web install

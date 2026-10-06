@@ -22,7 +22,7 @@ import { PlaceSearchService } from '#services/place_search_service'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
-import { GUIDES, GUIDE_TRACKS } from '../content/guias/index.js'
+import { CONTENT_ITEMS, CONTENT_THEMES } from '../content/index.js'
 import { markPassage } from '../utils/html_snapshot.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -74,8 +74,12 @@ export default class NovoController {
     const q = String(request.input('q', '')).trim().slice(0, 200)
     const [shared, library] = await Promise.all([this.sharedProps(), this.librarySearch.search(q)])
     const fichas = searchFichas(FICHAS, q).map(({ slug, title, summary }) => ({ slug, title, summary }))
-    const guias = searchFichas(GUIDES, q).map(({ slug, title, summary }) => ({ slug, title, summary }))
-    return inertia.render('novo/busca', { ...shared, q, library, fichas, guias })
+    // Fichas já aparecem acima; aqui entram guias e referências.
+    const conteudos = searchFichas(
+      CONTENT_ITEMS.filter((i) => i.type !== 'ficha'),
+      q
+    ).map(({ id, title, summary }) => ({ id, title, summary }))
+    return inertia.render('novo/busca', { ...shared, q, library, fichas, conteudos })
   }
 
   /** Artigo da biblioteca lido dentro do Tropeiro: /ler/<livro>/<página>. */
@@ -365,31 +369,57 @@ export default class NovoController {
     })
   }
 
-  /** Guias: aulas em trilhas, do básico ao avançado. */
-  async guias({ inertia }: HttpContext) {
-    return inertia.render('novo/guias', {
-      tracks: GUIDE_TRACKS.map((track) => ({
-        ...track,
-        guides: GUIDES.filter((g) => g.track === track.id).map(({ slug, title, summary, order }) => ({ slug, title, summary, order })),
-      })).filter((track) => track.guides.length > 0),
+  /** Conteúdos por tema (pasta conteudo/). */
+  async temas({ inertia }: HttpContext) {
+    return inertia.render('novo/temas', {
+      themes: CONTENT_THEMES.map((theme) => ({
+        ...theme,
+        count: CONTENT_ITEMS.filter((i) => i.theme === theme.id).length,
+      })).filter((theme) => theme.count > 0),
     })
   }
 
-  async guia({ inertia, params, response }: HttpContext) {
-    const guide = GUIDES.find((g) => g.slug === params.slug)
-    if (!guide) return response.redirect().toPath('/guias')
-    const track = GUIDE_TRACKS.find((t) => t.id === guide.track)
-    const siblings = GUIDES.filter((g) => g.track === guide.track)
-    const i = siblings.findIndex((g) => g.slug === guide.slug)
-    const near = (g?: (typeof GUIDES)[number]) => (g ? { slug: g.slug, title: g.title } : null)
-    return inertia.render('novo/guia', {
-      guide,
-      track: track ? { id: track.id, title: track.title } : null,
-      position: { current: i + 1, total: siblings.length },
-      previous: near(siblings[i - 1]),
-      next: near(siblings[i + 1]),
+  async tema({ inertia, params, response }: HttpContext) {
+    const theme = CONTENT_THEMES.find((t) => t.id === params.tema)
+    if (!theme) return response.redirect().toPath('/temas')
+    return inertia.render('novo/tema', {
+      theme,
+      items: CONTENT_ITEMS.filter((i) => i.theme === theme.id).map(({ id, slug, type, title, summary }) => ({
+        id,
+        type,
+        title,
+        summary,
+        // Fichas abrem na tela de ficha, feita para emergência.
+        href: type === 'ficha' ? `/fichas/${slug}` : `/temas/${id}`,
+      })),
+    })
+  }
+
+  async conteudoItem({ inertia, params, response }: HttpContext) {
+    const item = CONTENT_ITEMS.find((i) => i.id === `${params.tema}/${params.slug}`)
+    if (!item) return response.redirect().toPath(`/temas/${params.tema}`)
+    if (item.type === 'ficha') return response.redirect().toPath(`/fichas/${item.slug}`)
+    const theme = CONTENT_THEMES.find((t) => t.id === item.theme)
+    const seeAlso = item.seeAlso
+      .map((id) => CONTENT_ITEMS.find((i) => i.id === id))
+      .filter((i): i is NonNullable<typeof i> => !!i)
+      .map((i) => ({ title: i.title, href: i.type === 'ficha' ? `/fichas/${i.slug}` : `/temas/${i.id}` }))
+    return inertia.render('novo/conteudo-item', {
+      item,
+      theme: theme ? { id: theme.id, title: theme.title } : null,
+      seeAlso,
       docs: await new ReferenceDocsService().status(),
     })
+  }
+
+  /** Endereços da primeira versão dos guias, de antes do formato em Markdown. */
+  async guiaAntigo({ params, response }: HttpContext) {
+    const old: Record<string, string> = {
+      'radio-como-funciona': 'radio/como-o-radio-funciona',
+      'radio-sem-licenca': 'radio/radios-sem-licenca',
+    }
+    const id = params.slug ? old[params.slug] : undefined
+    return response.redirect().toPath(id ? `/temas/${id}` : '/temas/radio')
   }
 
   /** Fichas de primeiros socorros. */

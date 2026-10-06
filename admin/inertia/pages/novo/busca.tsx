@@ -12,7 +12,7 @@ export default function NovoBusca(props: {
   services: ServiceSlim[]
   library: LibrarySearchResult
   fichas: { slug: string; title: string; summary: string }[]
-  guias: { slug: string; title: string; summary: string }[]
+  conteudos: { id: string; title: string; summary: string }[]
 }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState(props.q)
@@ -76,13 +76,13 @@ export default function NovoBusca(props: {
             </section>
           )}
 
-          {props.guias.length > 0 && (
-            <section className="nv-book" aria-labelledby="guias">
-              <h2 id="guias" className="nv-section-label">{t('Guides')}</h2>
-              {props.guias.map((guia) => (
-                <Link key={guia.slug} href={`/guias/${guia.slug}`} className="nv-card nv-card-link">
-                  <span className="nv-tile-label">{guia.title}</span>
-                  <span className="nv-text">{guia.summary}</span>
+          {props.conteudos.length > 0 && (
+            <section className="nv-book" aria-labelledby="conteudos">
+              <h2 id="conteudos" className="nv-section-label">{t('Tropeiro content')}</h2>
+              {props.conteudos.map((c) => (
+                <Link key={c.id} href={`/temas/${c.id}`} className="nv-card nv-card-link">
+                  <span className="nv-tile-label">{c.title}</span>
+                  <span className="nv-text">{c.summary}</span>
                 </Link>
               ))}
             </section>
@@ -97,7 +97,7 @@ export default function NovoBusca(props: {
             </>
           )}
 
-          {status === 'ok' && books.length === 0 && props.fichas.length === 0 && props.guias.length === 0 && (
+          {status === 'ok' && books.length === 0 && props.fichas.length === 0 && props.conteudos.length === 0 && (
             <div className="nv-card">
               <h1 className="nv-tile-label">{t('Nothing found for “{{q}}”', { q: props.q })}</h1>
               <p className="nv-text">{t('Try a shorter or more common word, or check the spelling.')}</p>

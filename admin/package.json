@@ -19,7 +19,8 @@
     "work:downloads": "node ace queue:work --queue=downloads",
     "work:model-downloads": "node ace queue:work --queue=model-downloads",
     "work:benchmarks": "node ace queue:work --queue=benchmarks",
-    "work:all": "node ace queue:work --all"
+    "work:all": "node ace queue:work --all",
+    "conteudo:validar": "node --import ts-node-maintained/register/esm scripts/validar_conteudo.ts"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",

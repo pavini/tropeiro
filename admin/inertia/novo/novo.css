@@ -1454,7 +1454,7 @@ a.nv-app-button:not(.nv-secondary) {
   text-decoration: underline;
 }
 
-/* Guias */
+/* Conteúdos (guias e referências) */
 .nv-guide-lessons {
   list-style: none;
   margin: 0;
@@ -1550,13 +1550,43 @@ a.nv-app-button:not(.nv-secondary) {
   margin: 8px 0 0;
 }
 
-.nv-guide-nav {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 10px;
+.nv-content-body h2 {
+  font-size: 20px;
+  color: var(--nv-accent-dark);
 }
 
-.nv-guide-next {
-  text-align: right;
-  align-items: flex-end;
+.nv-content-body h2:first-child {
+  margin-top: 0;
+}
+
+.nv-content-body .nv-guide-note {
+  margin: 0 0 16px;
+}
+
+.nv-content-body .nv-guide-note p:last-child {
+  margin-bottom: 0;
+}
+
+.nv-content-body .nv-guide-table-wrap {
+  margin-bottom: 16px;
+}
+
+.nv-content-note a {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nv-accent);
+  text-decoration: none;
+  padding: 0 2px;
+}
+
+.nv-content-meta {
+  font-size: 14px;
+  color: var(--nv-muted);
+}
+
+.nv-content-body table.nv-guide-table {
+  /* .nv-article deixa tabela como bloco rolável; aqui quem rola é o invólucro. */
+  display: table;
+  width: 100%;
+  margin: 0;
 }

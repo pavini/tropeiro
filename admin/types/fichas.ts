@@ -28,8 +28,8 @@ export interface ReferenceDoc {
    * condutas com oxigênio, remédio e aparelho que não servem para leigo.
    */
   audience: 'public' | 'professional'
-  /** Assunto do documento. Só documento de saúde liga as instruções de emergência da IA. */
-  topic: 'health' | 'radio'
+  /** Tema do documento (saude, radio...). Só documento de saúde liga as instruções de emergência da IA. */
+  theme: string
 }
 
 export interface FichaRef {

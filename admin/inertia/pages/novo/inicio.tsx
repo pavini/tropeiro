@@ -68,6 +68,9 @@ export default function NovoInicio(props: {
             <NeedTile key={need.id} need={need} />
           ))}
         </div>
+        <Link href="/temas" className="nv-health-action">
+          {t('All content by topic')} →
+        </Link>
       </section>
 
       <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -1,0 +1,188 @@
+# Documentos oficiais em que o conteúdo se baseia. O servidor baixa cada um da
+# fonte oficial e guarda para consulta sem internet. Veja conteudo/CONTRIBUINDO.md.
+#
+# id: nome curto, usado nas fontes dos conteúdos (só minúsculas, números e hífens)
+# tema: saude, radio... (documento de saúde liga as instruções de emergência da IA)
+# publico: populacao ou profissional (protocolo profissional não é base para leigo)
+# formato: pdf (conferido por sha256 e tamanho) ou html (norma que só existe como
+#   página; conferida pelos trechos, que a página precisa conter)
+
+- id: ms-fiocruz-primeiros-socorros-2003
+  titulo: Manual de Primeiros Socorros
+  publicador: Ministério da Saúde / Fundação Oswaldo Cruz (FIOCRUZ)
+  ano: 2003
+  tema: saude
+  publico: populacao
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/publicacoes/manual_primeiros_socorros.pdf
+  sha256: 4f110686a10c4e1ecf847397f40340d2df92ad106262729ce524a903bb3d76f2
+  tamanho: 9549199
+  licenca: É permitida a reprodução parcial ou total desta obra, desde que citada a fonte.
+- id: ms-samu-suporte-basico-de-vida-2016
+  titulo: Protocolos de Suporte Básico de Vida — SAMU 192
+  publicador: Ministério da Saúde
+  ano: 2016
+  tema: saude
+  publico: profissional
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/publicacoes/protocolo_suporte_basico_vida.pdf
+  sha256: f39edb612b1713ce9027ec58818146342265353ed3aecd8166c2a8c97f90d058
+  tamanho: 16541991
+  licenca: Sem autorização de reprodução explícita; os protocolos dizem que "adaptações são permitidas de acordo com as particularidades dos serviços". As fichas usam texto próprio e citam a fonte.
+- id: ms-cartilha-queimaduras-2012
+  titulo: Cartilha para tratamento de emergência das queimaduras
+  publicador: Ministério da Saúde
+  ano: 2012
+  tema: saude
+  publico: populacao
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/publicacoes/cartilha_tratamento_emergencia_queimaduras.pdf
+  sha256: 4b69e98c9886a39dbfd9139db4403f95b10da35313c20034c0aced350bc79a92
+  tamanho: 2598199
+  licenca: É permitida a reprodução parcial ou total desta obra, desde que citada a fonte e que não seja para venda ou qualquer fim comercial.
+- id: ms-guia-animais-peconhentos-2024
+  titulo: Guia de Animais Peçonhentos do Brasil
+  publicador: Ministério da Saúde
+  ano: 2024
+  tema: saude
+  publico: populacao
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/publicacoes/guia_animais_peconhentos_brasil.pdf
+  sha256: 83537defa5aa608377970014ac280584b329a328cd12eeed3b04ce07c4dee861
+  tamanho: 19959925
+  licenca: Creative Commons Atribuição–NãoComercial–CompartilhaIgual 4.0. É permitida a reprodução parcial ou total desta obra, desde que citada a fonte.
+- id: ms-caderneta-crianca-2024
+  titulo: Caderneta da Criança — Passaporte da Cidadania (7ª edição)
+  publicador: Ministério da Saúde
+  ano: 2024
+  tema: saude
+  publico: populacao
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/publicacoes/caderneta_crianca_menino_passaporte_cidadania_7ed.pdf
+  sha256: 012aee4bb49de04e47238841c651c92927916ff6608b1b365ef8ec3ee44ccfe6
+  tamanho: 14656857
+  licenca: Creative Commons Atribuição–NãoComercial–CompartilhaIgual 4.0. É permitida a reprodução parcial ou total desta obra, desde que citada a fonte.
+- id: ms-manejo-diarreia-cartaz
+  titulo: Manejo do Paciente com Diarreia (cartaz)
+  publicador: Ministério da Saúde
+  ano: 2014
+  tema: saude
+  publico: populacao
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/cartazes/manejo_paciente_diarreia_cartaz.pdf
+  sha256: b19a1f0ec04cec2b8ae280008af0b6d5bf93a35e42ce36cd11af2cccafbc9526
+  tamanho: 216456
+  licenca: Sem nota de licença no documento. As fichas usam texto próprio e citam a fonte.
+- id: ms-orientacoes-enchentes
+  titulo: Orientações à População em Situação de Enchentes
+  publicador: Ministério da Saúde
+  ano: 2024
+  tema: saude
+  publico: populacao
+  formato: pdf
+  url: https://www.gov.br/saude/pt-br/centrais-de-conteudo/publicacoes/svsa/enchentes/orientacoes-a-populacao-em-situacao-de-enchentes.pdf
+  sha256: 93441d26f426c97db6776569015c1b2f137b2ef817d63b0cb6c4c0cbea15f24e
+  tamanho: 533260
+  licenca: Sem nota de licença no documento. As fichas usam texto próprio e citam a fonte.
+- id: anatel-cartilha-radioamador-2026
+  titulo: Cartilha do Serviço Radioamador (versão 2026-06)
+  publicador: Anatel
+  ano: 2026
+  tema: radio
+  publico: populacao
+  formato: pdf
+  url: https://sistemas.anatel.gov.br/anexar-api/publico/anexos/download/e2bee3ec4783c5c41a8ce4affe7baef8
+  sha256: ebfb6b2404b8b579507434ce143d94b1ef4e2a5a290694867d089e5c41a379d6
+  tamanho: 1517183
+  licenca: Material público de orientação da Anatel. Os guias usam texto próprio e citam a fonte.
+- id: anatel-ato-14448-2017
+  titulo: "Ato nº 14.448/2017 — requisitos técnicos dos equipamentos de radiação restrita (item 15: rádio de uso geral)"
+  publicador: Anatel
+  ano: 2017
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://informacoes.anatel.gov.br/legislacao/atos-de-certificacao-de-produtos/2017/1139-ato-14448
+  trechos:
+    - 15.1.3. A potência efetivamente radiada
+    - 462,5625
+  licenca: "Ato normativo: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV)."
+- id: anatel-resolucao-680-2017
+  titulo: Resolução nº 680/2017 — Regulamento sobre Equipamentos de Radiocomunicação de Radiação Restrita
+  publicador: Anatel
+  ano: 2017
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://informacoes.anatel.gov.br/legislacao/resolucoes/2017/936-resolucao-680
+  trechos:
+    - não têm direito à proteção contra interferências prejudiciais
+  licenca: "Ato normativo: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV)."
+- id: lei-9472-1997
+  titulo: Lei nº 9.472/1997 — Lei Geral de Telecomunicações
+  publicador: Presidência da República
+  ano: 1997
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://www.planalto.gov.br/ccivil_03/leis/l9472.htm
+  trechos:
+    - Independerão de outorga
+  licenca: "Lei: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV)."
+- id: anatel-ato-3445-2026
+  titulo: Ato nº 3.445/2026 — requisitos operacionais do Serviço Rádio do Cidadão
+  publicador: Anatel
+  ano: 2026
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://informacoes.anatel.gov.br/legislacao/atos-de-requisitos-operacionais-de-outorga-e-licenciamento/2149-ato-3445
+  trechos:
+    - verificará se o canal está livre
+    - composto do prefixo PX
+  licenca: "Ato normativo: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV)."
+- id: anatel-resolucao-777-2025
+  titulo: Resolução nº 777/2025 — Regulamento Geral dos Serviços de Telecomunicações (RGST)
+  publicador: Anatel
+  ano: 2025
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://informacoes.anatel.gov.br/legislacao/resolucoes/2025/2022-resolucao-777
+  trechos:
+    - somente poderão explorar o Serviço de Rádio do Cidadão
+  licenca: "Ato normativo: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV)."
+- id: anatel-resolucao-789-2026
+  titulo: Resolução nº 789/2026 — Plano de Atribuição, Destinação e Distribuição de Faixas de Frequências (PDFF)
+  publicador: Anatel
+  ano: 2026
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://informacoes.anatel.gov.br/legislacao/resolucoes/2026/2157-resolucao-789
+  trechos:
+    - RÁDIO DO CIDADÃO
+    - 26960-27500
+  licenca: "Ato normativo: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV)."
+- id: anatel-resolucao-444-2006-revogada
+  titulo: Resolução nº 444/2006 — antiga canalização do Rádio do Cidadão (REVOGADA)
+  publicador: Anatel
+  ano: 2006
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://informacoes.anatel.gov.br/legislacao/resolucoes/2006/325-resolucao-444
+  trechos:
+    - O canal 9 é restrito ao tráfego de mensagens referentes a situações de emergência
+  licenca: "Ato normativo: sem proteção de direito autoral (Lei 9.610/1998, art. 8º, IV). Guardada só como referência histórica."
+- id: govbr-servico-radio-do-cidadao
+  titulo: Obter o Serviço Rádio do Cidadão (Carta de Serviços)
+  publicador: Governo Federal (gov.br)
+  ano: 2026
+  tema: radio
+  publico: populacao
+  formato: html
+  url: https://www.gov.br/pt-br/servicos/obter-servico-radio-do-cidadao
+  trechos:
+    - Prata ou Ouro
+  licenca: Página informativa do governo federal. Os guias usam texto próprio e citam a fonte.
