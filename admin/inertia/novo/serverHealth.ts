@@ -18,7 +18,12 @@ export interface HealthCheck {
 
 export interface HealthInput {
   library: { installed: boolean; reachable: boolean; books: number }
-  ai: { installed: boolean; model: string | null }
+  ai: {
+    installed: boolean
+    model: string | null
+    /** IA em outro endereço; null ou ausente quando roda neste servidor. */
+    remote?: { url: string; reachable: boolean } | null
+  }
   /** Apps instalados que não estão rodando. */
   stoppedApps: string[]
   downloads: { workerAlive: boolean | null; active: number; failed: number } | null
@@ -34,6 +39,7 @@ export interface HealthInput {
 }
 
 const GB = 1024 ** 3
+const AI_SERVICE = 'nomad_ollama'
 
 export function healthChecks(input: HealthInput): HealthCheck[] {
   const checks: HealthCheck[] = []
@@ -51,10 +57,18 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
   }
 
   // IA
-  if (!input.ai.installed) {
+  const aiSettings = { href: '/ia', label: 'Open the AI settings' }
+  const remote = input.ai.remote
+  if (remote && !remote.reachable) {
+    checks.push({ id: 'ai', level: 'error', title: 'The AI at another address is not responding', detail: 'Address: {{url}}. Questions to the AI do not work until it comes back.', detailParams: { url: remote.url }, action: aiSettings })
+  } else if (remote && !input.ai.model) {
+    checks.push({ id: 'ai', level: 'warn', title: 'AI without a model', detail: 'The AI at another address has no model to answer with.', action: { href: '/ia', label: 'Choose a model' } })
+  } else if (remote) {
+    checks.push({ id: 'ai', level: 'ok', title: 'AI at another address', detail: 'Model: {{model}}', detailParams: { model: input.ai.model! }, action: aiSettings })
+  } else if (!input.ai.installed) {
     checks.push({ id: 'ai', level: 'info', title: 'AI not installed', detail: 'Optional. Without it, everything else works.', action: { href: '/apps', label: 'Open the apps' } })
   } else if (!input.ai.model) {
-    checks.push({ id: 'ai', level: 'warn', title: 'AI without a model', detail: 'The AI is installed but has no model to answer with.', action: { href: '/settings/models', label: 'Choose a model' } })
+    checks.push({ id: 'ai', level: 'warn', title: 'AI without a model', detail: 'The AI is installed but has no model to answer with.', action: { href: '/ia', label: 'Choose a model' } })
   } else {
     checks.push({ id: 'ai', level: 'ok', title: 'AI ready', detail: 'Model: {{model}}', detailParams: { model: input.ai.model } })
   }
@@ -147,6 +161,14 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
   )
 
   return checks
+}
+
+/**
+ * Apps instalados que não estão rodando. Com a IA em outro endereço, o
+ * contêiner local da IA fica parado de propósito e não conta.
+ */
+export function stoppedServices<T extends { name: string; status: string }>(services: T[], remoteAi: boolean): T[] {
+  return services.filter((s) => s.status !== 'running' && !(remoteAi && s.name === AI_SERVICE))
 }
 
 /** Pior nível da lista: define o resumo do topo. */

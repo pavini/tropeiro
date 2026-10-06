@@ -76,6 +76,7 @@ export default function NovoInicio(props: {
           <AdminLink href="/estado" title={t('Server status')} text={t('See if everything is working.')} />
           <AdminLink href="/montar" title={t('Set up the server')} text={t('Choose which content this server keeps.')} />
           <AdminLink href="/apps" title={t('Apps')} text={t('Install, start and stop the programs on the server.')} />
+          <AdminLink href="/ia" title={t('Artificial intelligence')} text={t('Where the AI runs and which model answers.')} />
           <AdminLink href="/conteudo" title={t('Installed content')} text={t('See what is on the server and free up space.')} />
         </div>
       </section>

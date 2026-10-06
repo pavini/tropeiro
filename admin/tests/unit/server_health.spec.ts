@@ -1,6 +1,6 @@
 import * as assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { healthChecks, overallLevel, type HealthInput } from '../../inertia/novo/serverHealth.js'
+import { healthChecks, overallLevel, stoppedServices, type HealthInput } from '../../inertia/novo/serverHealth.js'
 
 const GB = 1024 ** 3
 const healthy: HealthInput = {
@@ -64,4 +64,43 @@ test('documentos oficiais na IA: lendo é informação, falha é aviso, prontos 
   assert.equal(level(ai(7), 'references-ai'), 'ok')
   // sem IA instalada, o item não aparece
   assert.equal(level({ ...healthy, references: { total: 7, available: 7, ai: null } }, 'references-ai'), undefined)
+})
+
+test('IA sem modelo manda para a tela de inteligência artificial', () => {
+  const check = healthChecks({ ...healthy, ai: { installed: true, model: null } }).find((c) => c.id === 'ai')
+  assert.equal(check?.action?.href, '/ia')
+})
+
+test('IA em outro endereço: ok se responde, problema se não responde', () => {
+  const remote = (reachable: boolean, model: string | null = 'qwen3:8b'): HealthInput => ({
+    ...healthy,
+    ai: { installed: true, model, remote: { url: 'http://192.168.0.20:11434', reachable } },
+  })
+  const ok = healthChecks(remote(true)).find((c) => c.id === 'ai')
+  assert.equal(ok?.level, 'ok')
+  assert.equal(ok?.title, 'AI at another address')
+  assert.equal(ok?.action?.href, '/ia')
+
+  const down = healthChecks(remote(false, null)).find((c) => c.id === 'ai')
+  assert.equal(down?.level, 'error')
+  assert.equal(down?.detailParams?.url, 'http://192.168.0.20:11434')
+  assert.equal(down?.action?.href, '/ia')
+
+  assert.equal(level(remote(true, null), 'ai'), 'warn')
+})
+
+test('com IA em outro endereço, o contêiner local parado não conta como app parado', () => {
+  const services = [
+    { name: 'nomad_ollama', status: 'exited' },
+    { name: 'nomad_flatnotes', status: 'exited' },
+    { name: 'nomad_kiwix_server', status: 'running' },
+  ]
+  assert.deepEqual(
+    stoppedServices(services, true).map((s) => s.name),
+    ['nomad_flatnotes']
+  )
+  assert.deepEqual(
+    stoppedServices(services, false).map((s) => s.name),
+    ['nomad_ollama', 'nomad_flatnotes']
+  )
 })

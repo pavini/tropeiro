@@ -15,6 +15,7 @@ const STATE_LABEL: Record<AppState, string> = {
   installing: 'Installing…',
   failed: 'Installation failed',
   available: 'Not installed',
+  remote: 'At another address',
 }
 
 const RESULT: Record<string, { title: string; text?: string; error?: boolean }> = {
@@ -22,6 +23,11 @@ const RESULT: Record<string, { title: string; text?: string; error?: boolean }> 
   start: { title: 'App started' },
   stop: { title: 'App stopped' },
   restart: { title: 'App restarted' },
+  'ia-externa': {
+    title: 'The AI is using another address',
+    text: 'To run the AI on this server again, choose "On this server" in the AI settings.',
+    error: true,
+  },
   erro: { title: 'Could not do that', text: 'Try again. If it keeps failing, see the details in the advanced administration.', error: true },
 }
 
@@ -32,7 +38,7 @@ export default function NovoApps(props: { apps: NovoApp[]; result: string }) {
   const [sending, setSending] = useState<string | null>(null)
   const [confirmStop, setConfirmStop] = useState<string | null>(null)
 
-  const onServer = props.apps.filter((a) => ['running', 'starting', 'stopped', 'installing'].includes(appState(a)))
+  const onServer = props.apps.filter((a) => ['running', 'starting', 'stopped', 'installing', 'remote'].includes(appState(a)))
   const toInstall = props.apps.filter((a) => ['available', 'failed'].includes(appState(a)))
   const busy = props.apps.some((a) => ['installing', 'starting'].includes(appState(a)))
 
@@ -98,6 +104,16 @@ export default function NovoApps(props: { apps: NovoApp[]; result: string }) {
           </div>
         ) : (
           <span className="nv-content-actions">
+            {state === 'remote' && (
+              <>
+                {info.href && (
+                  <Link href={info.href} className="nv-primary nv-app-button">
+                    {t('Open')}
+                  </Link>
+                )}
+                <span className="nv-text">{t('Using AI at another address.')}</span>
+              </>
+            )}
             {state === 'running' && info.href && (
               <Link href={info.href} className="nv-primary nv-app-button">
                 {t('Open')}
@@ -124,6 +140,11 @@ export default function NovoApps(props: { apps: NovoApp[]; result: string }) {
               </>
             )}
             {state === 'installing' && <span className="nv-text">{t('It may take a few minutes.')}</span>}
+            {info.settingsHref && (
+              <Link href={info.settingsHref} className="nv-primary nv-secondary nv-app-button">
+                {t('Settings')}
+              </Link>
+            )}
             {(state === 'available' || state === 'failed') &&
               (isOnline ? (
                 <button type="button" className="nv-primary nv-secondary nv-app-button" disabled={disabled} onClick={() => act(app, 'install')}>
