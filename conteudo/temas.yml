@@ -1,0 +1,8 @@
+# Temas do conteúdo, na ordem em que aparecem. Cada tema é uma pasta em conteudo/.
+
+- id: saude
+  titulo: Saúde e primeiros socorros
+  descricao: O que fazer em emergências de saúde, passo a passo, com base nos manuais do Ministério da Saúde.
+- id: radio
+  titulo: Comunicação por rádio
+  descricao: "Como se comunicar quando celular e internet caem: como o rádio funciona, quais rádios dá para usar sem licença e como tirar a licença de radioamador."

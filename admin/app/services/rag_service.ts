@@ -49,9 +49,8 @@ import { ZIM_BATCH_SIZE } from '../../constants/zim_extraction.js'
 import { hasMoreArticleBatches } from '../utils/zim_batch_decision.js'
 import { EMBEDDING_MODEL_NAME } from '../../constants/ollama.js'
 import { REFERENCE_DOCS } from '../content/referencias.js'
-import { GUIDES } from '../content/guias/index.js'
-import { guideTitle } from '../utils/guide_text.js'
-import type { Guide } from '../../types/guias.js'
+import { CONTENT_ITEMS } from '../content/index.js'
+import type { ContentItem } from '../../types/conteudo.js'
 import { pagesToEmbed, referenceForPath, referenceLabel } from '../utils/reference_pages.js'
 import type { ReferenceDoc } from '../../types/fichas.js'
 import {
@@ -83,7 +82,7 @@ export class RagService {
   private ensuredCollections = new Set<string>()
   public static UPLOADS_STORAGE_PATH = 'storage/kb_uploads'
   public static REFERENCES_STORAGE_PATH = 'storage/referencias'
-  public static GUIDES_STORAGE_PATH = 'storage/guias'
+  public static CONTENT_STORAGE_PATH = 'storage/conteudos'
   public static CONTENT_COLLECTION_NAME = 'nomad_knowledge_base'
   public static EMBEDDING_DIMENSION = 768 // Nomic Embed Text v1.5 dimension is 768
   // Upper bound on distinct sources returned by Qdrant's facet API. Real
@@ -861,12 +860,12 @@ export class RagService {
     }
   }
 
-  /** O guia do Tropeiro escrito neste caminho, se for um. */
-  private guideFor(filepath: string): Guide | null {
-    const dir = resolve(join(process.cwd(), RagService.GUIDES_STORAGE_PATH))
+  /** O conteúdo do Tropeiro escrito neste caminho (storage/conteudos/<tema>__<slug>.md), se for um. */
+  private contentFor(filepath: string): ContentItem | null {
+    const dir = resolve(join(process.cwd(), RagService.CONTENT_STORAGE_PATH))
     if (!resolve(filepath).startsWith(dir + sep)) return null
-    const slug = filepath.split(/[/\\]/).pop()!.replace(/\.md$/, '')
-    return GUIDES.find((g) => g.slug === slug) ?? null
+    const id = filepath.split(/[/\\]/).pop()!.replace(/\.md$/, '').replace('__', '/')
+    return CONTENT_ITEMS.find((i) => i.id === id) ?? null
   }
 
   /** O documento oficial das fichas guardado neste caminho, se for um. */
@@ -960,22 +959,22 @@ export class RagService {
         return await this.processReferencePdf(filepath, fileBuffer!, reference, onProgress, collection)
       }
 
-      // Guia do Tropeiro: entra com o título e o endereço do guia, para a citação.
-      const guide = fileType === 'text' ? this.guideFor(filepath) : null
-      if (guide) {
+      // Conteúdo do Tropeiro: entra com o título e o endereço, para a citação.
+      const content = fileType === 'text' ? this.contentFor(filepath) : null
+      if (content) {
         const embedded = await this.embedAndStoreText(
           fileBuffer!.toString('utf-8'),
           {
             source: filepath,
-            archive_title: guideTitle(guide),
-            guide_slug: guide.slug,
+            archive_title: `${content.title} (Tropeiro)`,
+            content_id: content.id,
             ...(collection ? { collection } : {}),
           },
           onProgress
         )
         return embedded
-          ? { success: true, message: 'Guide embedded.', chunks: embedded.chunks }
-          : { success: false, message: 'Failed to embed the guide.' }
+          ? { success: true, message: 'Content embedded.', chunks: embedded.chunks }
+          : { success: false, message: 'Failed to embed the content.' }
       }
 
       // Extract text based on file type
@@ -2246,15 +2245,15 @@ export class RagService {
     kbUploadsPath: string
     zimPath: string
     referencesPath: string
-    guidesPath: string
+    contentPath: string
   } {
     return {
       kbUploadsPath: join(process.cwd(), RagService.UPLOADS_STORAGE_PATH),
       zimPath: join(process.cwd(), ZIM_STORAGE_PATH),
       // Documentos oficiais das fichas (ReferenceDocsService), lidos página a página.
       referencesPath: join(process.cwd(), RagService.REFERENCES_STORAGE_PATH),
-      // Guias do Tropeiro, escritos como texto por GuidesKbService.
-      guidesPath: join(process.cwd(), RagService.GUIDES_STORAGE_PATH),
+      // Conteúdo do Tropeiro (guias e referências), escrito como texto por ContentKbService.
+      contentPath: join(process.cwd(), RagService.CONTENT_STORAGE_PATH),
     }
   }
 
@@ -2297,7 +2296,7 @@ export class RagService {
       kbUploadsPath: KB_UPLOADS_PATH,
       zimPath: ZIM_PATH,
       referencesPath: REFERENCES_PATH,
-      guidesPath: GUIDES_PATH,
+      contentPath: CONTENT_PATH,
     } = this._kbScanRoots()
     const filesInStorage: string[] = []
     const scannedRoots: string[] = []
@@ -2306,7 +2305,7 @@ export class RagService {
       [RagService.UPLOADS_STORAGE_PATH, KB_UPLOADS_PATH] as const,
       [ZIM_STORAGE_PATH, ZIM_PATH] as const,
       [RagService.REFERENCES_STORAGE_PATH, REFERENCES_PATH] as const,
-      [RagService.GUIDES_STORAGE_PATH, GUIDES_PATH] as const,
+      [RagService.CONTENT_STORAGE_PATH, CONTENT_PATH] as const,
     ]) {
       try {
         const contents = await listDirectoryContentsRecursive(dirPath)

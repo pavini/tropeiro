@@ -33,6 +33,7 @@ O Tropeiro não acompanha mais o upstream: não há sincronização automática 
 
 - Configuração própria: `admin/constants/tropeiro.ts`.
 - Interface: o texto em inglês no código é a chave de tradução (`t('Back to Home')`); as traduções ficam em `admin/inertia/i18n/locales/pt-BR.json`. Rode `node --import ts-node-maintained/register/esm --test tests/unit/tropeiro_i18n.spec.ts` em `admin/` depois de mexer em textos.
+- Conteúdo próprio (fichas, guias, referências): arquivos Markdown em `conteudo/<tema>/<slug>.md`, com as fontes oficiais em `conteudo/fontes.yml` e os temas em `conteudo/temas.yml`. Regras e formato em `conteudo/CONTRIBUINDO.md`. Valide com `npm run conteudo:validar` em `admin/` (também roda no GitHub em todo PR que mexe em `conteudo/`).
 - Catálogo curado: `collections/tropeiro/` (Wikipedia e categorias de ZIM). Os apps instalados leem esses arquivos ao vivo da branch `tropeiro` no GitHub, então um merge de catálogo chega a todo mundo na hora; valide antes (`node --import ts-node-maintained/register/esm --test tests/unit/tropeiro_catalog.spec.ts` em `admin/`).
 - `collections/*.json` na raiz ainda são os do NOMAD.
 - Mapas e Creator Packs ainda vêm do NOMAD. Mapas do Brasil saem pelo seletor de países (Protomaps), não por `maps.json`.

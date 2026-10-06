@@ -98,10 +98,10 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   const seen = new Set<string>()
   const sources: ChatSource[] = []
 
-  // A ficha e os guias do Tropeiro usados na resposta vêm antes de tudo.
+  // A ficha e os conteúdos do Tropeiro usados na resposta vêm antes de tudo.
   for (const [campo, base] of [
     ['ficha_slug', '/fichas'],
-    ['guide_slug', '/guias'],
+    ['content_id', '/temas'],
   ] as const) {
     for (const doc of docs) {
       const slug = doc.metadata?.[campo] as string | undefined
@@ -131,7 +131,7 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   }
 
   for (const doc of docs) {
-    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug || doc.metadata?.guide_slug) continue
+    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug || doc.metadata?.content_id) continue
     const title =
       doc.metadata?.archive_title || doc.metadata?.full_title || doc.metadata?.article_title
     const path = doc.metadata?.source as string | undefined

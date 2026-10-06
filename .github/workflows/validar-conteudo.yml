@@ -1,0 +1,41 @@
+name: Validar conteúdo
+
+# Confere a pasta conteudo/ em todo PR que mexe nela (ou no código que a lê):
+# formato de cada arquivo, fontes, temas, "veja também" e tabelas. Veja
+# conteudo/CONTRIBUINDO.md.
+
+on:
+  pull_request:
+    paths:
+      - 'conteudo/**'
+      - 'admin/app/content/**'
+      - 'admin/app/utils/conteudo*.ts'
+      - 'admin/scripts/validar_conteudo.ts'
+  push:
+    branches: [tropeiro]
+    paths:
+      - 'conteudo/**'
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Instalar dependências
+        run: npm ci
+        working-directory: ./admin
+
+      - name: Validar conteúdo
+        run: npm run conteudo:validar
+        working-directory: ./admin
+
+      - name: Testes do formato de conteúdo
+        run: node --import ts-node-maintained/register/esm --test tests/unit/conteudo.spec.ts tests/unit/conteudo_validacao.spec.ts tests/unit/fichas.spec.ts
+        working-directory: ./admin

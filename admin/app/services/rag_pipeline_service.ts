@@ -214,7 +214,7 @@ export class RagPipelineService {
       }
       // Um trecho de saúde perdido no meio (o protocolo do SAMU também fala de
       // rádio) não basta: vale o mais relevante.
-      const healthTop = REFERENCE_DOCS.find((r) => r.id === topChunk?.metadata?.reference_id)?.topic === 'health'
+      const healthTop = REFERENCE_DOCS.find((r) => r.id === topChunk?.metadata?.reference_id)?.theme === 'saude'
       if (ficha || healthTop) {
         systemBlocks.push({ role: 'system', content: EMERGENCY_PROMPT })
       }
