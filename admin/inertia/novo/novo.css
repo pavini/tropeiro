@@ -292,3 +292,46 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Resultados da busca */
+.nv-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nv-book {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nv-book-count {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.nv-snippet {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.nv-snippet strong {
+  color: var(--nv-ink);
+  background: #fff1cc;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.nv-card-ai {
+  background: var(--nv-accent-tint);
+  border-color: transparent;
+  color: var(--nv-accent-dark);
+}
+
+.nv-card-ai .nv-text {
+  color: var(--nv-accent-dark);
+}

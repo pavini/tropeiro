@@ -4,23 +4,22 @@ import { useTranslation } from 'react-i18next'
 import NovoLayout from '~/novo/NovoLayout'
 import { getServiceLink } from '~/lib/navigation'
 import type { ServiceSlim } from '../../../types/services'
+import type { LibraryBookResult, LibrarySearchResult, SnippetPart } from '../../../types/library_search'
 import { SERVICE_NAMES } from '../../../constants/service_names'
 
-/**
- * Busca da interface nova. Por enquanto encaminha a pesquisa para onde já há
- * busca (Kiwix, bulário, IA); a busca unificada em todo o acervo vem depois.
- */
+/** Busca da interface nova: procura em todo o acervo da biblioteca de uma vez. */
 export default function NovoBusca(props: {
   q: string
   services: ServiceSlim[]
-  drugReferenceInstalled: boolean
+  library: LibrarySearchResult
 }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState(props.q)
 
   const kiwix = props.services.find((s) => s.service_name === SERVICE_NAMES.KIWIX && s.installed)
-  const kiwixBase = kiwix ? getServiceLink(kiwix.ui_location || '', kiwix.custom_url) : null
+  const kiwixBase = kiwix ? getServiceLink(kiwix.ui_location || '', kiwix.custom_url).replace(/\/$/, '') : null
   const ollama = props.services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA && s.installed)
+  const { status, books } = props.library
 
   return (
     <NovoLayout>
@@ -35,6 +34,7 @@ export default function NovoBusca(props: {
 
       <form
         className="nv-search"
+        role="search"
         onSubmit={(e) => {
           e.preventDefault()
           const trimmed = query.trim()
@@ -62,51 +62,97 @@ export default function NovoBusca(props: {
         </div>
       </form>
 
-      {props.q ? (
-        <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <h1 className="nv-title">{t('Where to look for “{{q}}”', { q: props.q })}</h1>
-          <p className="nv-text">
-            {t('Soon the search will cover the whole collection at once. For now, choose where to look:')}
-          </p>
-
-          {kiwixBase && (
-            <a
-              className="nv-card nv-card-link"
-              href={`${kiwixBase}/search?pattern=${encodeURIComponent(props.q)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span className="nv-section-label">{t('Encyclopedia and manuals')}</span>
-              <span className="nv-tile-label">{t('Search the library')}</span>
-              <span className="nv-text">{t('Wikipedia and the downloaded guides. Opens in a new tab.')}</span>
-            </a>
+      {props.q && (
+        <section className="nv-results" aria-live="polite">
+          {status === 'ok' && books.length > 0 && (
+            <>
+              <h1 className="nv-title">{t('Results for “{{q}}”', { q: props.q })}</h1>
+              {books.map((book) => (
+                <BookResults key={book.bookId} book={book} kiwixBase={kiwixBase} />
+              ))}
+            </>
           )}
 
-          {props.drugReferenceInstalled && (
-            <Link className="nv-card nv-card-link" href="/drug-reference">
-              <span className="nv-section-label">{t('Medicines')}</span>
-              <span className="nv-tile-label">{t('Look it up in the drug reference')}</span>
-            </Link>
+          {status === 'ok' && books.length === 0 && (
+            <div className="nv-card">
+              <h1 className="nv-tile-label">{t('Nothing found for “{{q}}”', { q: props.q })}</h1>
+              <p className="nv-text">{t('Try a shorter or more common word, or check the spelling.')}</p>
+            </div>
+          )}
+
+          {status === 'unavailable' && (
+            <div className="nv-card">
+              <h1 className="nv-tile-label">{t('The library did not respond')}</h1>
+              <p className="nv-text">
+                {t('The search could not reach the library. Whoever manages the server can check whether it is running.')}
+              </p>
+            </div>
+          )}
+
+          {status === 'not_installed' && (
+            <div className="nv-card">
+              <h1 className="nv-tile-label">{t('No library on this server yet')}</h1>
+              <p className="nv-text">
+                {t('Whoever manages the server can install the library and choose content in the classic interface.')}
+              </p>
+            </div>
           )}
 
           {ollama && (
-            <Link className="nv-card nv-card-link" href="/chat">
-              <span className="nv-section-label">{t('Ask the AI')}</span>
-              <span className="nv-tile-label">{t('Ask the local assistant')}</span>
+            <Link className="nv-card nv-card-link nv-card-ai" href="/chat">
+              <span className="nv-tile-label">{t('Didn’t find it? Ask the AI')}</span>
               <span className="nv-text">{t('It answers using the content on this server.')}</span>
             </Link>
           )}
-
-          {!kiwixBase && !props.drugReferenceInstalled && !ollama && (
-            <div className="nv-card">
-              <span className="nv-tile-label">{t('Nothing to search yet')}</span>
-              <span className="nv-text">
-                {t('This server has no content installed. Whoever manages it can add content in the classic interface.')}
-              </span>
-            </div>
-          )}
         </section>
-      ) : null}
+      )}
     </NovoLayout>
+  )
+}
+
+function BookResults({ book, kiwixBase }: { book: LibraryBookResult; kiwixBase: string | null }) {
+  const { t } = useTranslation()
+  return (
+    <section className="nv-book" aria-labelledby={`livro-${book.bookId}`}>
+      <h2 id={`livro-${book.bookId}`} className="nv-section-label">
+        {book.bookTitle}
+        <span className="nv-book-count"> · {t('{{count}} results', { count: book.total })}</span>
+      </h2>
+      {book.hits.map((hit) => {
+        const body = (
+          <>
+            <span className="nv-tile-label">{hit.title}</span>
+            {hit.snippet.length > 0 && (
+              <span className="nv-text nv-snippet">
+                <Snippet parts={hit.snippet} />
+              </span>
+            )}
+          </>
+        )
+        return kiwixBase ? (
+          <a
+            key={hit.path}
+            className="nv-card nv-card-link"
+            href={`${kiwixBase}${hit.path}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {body}
+          </a>
+        ) : (
+          <div key={hit.path} className="nv-card">
+            {body}
+          </div>
+        )
+      })}
+    </section>
+  )
+}
+
+function Snippet({ parts }: { parts: SnippetPart[] }) {
+  return (
+    <>
+      {parts.map((part, i) => (part.bold ? <strong key={i}>{part.text}</strong> : <span key={i}>{part.text}</span>))}
+    </>
   )
 }
