@@ -32,13 +32,13 @@ const GB = 1024 ** 3
 
 export function healthChecks(input: HealthInput): HealthCheck[] {
   const checks: HealthCheck[] = []
-  const setup = { href: '/novo/montar', label: 'Set up the server' }
+  const setup = { href: '/montar', label: 'Set up the server' }
 
   // Biblioteca
   if (!input.library.installed) {
     checks.push({ id: 'library', level: 'warn', title: 'No library on this server yet', detail: 'Without it there is no encyclopedia or manuals to search.', action: setup })
   } else if (!input.library.reachable) {
-    checks.push({ id: 'library', level: 'error', title: 'The library is not responding', detail: 'Search and articles do not work until it comes back. Restarting the library in the apps screen usually solves it.', action: { href: '/novo/apps', label: 'Open the apps' } })
+    checks.push({ id: 'library', level: 'error', title: 'The library is not responding', detail: 'Search and articles do not work until it comes back. Restarting the library in the apps screen usually solves it.', action: { href: '/apps', label: 'Open the apps' } })
   } else if (input.library.books === 0) {
     checks.push({ id: 'library', level: 'warn', title: 'The library is empty', detail: 'Choose a kit to download content.', action: setup })
   } else {
@@ -47,7 +47,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
 
   // IA
   if (!input.ai.installed) {
-    checks.push({ id: 'ai', level: 'info', title: 'AI not installed', detail: 'Optional. Without it, everything else works.', action: { href: '/novo/apps', label: 'Open the apps' } })
+    checks.push({ id: 'ai', level: 'info', title: 'AI not installed', detail: 'Optional. Without it, everything else works.', action: { href: '/apps', label: 'Open the apps' } })
   } else if (!input.ai.model) {
     checks.push({ id: 'ai', level: 'warn', title: 'AI without a model', detail: 'The AI is installed but has no model to answer with.', action: { href: '/settings/models', label: 'Choose a model' } })
   } else {
@@ -56,7 +56,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
 
   // Apps parados
   if (input.stoppedApps.length > 0) {
-    checks.push({ id: 'apps', level: 'warn', title: 'Stopped apps: {{names}}', titleParams: { names: input.stoppedApps.join(', ') }, detail: 'They can be started again in the apps screen.', action: { href: '/novo/apps', label: 'Open the apps' } })
+    checks.push({ id: 'apps', level: 'warn', title: 'Stopped apps: {{names}}', titleParams: { names: input.stoppedApps.join(', ') }, detail: 'They can be started again in the apps screen.', action: { href: '/apps', label: 'Open the apps' } })
   } else {
     checks.push({ id: 'apps', level: 'ok', title: 'All installed apps running' })
   }
@@ -66,11 +66,11 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
   if (dl) {
     const pending = dl.active > 0
     if (pending && dl.workerAlive === false) {
-      checks.push({ id: 'downloads', level: 'error', title: 'Downloads are stopped', detail: 'The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.', action: { href: '/novo/montar', label: 'See downloads' } })
+      checks.push({ id: 'downloads', level: 'error', title: 'Downloads are stopped', detail: 'The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.', action: { href: '/montar', label: 'See downloads' } })
     } else if (dl.failed > 0) {
-      checks.push({ id: 'downloads', level: 'warn', title: '{{count}} downloads failed', titleParams: { count: dl.failed }, detail: 'They can be tried again in the classic content manager.', action: { href: '/novo/montar', label: 'See downloads' } })
+      checks.push({ id: 'downloads', level: 'warn', title: '{{count}} downloads failed', titleParams: { count: dl.failed }, detail: 'They can be tried again in the classic content manager.', action: { href: '/montar', label: 'See downloads' } })
     } else if (pending) {
-      checks.push({ id: 'downloads', level: 'info', title: 'Downloading {{count}} items', titleParams: { count: dl.active }, action: { href: '/novo/montar', label: 'See downloads' } })
+      checks.push({ id: 'downloads', level: 'info', title: 'Downloading {{count}} items', titleParams: { count: dl.active }, action: { href: '/montar', label: 'See downloads' } })
     } else {
       checks.push({ id: 'downloads', level: 'ok', title: 'No downloads pending' })
     }
@@ -87,7 +87,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
       title: level === 'ok' ? 'Disk space is fine' : 'Little disk space left',
       detail: '{{free}} GB free',
       detailParams: { free },
-      ...(level === 'ok' ? {} : { action: { href: '/novo/conteudo', label: 'Free up space' } }),
+      ...(level === 'ok' ? {} : { action: { href: '/conteudo', label: 'Free up space' } }),
     })
   }
 

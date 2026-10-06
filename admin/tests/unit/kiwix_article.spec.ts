@@ -32,7 +32,7 @@ test('links internos continuam dentro do Tropeiro e levam a busca junto', () => 
   const { html } = prepareArticle(page('<p><a href="Tend%C3%A3o">tendão</a></p>'), PATH, 'queimadura')
   assert.equal(
     html,
-    '<p><a href="/novo/ler/wikipedia_pt_top_mini_2026-07/Tend%C3%A3o?q=queimadura">tendão</a></p>'
+    '<p><a href="/ler/wikipedia_pt_top_mini_2026-07/Tend%C3%A3o?q=queimadura">tendão</a></p>'
   )
 })
 
@@ -57,13 +57,13 @@ test('imagens do acervo passam pelo Tropeiro; externas e atributos de evento sae
     page('<img src="./_res_/a.png" alt="A" onerror="x()"><img src="https://exemplo.com/b.png">'),
     PATH
   )
-  assert.equal(html, '<img alt="A" src="/novo/arquivo/wikipedia_pt_top_mini_2026-07/_res_/a.png" />')
+  assert.equal(html, '<img alt="A" src="/arquivo/wikipedia_pt_top_mini_2026-07/_res_/a.png" />')
 })
 
 test('converte caminhos do Kiwix nas rotas da interface nova', () => {
-  assert.equal(readUrl('/content/livro/A_B', 'água'), '/novo/ler/livro/A_B?q=%C3%A1gua')
-  assert.equal(readUrl('/content/livro/A_B'), '/novo/ler/livro/A_B')
-  assert.equal(assetUrl('/content/livro/_res_/x.png'), '/novo/arquivo/livro/_res_/x.png')
+  assert.equal(readUrl('/content/livro/A_B', 'água'), '/ler/livro/A_B?q=%C3%A1gua')
+  assert.equal(readUrl('/content/livro/A_B'), '/ler/livro/A_B')
+  assert.equal(assetUrl('/content/livro/_res_/x.png'), '/arquivo/livro/_res_/x.png')
 })
 
 test('aceita só caminhos dentro de /content/ com livro e página', () => {

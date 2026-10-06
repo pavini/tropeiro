@@ -45,7 +45,7 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
   const { data: downloads } = useQuery({
     queryKey: ['novo-montar-downloads'],
     queryFn: async (): Promise<DownloadStatus> => {
-      const res = await fetch('/novo/downloads', { headers: { Accept: 'application/json' } })
+      const res = await fetch('/downloads', { headers: { Accept: 'application/json' } })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       return res.json()
     },
@@ -58,14 +58,14 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
   const apply = () => {
     if (!selectedKit || selectedKit.status !== 'available' || !isOnline) return
     setSending(true)
-    router.post('/novo/montar', { kit: selectedKit.id }, { onFinish: () => setSending(false) })
+    router.post('/montar', { kit: selectedKit.id }, { onFinish: () => setSending(false) })
   }
 
   return (
     <NovoLayout>
       <Head title={t('Set up the server')} />
 
-      <Link href="/novo" className="nv-back">
+      <Link href="/" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>

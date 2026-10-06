@@ -27,7 +27,7 @@ export default function Footer() {
         </button>
         <ThemeToggle />
         <span className="text-gray-300">|</span>
-        <a href="/novo" className="text-sm/6 font-semibold text-desert-green hover:underline">
+        <a href="/" className="text-sm/6 font-semibold text-desert-green hover:underline">
           {t('Go to the main interface')}
         </a>
       </div>

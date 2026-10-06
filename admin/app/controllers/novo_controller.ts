@@ -25,7 +25,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
 
 /**
- * Interface nova do Tropeiro, servida em /novo enquanto convive com a clássica.
+ * Interface nova do Tropeiro, a principal. A clássica segue como administração avançada.
  * Usa os mesmos serviços e dados; só as telas são outras.
  */
 const applyKitValidator = vine.compile(
@@ -66,10 +66,10 @@ export default class NovoController {
     return inertia.render('novo/busca', { ...shared, q, library, fichas })
   }
 
-  /** Artigo da biblioteca lido dentro do Tropeiro: /novo/ler/<livro>/<página>. */
+  /** Artigo da biblioteca lido dentro do Tropeiro: /ler/<livro>/<página>. */
   async ler({ inertia, request, response }: HttpContext) {
     const q = String(request.input('q', '')).trim().slice(0, 200) || undefined
-    const result = await this.libraryReader.read(this.rest(request.url(), '/novo/ler/'), q)
+    const result = await this.libraryReader.read(this.rest(request.url(), '/ler/'), q)
     if (result.kind === 'redirect') return response.redirect().toPath(result.to)
     if (result.kind !== 'article') response.status(result.kind === 'not_found' ? 404 : 503)
     return inertia.render('novo/ler', {
@@ -81,7 +81,7 @@ export default class NovoController {
 
   /** Imagens e outros arquivos dos artigos, servidos pelo Tropeiro. */
   async arquivo({ request, response }: HttpContext) {
-    const result = await this.libraryReader.asset(this.rest(request.url(), '/novo/arquivo/'))
+    const result = await this.libraryReader.asset(this.rest(request.url(), '/arquivo/'))
     if (result.kind !== 'asset') return response.status(result.kind === 'not_found' ? 404 : 503).send('')
     response.header('Content-Type', result.contentType)
     if (result.length) response.header('Content-Length', result.length)
@@ -104,10 +104,10 @@ export default class NovoController {
     const { kit } = await request.validateUsing(applyKitValidator)
     try {
       const { started } = await this.kits.apply(kit)
-      return response.redirect().toPath(`/novo/montar?resultado=${started > 0 ? 'iniciado' : 'nada'}`)
+      return response.redirect().toPath(`/montar?resultado=${started > 0 ? 'iniciado' : 'nada'}`)
     } catch (err) {
       logger.error(`[NovoController] falha ao aplicar o kit ${kit}: ${(err as Error).message}`)
-      return response.redirect().toPath('/novo/montar?resultado=erro')
+      return response.redirect().toPath('/montar?resultado=erro')
     }
   }
 
@@ -132,10 +132,10 @@ export default class NovoController {
     const { kind, id } = await request.validateUsing(removeContentValidator)
     try {
       await this.installed.remove(kind, id)
-      return response.redirect().toPath('/novo/conteudo?resultado=apagado')
+      return response.redirect().toPath('/conteudo?resultado=apagado')
     } catch (err) {
       logger.error(`[NovoController] falha ao apagar ${kind} ${id}: ${(err as Error).message}`)
-      return response.redirect().toPath('/novo/conteudo?resultado=erro')
+      return response.redirect().toPath('/conteudo?resultado=erro')
     }
   }
 
@@ -186,7 +186,7 @@ export default class NovoController {
     const { service, action } = await request.validateUsing(appActionValidator)
     // Só apps que a tela mostra: nada de dependências internas nem atalhos.
     if (!(await this.appList()).some((a) => a.name === service)) {
-      return response.redirect().toPath('/novo/apps?resultado=erro')
+      return response.redirect().toPath('/apps?resultado=erro')
     }
     try {
       const result =
@@ -194,10 +194,10 @@ export default class NovoController {
           ? await this.docker.createContainerPreflight(service)
           : await this.docker.affectContainer(service, action)
       if (!result.success) throw new Error(result.message)
-      return response.redirect().toPath(`/novo/apps?resultado=${action}`)
+      return response.redirect().toPath(`/apps?resultado=${action}`)
     } catch (err) {
       logger.error(`[NovoController] falha em ${action} de ${service}: ${(err as Error).message}`)
-      return response.redirect().toPath('/novo/apps?resultado=erro')
+      return response.redirect().toPath('/apps?resultado=erro')
     }
   }
 
@@ -280,7 +280,7 @@ export default class NovoController {
 
   async ficha({ inertia, params, response }: HttpContext) {
     const ficha = FICHAS.find((f) => f.slug === params.slug)
-    if (!ficha) return response.redirect().toPath('/novo/fichas')
+    if (!ficha) return response.redirect().toPath('/fichas')
     const docs = await new ReferenceDocsService().status()
     const related = FICHAS.filter((f) => f.slug !== ficha.slug).map(({ slug, title }) => ({ slug, title }))
     return inertia.render('novo/ficha', { ficha, docs, related })
@@ -298,7 +298,7 @@ export default class NovoController {
       return response.stream(opened.stream)
     }
     const doc = (await service.status()).find((d) => d.id === params.id)
-    if (!doc) return response.redirect().toPath('/novo/fichas')
+    if (!doc) return response.redirect().toPath('/fichas')
     void service.ensureAll()
     response.status(404)
     return inertia.render('novo/referencia', { doc })

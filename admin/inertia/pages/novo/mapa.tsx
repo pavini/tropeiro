@@ -111,7 +111,7 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
     }
     const controller = new AbortController()
     const timer = setTimeout(() => {
-      fetch(`/novo/mapa/lugares?q=${encodeURIComponent(text)}`, { signal: controller.signal })
+      fetch(`/mapa/lugares?q=${encodeURIComponent(text)}`, { signal: controller.signal })
         .then((res) => (res.ok ? res.json() : []))
         .then((places: PlaceHit[]) => {
           setHits(places)
@@ -141,7 +141,7 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
     }
     let places = hits
     if (places.length === 0 && query.trim().length >= 2) {
-      places = await fetch(`/novo/mapa/lugares?q=${encodeURIComponent(query.trim())}`)
+      places = await fetch(`/mapa/lugares?q=${encodeURIComponent(query.trim())}`)
         .then((res) => (res.ok ? res.json() : []))
         .catch(() => [])
     }
@@ -157,7 +157,7 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
   const unavailable = !props.ready || styleError
 
   const back = (
-    <Link href="/novo" className="nv-map-fab nv-map-back" aria-label={t('Home')}>
+    <Link href="/" className="nv-map-fab nv-map-back" aria-label={t('Home')}>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M15 5 L8 12 L15 19" />
       </svg>
@@ -185,7 +185,7 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
       <div className="nv-map-canvas">
       <Map
         mapLib={maplibregl}
-        mapStyle={`${window.location.origin}/novo/mapa/estilo`}
+        mapStyle={`${window.location.origin}/mapa/estilo`}
         initialViewState={initialView}
         style={{ width: '100%', height: '100%' }}
         onClick={onMapClick}
@@ -384,7 +384,7 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
         {marking && <span className="nv-map-toast">{t('Tap the map where the place is.')}</span>}
         {props.regions.length === 0 && !hideNotice && (
           <span className="nv-map-toast nv-map-toast-link">
-            <Link href="/novo/montar">{t('Only the world overview is on this server. Download the map of Brazil in a kit to see streets and cities.')}</Link>
+            <Link href="/montar">{t('Only the world overview is on this server. Download the map of Brazil in a kit to see streets and cities.')}</Link>
             <button type="button" aria-label={t('Close')} onClick={() => setHideNotice(true)}>
               ×
             </button>

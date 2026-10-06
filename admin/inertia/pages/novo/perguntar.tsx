@@ -52,7 +52,7 @@ export default function NovoPerguntar(props: { q: string; model: string | null }
     setInput('')
     setBusy(true)
 
-    fetch(`/novo/fichas-sugeridas?q=${encodeURIComponent(text)}`)
+    fetch(`/fichas-sugeridas?q=${encodeURIComponent(text)}`)
       .then((res) => (res.ok ? res.json() : []))
       .then((fichas: FichaHint[]) => update(index, () => ({ fichas })))
       .catch(() => {})
@@ -93,7 +93,7 @@ export default function NovoPerguntar(props: { q: string; model: string | null }
     <NovoLayout>
       <Head title={t('Ask the AI')} />
 
-      <Link href="/novo" className="nv-back">
+      <Link href="/" className="nv-back">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M15 5 L8 12 L15 19" />
         </svg>
@@ -123,7 +123,7 @@ export default function NovoPerguntar(props: { q: string; model: string | null }
                   <div className="nv-turn-fichas">
                     <span className="nv-section-label">{t('First aid · do it now')}</span>
                     {turn.fichas.map((ficha) => (
-                      <Link key={ficha.slug} href={`/novo/fichas/${ficha.slug}`} className="nv-card nv-card-link nv-card-ficha">
+                      <Link key={ficha.slug} href={`/fichas/${ficha.slug}`} className="nv-card nv-card-link nv-card-ficha">
                         <span className="nv-tile-label">{ficha.title}</span>
                         <span className="nv-text">{ficha.summary}</span>
                       </Link>

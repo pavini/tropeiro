@@ -96,7 +96,6 @@ import { conditionDrugsValidator } from '#validators/conditions'
 
 transmit.registerRoutes()
 
-router.get('/', [HomeController, 'index'])
 router.get('/home', [HomeController, 'home'])
 router.on('/about').renderInertia('about')
 router.get('/chat', [ChatsController, 'inertia'])
