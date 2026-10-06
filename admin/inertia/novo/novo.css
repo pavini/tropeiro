@@ -646,3 +646,162 @@
   justify-content: space-between;
   gap: 12px;
 }
+
+/* Fichas de primeiros socorros */
+.nv-emergency {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nv-emergency-call {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  border-radius: 14px;
+  background: #b42318;
+  color: #ffffff !important;
+  padding: 10px 12px;
+}
+
+.nv-emergency-number {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.nv-emergency-label {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.nv-call-first {
+  background: #fce4e1;
+  border-color: #b42318;
+  color: #4a0f09;
+}
+
+.nv-ficha-heading {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nv-ficha-list {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 18px;
+  line-height: 1.45;
+}
+
+ol.nv-ficha-list {
+  list-style: decimal;
+}
+
+ul.nv-ficha-list {
+  list-style: disc;
+}
+
+.nv-ficha-do {
+  border-color: var(--nv-accent);
+}
+
+.nv-ficha-do .nv-ficha-heading {
+  color: var(--nv-accent);
+}
+
+.nv-ficha-dont {
+  background: #fce4e1;
+  border-color: transparent;
+  color: #4a0f09;
+}
+
+.nv-ficha-dont .nv-ficha-heading {
+  color: #8a1c12;
+}
+
+.nv-ficha-help {
+  background: #fff1cc;
+  border-color: transparent;
+  color: #3d2600;
+}
+
+.nv-ficha-help .nv-ficha-heading {
+  color: #7a4b00;
+}
+
+.nv-unreviewed {
+  border-style: dashed;
+}
+
+.nv-sources {
+  gap: 14px;
+}
+
+.nv-source {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nv-source-title {
+  font-weight: 700;
+}
+
+.nv-source-pages {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nv-source-pages a {
+  color: var(--nv-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.nv-adaptation {
+  font-style: italic;
+}
+
+.nv-chip-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.nv-fichas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .nv-fichas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.nv-card-ficha {
+  border-color: var(--nv-accent);
+}
+
+.nv-ficha-cta {
+  font-weight: 700;
+  color: var(--nv-accent);
+}
+
+.nv-url {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+}

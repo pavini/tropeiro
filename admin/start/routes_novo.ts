@@ -20,5 +20,8 @@ router
     router.get('/montar', [NovoController, 'montar'])
     router.post('/montar', [NovoController, 'aplicarKit'])
     router.get('/downloads', [NovoController, 'downloadStatus'])
+    router.get('/fichas', [NovoController, 'fichas'])
+    router.get('/fichas/:slug', [NovoController, 'ficha'])
+    router.get('/referencias/:id', [NovoController, 'referencia'])
   })
   .prefix('/novo')

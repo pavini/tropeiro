@@ -8,6 +8,9 @@ import { isWorkerAlive } from '../utils/worker_heartbeat.js'
 import logger from '@adonisjs/core/services/logger'
 import vine from '@vinejs/vine'
 import { KITS } from '../../constants/kits.js'
+import { ReferenceDocsService } from '#services/reference_docs_service'
+import { FICHAS } from '../content/fichas.js'
+import { searchFichas } from '../utils/fichas_search.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
@@ -37,7 +40,8 @@ export default class NovoController {
   async busca({ inertia, request }: HttpContext) {
     const q = String(request.input('q', '')).trim().slice(0, 200)
     const [shared, library] = await Promise.all([this.sharedProps(), this.librarySearch.search(q)])
-    return inertia.render('novo/busca', { ...shared, q, library })
+    const fichas = searchFichas(FICHAS, q).map(({ slug, title, summary }) => ({ slug, title, summary }))
+    return inertia.render('novo/busca', { ...shared, q, library, fichas })
   }
 
   /** Artigo da biblioteca lido dentro do Tropeiro: /novo/ler/<livro>/<página>. */
@@ -92,6 +96,39 @@ export default class NovoController {
       isWorkerAlive(queueConfig.connection),
     ])
     return { workerAlive, jobs }
+  }
+
+  /** Fichas de primeiros socorros. */
+  async fichas({ inertia }: HttpContext) {
+    return inertia.render('novo/fichas', {
+      fichas: FICHAS.map(({ slug, title, summary }) => ({ slug, title, summary })),
+    })
+  }
+
+  async ficha({ inertia, params, response }: HttpContext) {
+    const ficha = FICHAS.find((f) => f.slug === params.slug)
+    if (!ficha) return response.redirect().toPath('/novo/fichas')
+    const docs = await new ReferenceDocsService().status()
+    const related = FICHAS.filter((f) => f.slug !== ficha.slug).map(({ slug, title }) => ({ slug, title }))
+    return inertia.render('novo/ficha', { ficha, docs, related })
+  }
+
+  /** PDF oficial guardado no servidor; sem ele, explica e mostra o endereço da fonte. */
+  async referencia({ inertia, params, response }: HttpContext) {
+    const service = new ReferenceDocsService()
+    const opened = await service.open(String(params.id))
+    if (opened) {
+      response.header('Content-Type', 'application/pdf')
+      response.header('Content-Length', String(opened.doc.sizeBytes))
+      response.header('Content-Disposition', `inline; filename="${opened.doc.id}.pdf"`)
+      response.header('X-Content-Type-Options', 'nosniff')
+      return response.stream(opened.stream)
+    }
+    const doc = (await service.status()).find((d) => d.id === params.id)
+    if (!doc) return response.redirect().toPath('/novo/fichas')
+    void service.ensureAll()
+    response.status(404)
+    return inertia.render('novo/referencia', { doc })
   }
 
   /** Parte do caminho depois do prefixo, ainda codificada como veio na URL. */
