@@ -27,6 +27,8 @@ router
     router.get('/estado', [NovoController, 'estado'])
     router.get('/conteudo', [NovoController, 'conteudo'])
     router.post('/conteudo/apagar', [NovoController, 'apagarConteudo'])
+    router.get('/apps', [NovoController, 'apps'])
+    router.post('/apps', [NovoController, 'appAcao'])
     router.get('/fichas-sugeridas', [NovoController, 'fichasSugeridas'])
   })
   .prefix('/novo')

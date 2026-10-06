@@ -38,7 +38,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
   if (!input.library.installed) {
     checks.push({ id: 'library', level: 'warn', title: 'No library on this server yet', detail: 'Without it there is no encyclopedia or manuals to search.', action: setup })
   } else if (!input.library.reachable) {
-    checks.push({ id: 'library', level: 'error', title: 'The library is not responding', detail: 'Search and articles do not work until it comes back. Restarting the server usually solves it.', action: { href: '/supply-depot', label: 'Open the apps' } })
+    checks.push({ id: 'library', level: 'error', title: 'The library is not responding', detail: 'Search and articles do not work until it comes back. Restarting the library in the apps screen usually solves it.', action: { href: '/novo/apps', label: 'Open the apps' } })
   } else if (input.library.books === 0) {
     checks.push({ id: 'library', level: 'warn', title: 'The library is empty', detail: 'Choose a kit to download content.', action: setup })
   } else {
@@ -47,7 +47,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
 
   // IA
   if (!input.ai.installed) {
-    checks.push({ id: 'ai', level: 'info', title: 'AI not installed', detail: 'Optional. Without it, everything else works.', action: { href: '/supply-depot', label: 'Open the apps' } })
+    checks.push({ id: 'ai', level: 'info', title: 'AI not installed', detail: 'Optional. Without it, everything else works.', action: { href: '/novo/apps', label: 'Open the apps' } })
   } else if (!input.ai.model) {
     checks.push({ id: 'ai', level: 'warn', title: 'AI without a model', detail: 'The AI is installed but has no model to answer with.', action: { href: '/settings/models', label: 'Choose a model' } })
   } else {
@@ -56,7 +56,7 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
 
   // Apps parados
   if (input.stoppedApps.length > 0) {
-    checks.push({ id: 'apps', level: 'warn', title: 'Stopped apps: {{names}}', titleParams: { names: input.stoppedApps.join(', ') }, detail: 'They can be started again in the apps screen.', action: { href: '/supply-depot', label: 'Open the apps' } })
+    checks.push({ id: 'apps', level: 'warn', title: 'Stopped apps: {{names}}', titleParams: { names: input.stoppedApps.join(', ') }, detail: 'They can be started again in the apps screen.', action: { href: '/novo/apps', label: 'Open the apps' } })
   } else {
     checks.push({ id: 'apps', level: 'ok', title: 'All installed apps running' })
   }

@@ -53,4 +53,5 @@ test('app parado é aviso e aparece pelo nome', () => {
   const check = healthChecks({ ...healthy, stoppedApps: ['Biblioteca de Informações'] }).find((c) => c.id === 'apps')
   assert.equal(check?.level, 'warn')
   assert.equal(check?.titleParams?.names, 'Biblioteca de Informações')
+  assert.equal(check?.action?.href, '/novo/apps')
 })
