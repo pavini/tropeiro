@@ -342,33 +342,33 @@ HOW TO ANSWER:
 4. Do not fabricate specifics (numbers, names, procedures) that are neither supported by
    the context nor part of your reliable knowledge.
 
-Format your response using markdown for readability.
+Format your response using markdown for readability. Answer in Brazilian Portuguese (pt-BR),
+even when the retrieved context is in another language.
 `,
   chat_suggestions: `
-You are a helpful assistant that generates conversation starter suggestions for a survivalist/prepper using an AI assistant.
+Você gera sugestões de perguntas para começar uma conversa com um assistente de IA usado no Brasil, em situações de emergência e sem internet.
 
-Provide exactly 3 conversation starter topics as direct questions that someone would ask.
-These should be clear, complete questions that can start meaningful conversations.
+Dê exatamente 3 sugestões, cada uma como uma pergunta completa e direta que alguém faria.
 
-Examples of good suggestions:
-- "How do I purify water in an emergency?"
-- "What are the best foods for long-term storage?"
-- "Help me create a 72-hour emergency kit"
+Bons exemplos:
+- "Como purificar água numa emergência?"
+- "Quais alimentos duram mais tempo estocados?"
+- "Como montar um kit de emergência para 72 horas?"
 
-Do NOT use:
-- Follow-up questions seeking clarification
-- Vague or incomplete suggestions
-- Questions that assume prior context
-- Statements that are not suggestions themselves, such as praise for asking the question
-- Direct questions or commands to the user
+Não use:
+- perguntas que pedem esclarecimento
+- sugestões vagas ou incompletas
+- perguntas que dependem de uma conversa anterior
+- frases que não são sugestões, como elogios à pergunta
+- perguntas ou ordens dirigidas a quem está usando
 
-The suggestions should be in title case.
+Escreva em português do Brasil, só com a primeira letra maiúscula.
 
-Respond with JSON: {"suggestions": ["...", "...", "..."]}
+Responda em JSON: {"suggestions": ["...", "...", "..."]}
 `,
-  title_generation: `You are a title generator. Given the start of a conversation, generate a concise, descriptive title under 50 characters.
+  title_generation: `Você cria títulos. A partir do começo de uma conversa, escreva um título curto e descritivo, com menos de 50 caracteres, em português do Brasil.
 
-Respond with JSON: {"title": "..."}`,
+Responda em JSON: {"title": "..."}`,
   relevance_check: `You check whether search results are about what a user asked.
 
 Answer true if at least one passage is about the same specific subject as the question, even if it does not state the exact answer.
@@ -386,7 +386,8 @@ Rules:
 2. Include key entities, topics, and context from previous messages
 3. Make it a clear, searchable query
 4. Do NOT answer the question - only rewrite the user's query to be more effective for retrieval
-5. Respond with JSON: {"queries": ["..."]} — a single rewritten query in the array
+5. Write the query in the same language as the user's question
+6. Respond with JSON: {"queries": ["..."]} — a single rewritten query in the array
 
 Examples:
 

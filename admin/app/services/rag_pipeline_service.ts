@@ -15,6 +15,7 @@ import {
   SYSTEM_PROMPTS,
 } from '../../constants/ollama.js'
 import type { OllamaChatMessage } from '../../types/ollama.js'
+import { AI_LANGUAGE_PROMPT } from '../../constants/tropeiro.js'
 import type { PipelineOptions, PipelineTrace, RetrievalFloorStats, RetrievedChunk } from '../../types/rag.js'
 import { planPrompt } from '../utils/context_budget.js'
 import { estimateMessagesTokens } from '../utils/token_estimate.js'
@@ -72,6 +73,10 @@ export class RagPipelineService {
       logger.debug('[RagPipeline] Injecting system prompt')
       systemBlocks.push({ role: 'system', content: SYSTEM_PROMPTS.default })
     }
+
+    // Idioma das respostas, mesmo quando o chamador traz o próprio prompt de
+    // sistema. O NOMAD.md do usuário entra antes e ainda pode pedir outra coisa.
+    systemBlocks.push({ role: 'system', content: AI_LANGUAGE_PROMPT })
 
     // The user-managed NOMAD.md goes in front of the formatting prompt so the
     // user's persistent instructions take precedence. Skipped in evals, where a
