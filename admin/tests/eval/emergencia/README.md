@@ -18,6 +18,12 @@ node --import ts-node-maintained/register/esm tests/eval/emergencia/run.ts --mod
 node --import ts-node-maintained/register/esm tests/eval/emergencia/run.ts --model=llama3.1:8b --rotulo=teste --so=cobra,engasgo
 ```
 
+Há também perguntas sobre comunicação por rádio (`radio.json`), para os guias:
+
+```bash
+node --import ts-node-maintained/register/esm tests/eval/emergencia/run.ts --model=llama3.1:8b --rotulo=radio --perguntas=radio
+```
+
 O relatório (respostas completas e cada verificação) vai para
 `tests/eval/reports/emergencia-<rotulo>-<data>.json`, gravado a cada pergunta.
 

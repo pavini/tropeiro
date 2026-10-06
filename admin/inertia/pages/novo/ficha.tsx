@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react'
 import { useTranslation } from 'react-i18next'
 import NovoLayout from '~/novo/NovoLayout'
 import EmergencyNumbers from '~/novo/EmergencyNumbers'
+import Sources from '~/novo/Sources'
 import type { Ficha, FichaSection, ReferenceDocStatus } from '../../../types/fichas'
 
 /** Ficha de primeiros socorros: o que fazer agora, com a fonte oficial ao lado. */
@@ -12,16 +13,6 @@ export default function NovoFicha(props: {
 }) {
   const { t } = useTranslation()
   const { ficha } = props
-
-  // Fontes agrupadas por documento, na ordem em que aparecem na ficha.
-  const sources = ficha.refs.reduce<{ doc: ReferenceDocStatus; refs: Ficha['refs'] }[]>((acc, ref) => {
-    const doc = props.docs.find((d) => d.id === ref.doc)
-    if (!doc) return acc
-    const group = acc.find((g) => g.doc.id === doc.id)
-    if (group) group.refs.push(ref)
-    else acc.push({ doc, refs: [ref] })
-    return acc
-  }, [])
 
   return (
     <NovoLayout>
@@ -55,33 +46,7 @@ export default function NovoFicha(props: {
         </span>
       </div>
 
-      <section className="nv-card nv-sources" aria-labelledby="fontes">
-        <h2 id="fontes" className="nv-section-label">{t('Sources')}</h2>
-        {sources.map(({ doc, refs }) => (
-          <div key={doc.id} className="nv-source">
-            <span className="nv-source-title">
-              {doc.title} — {doc.publisher}, {doc.year}
-            </span>
-            {doc.available ? (
-              <ul className="nv-source-pages">
-                {refs.map((ref) => (
-                  <li key={`${ref.doc}-${ref.page}`}>
-                    <a href={`/referencias/${doc.id}#page=${ref.page}`} target="_blank" rel="noopener">
-                      {t('Open on page {{page}}', { page: ref.page })}
-                    </a>{' '}
-                    <span className="nv-text">({ref.about})</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <span className="nv-text">
-                {t('Not downloaded to this server yet. It will be downloaded automatically when there is internet.')}
-              </span>
-            )}
-          </div>
-        ))}
-        {ficha.adaptation && <p className="nv-text nv-adaptation">{ficha.adaptation}</p>}
-      </section>
+      <Sources refs={ficha.refs} docs={props.docs} adaptation={ficha.adaptation} />
 
       {props.related.length > 0 && (
         <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -22,6 +22,8 @@ import { PlaceSearchService } from '#services/place_search_service'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
+import { GUIDES, GUIDE_TRACKS } from '../content/guias/index.js'
+import { markPassage } from '../utils/html_snapshot.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
@@ -72,7 +74,8 @@ export default class NovoController {
     const q = String(request.input('q', '')).trim().slice(0, 200)
     const [shared, library] = await Promise.all([this.sharedProps(), this.librarySearch.search(q)])
     const fichas = searchFichas(FICHAS, q).map(({ slug, title, summary }) => ({ slug, title, summary }))
-    return inertia.render('novo/busca', { ...shared, q, library, fichas })
+    const guias = searchFichas(GUIDES, q).map(({ slug, title, summary }) => ({ slug, title, summary }))
+    return inertia.render('novo/busca', { ...shared, q, library, fichas, guias })
   }
 
   /** Artigo da biblioteca lido dentro do Tropeiro: /ler/<livro>/<página>. */
@@ -362,6 +365,33 @@ export default class NovoController {
     })
   }
 
+  /** Guias: aulas em trilhas, do básico ao avançado. */
+  async guias({ inertia }: HttpContext) {
+    return inertia.render('novo/guias', {
+      tracks: GUIDE_TRACKS.map((track) => ({
+        ...track,
+        guides: GUIDES.filter((g) => g.track === track.id).map(({ slug, title, summary, order }) => ({ slug, title, summary, order })),
+      })).filter((track) => track.guides.length > 0),
+    })
+  }
+
+  async guia({ inertia, params, response }: HttpContext) {
+    const guide = GUIDES.find((g) => g.slug === params.slug)
+    if (!guide) return response.redirect().toPath('/guias')
+    const track = GUIDE_TRACKS.find((t) => t.id === guide.track)
+    const siblings = GUIDES.filter((g) => g.track === guide.track)
+    const i = siblings.findIndex((g) => g.slug === guide.slug)
+    const near = (g?: (typeof GUIDES)[number]) => (g ? { slug: g.slug, title: g.title } : null)
+    return inertia.render('novo/guia', {
+      guide,
+      track: track ? { id: track.id, title: track.title } : null,
+      position: { current: i + 1, total: siblings.length },
+      previous: near(siblings[i - 1]),
+      next: near(siblings[i + 1]),
+      docs: await new ReferenceDocsService().status(),
+    })
+  }
+
   /** Fichas de primeiros socorros. */
   async fichas({ inertia }: HttpContext) {
     return inertia.render('novo/fichas', {
@@ -378,14 +408,28 @@ export default class NovoController {
   }
 
   /** PDF oficial guardado no servidor; sem ele, explica e mostra o endereço da fonte. */
-  async referencia({ inertia, params, response }: HttpContext) {
+  async referencia({ inertia, params, request, response }: HttpContext) {
     const service = new ReferenceDocsService()
     const opened = await service.open(String(params.id))
     if (opened) {
-      response.header('Content-Type', 'application/pdf')
-      response.header('Content-Length', String(opened.doc.sizeBytes))
-      response.header('Content-Disposition', `inline; filename="${opened.doc.id}.pdf"`)
+      const html = opened.doc.format === 'html'
+      // Norma guardada como página: o trecho citado vem destacado e com âncora.
+      const passage = String(request.input('trecho', '')).slice(0, 300)
+      if (html && passage) {
+        const chunks: Buffer[] = []
+        for await (const chunk of opened.stream) chunks.push(chunk as Buffer)
+        const body = markPassage(Buffer.concat(chunks).toString('utf-8'), passage)
+        response.header('Content-Type', 'text/html; charset=utf-8')
+        response.header('X-Content-Type-Options', 'nosniff')
+        response.header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+        return response.send(body)
+      }
+      response.header('Content-Type', html ? 'text/html; charset=utf-8' : 'application/pdf')
+      response.header('Content-Length', String(opened.size))
+      response.header('Content-Disposition', `inline; filename="${opened.doc.id}.${html ? 'html' : 'pdf'}"`)
       response.header('X-Content-Type-Options', 'nosniff')
+      // Cópia de página externa: nada executa, nada é buscado fora.
+      if (html) response.header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox")
       return response.stream(opened.stream)
     }
     const doc = (await service.status()).find((d) => d.id === params.id)

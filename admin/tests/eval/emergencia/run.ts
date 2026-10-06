@@ -6,6 +6,7 @@
  *
  *   node --import ts-node-maintained/register/esm tests/eval/emergencia/run.ts \
  *     --model=llama3.1:8b --rotulo=depois [--url=http://localhost:8080] [--so=cobra,engasgo]
+ *     [--perguntas=radio]   (usa radio.json em vez de perguntas.json)
  *
  * As respostas variam de uma rodada para outra; compare totais, não uma
  * pergunta isolada.
@@ -23,6 +24,8 @@ const url = arg('url', 'http://localhost:8080')!
 const model = arg('model')
 const rotulo = arg('rotulo', 'rodada')!
 const so = arg('so')?.split(',')
+// Conjunto de perguntas: perguntas.json (emergência, padrão) ou outro, como radio.json.
+const conjunto = arg('perguntas', 'perguntas')!
 if (!model) {
   console.error('Informe o modelo: --model=llama3.1:8b')
   process.exit(1)
@@ -60,7 +63,7 @@ async function perguntar(texto: string): Promise<{ resposta: string; fontes: { t
   return { resposta, fontes }
 }
 
-const perguntas: Pergunta[] = JSON.parse(await readFile(join(aqui, 'perguntas.json'), 'utf-8'))
+const perguntas: Pergunta[] = JSON.parse(await readFile(join(aqui, `${conjunto}.json`), 'utf-8'))
 const selecionadas = so ? perguntas.filter((p) => so.includes(p.id)) : perguntas
 const resultados: (Correcao & { pergunta: string; resposta: string; fontes: string[]; segundos: number })[] = []
 

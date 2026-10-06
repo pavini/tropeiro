@@ -22,6 +22,9 @@ export default class ReferenceDocsProvider {
         await service.ensureAll()
         // Depois de baixados, vão para a base da IA (se ela estiver instalada).
         await service.queueForAi()
+        // Os guias também, a partir do texto que vem com o Tropeiro.
+        const { GuidesKbService } = await import('#services/guides_kb_service')
+        await new GuidesKbService().sync()
       } catch (err) {
         logger.error(`[ReferenceDocsProvider] ${(err as Error).message}`)
       }

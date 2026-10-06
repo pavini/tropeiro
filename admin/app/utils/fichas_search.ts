@@ -9,20 +9,24 @@ export function normalizeText(text: string): string {
     .trim()
 }
 
-/** Palavras pequenas demais ou comuns demais para contar como acerto. */
-const STOPWORDS = new Set(['de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'com', 'para', 'por', 'um', 'uma', 'o', 'a', 'e', 'que', 'se'])
+/** Palavras pequenas demais, comuns demais ou de pergunta ("como", "posso"): não contam como acerto. */
+const STOPWORDS = new Set(['de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'com', 'para', 'por', 'um', 'uma', 'o', 'a', 'e', 'que', 'se', 'como', 'qual', 'quais', 'quando', 'onde', 'porque', 'faco', 'fazer', 'faz', 'preciso', 'precisa', 'posso', 'pode', 'devo', 'sobre', 'isso', 'esse', 'essa', 'tem', 'ter'])
 
 const words = (text: string) =>
   normalizeText(text)
     .split(/[^a-z0-9]+/)
     .filter((w) => w.length > 2 && !STOPWORDS.has(w))
 
+/** Qualquer conteúdo buscável por título e palavras-chave (fichas, guias). */
+type Searchable = Pick<Ficha, 'title' | 'keywords'>
+
 /**
- * Fichas que combinam com a busca, das mais para as menos relevantes. Busca no
- * título e nas palavras-chave, sem acento; aceita o começo de uma palavra
- * ("queim" acha "queimadura").
+ * Fichas (ou guias) que combinam com a busca, das mais para as menos
+ * relevantes. Busca no título e nas palavras-chave, sem acento; aceita o
+ * começo de uma palavra ("queim" acha "queimadura"). `minScore` 3 exige uma
+ * palavra-chave ou o título inteiro, não só uma palavra solta do título.
  */
-export function searchFichas(fichas: Ficha[], query: string, limit = 3): Ficha[] {
+export function searchFichas<T extends Searchable>(fichas: T[], query: string, limit = 3, minScore = 1): T[] {
   const q = normalizeText(query)
   if (q.length < 3) return []
   const qWords = words(query)
@@ -47,7 +51,7 @@ export function searchFichas(fichas: Ficha[], query: string, limit = 3): Ficha[]
   })
 
   return scored
-    .filter((s) => s.score > 0)
+    .filter((s) => s.score >= minScore)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((s) => s.ficha)

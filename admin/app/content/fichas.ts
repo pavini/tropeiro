@@ -103,7 +103,7 @@ export const FICHAS: Ficha[] = [
     slug: 'sangramento',
     title: 'Sangramento e corte',
     summary: 'Aperte firme um pano limpo sobre o ferimento e não solte.',
-    keywords: ['sangramento', 'hemorragia', 'corte', 'ferimento', 'sangue', 'machucado', 'torniquete', 'garrote'],
+    keywords: ['sangramento', 'sangrando', 'hemorragia', 'corte', 'cortou', 'ferimento', 'sangue', 'machucado', 'torniquete', 'garrote'],
     sections: [
       {
         kind: 'do',

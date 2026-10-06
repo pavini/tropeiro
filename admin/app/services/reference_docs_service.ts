@@ -2,11 +2,13 @@ import logger from '@adonisjs/core/services/logger'
 import axios from 'axios'
 import { createHash } from 'node:crypto'
 import { createReadStream, createWriteStream } from 'node:fs'
-import { mkdir, rename, rm, stat } from 'node:fs/promises'
+import { mkdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { REFERENCE_DOCS } from '../content/referencias.js'
+import { aiServicesInstalled } from '../utils/ai_installed.js'
+import { decodeHtml, htmlText, snapshotHtml } from '../utils/html_snapshot.js'
 import type { ReferenceDoc, ReferenceDocStatus } from '../../types/fichas.js'
 
 const DOWNLOAD_TIMEOUT_MS = 10 * 60_000
@@ -24,12 +26,13 @@ export class ReferenceDocsService {
   }
 
   private filePath(doc: ReferenceDoc) {
-    return join(this.dir, `${doc.id}.pdf`)
+    return join(this.dir, `${doc.id}.${doc.format ?? 'pdf'}`)
   }
 
   private async isAvailable(doc: ReferenceDoc): Promise<boolean> {
     try {
-      return (await stat(this.filePath(doc))).size === doc.sizeBytes
+      const size = (await stat(this.filePath(doc))).size
+      return doc.format === 'html' ? size > 0 : size === doc.sizeBytes
     } catch {
       return false
     }
@@ -60,7 +63,7 @@ export class ReferenceDocsService {
    * age com a IA e a base instaladas. Devolve quantos foram para a fila.
    */
   async queueForAi(): Promise<number> {
-    if (!(await this.aiInstalled())) return 0
+    if (!(await aiServicesInstalled())) return 0
 
     const app = (await import('@adonisjs/core/services/app')).default
     const { RagService } = await import('#services/rag_service')
@@ -87,7 +90,7 @@ export class ReferenceDocsService {
    * IA ou a base de conhecimento não estão instaladas.
    */
   async aiStatus(): Promise<{ total: number; ready: number; failed: number } | null> {
-    if (!(await this.aiInstalled())) return null
+    if (!(await aiServicesInstalled())) return null
     const { default: KbIngestState } = await import('#models/kb_ingest_state')
     const paths: string[] = []
     for (const doc of REFERENCE_DOCS) {
@@ -101,24 +104,12 @@ export class ReferenceDocsService {
     }
   }
 
-  /** IA (Ollama) e base de conhecimento (Qdrant) instaladas. */
-  private async aiInstalled(): Promise<boolean> {
-    const app = (await import('@adonisjs/core/services/app')).default
-    const { DockerService } = await import('#services/docker_service')
-    const { SERVICE_NAMES } = await import('../../constants/service_names.js')
-    const docker = await app.container.make(DockerService)
-    const [qdrant, ollama] = await Promise.all([
-      docker.getServiceURL(SERVICE_NAMES.QDRANT),
-      docker.getServiceURL(SERVICE_NAMES.OLLAMA),
-    ])
-    return !!qdrant && !!ollama
-  }
-
-  /** O PDF guardado, ou null se ainda não foi baixado. */
-  async open(id: string): Promise<{ stream: Readable; doc: ReferenceDoc } | null> {
+  /** O documento guardado, ou null se ainda não foi baixado. */
+  async open(id: string): Promise<{ stream: Readable; doc: ReferenceDoc; size: number } | null> {
     const doc = REFERENCE_DOCS.find((d) => d.id === id)
     if (!doc || !(await this.isAvailable(doc))) return null
-    return { stream: createReadStream(this.filePath(doc)), doc }
+    const path = this.filePath(doc)
+    return { stream: createReadStream(path), doc, size: (await stat(path)).size }
   }
 
   private async downloadMissing(): Promise<void> {
@@ -136,6 +127,7 @@ export class ReferenceDocsService {
   }
 
   private async download(doc: ReferenceDoc): Promise<void> {
+    if (doc.format === 'html') return this.downloadPage(doc)
     const target = this.filePath(doc)
     const tmp = `${target}.tmp`
     const hash = createHash('sha256')
@@ -151,5 +143,25 @@ export class ReferenceDocsService {
     } finally {
       await rm(tmp, { force: true })
     }
+  }
+
+  /**
+   * Norma publicada só como página: guarda uma cópia limpa, depois de conferir
+   * que a página tem os trechos esperados (e não um aviso de bloqueio).
+   */
+  private async downloadPage(doc: ReferenceDoc): Promise<void> {
+    const res = await axios.get<ArrayBuffer>(doc.url, {
+      responseType: 'arraybuffer',
+      timeout: DOWNLOAD_TIMEOUT_MS,
+      headers: { 'User-Agent': 'Mozilla/5.0 (Tropeiro)' },
+    })
+    const html = decodeHtml(new Uint8Array(res.data), String(res.headers['content-type'] ?? ''))
+    const text = htmlText(html)
+    const missing = (doc.mustContain ?? []).filter((m) => !text.includes(m))
+    if (missing.length) throw new Error(`a página não tem o esperado (${missing.join(' | ')})`)
+    const date = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    const target = this.filePath(doc)
+    await writeFile(`${target}.tmp`, snapshotHtml(html, { title: doc.title, url: doc.url, date }))
+    await rename(`${target}.tmp`, target)
   }
 }
