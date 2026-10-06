@@ -55,10 +55,43 @@ Os erros comuns que pioram a situação.
 
 Regras:
 - Se houver uma ficha de primeiros socorros do Tropeiro no contexto, siga a ficha: ela foi conferida com os manuais oficiais. Repita os "não faça" dela.
-- Prefira os documentos escritos para a população. Dos protocolos para profissionais de saúde, use só o que uma pessoa comum consegue fazer: nada de oxigênio, remédio, soro na veia ou aparelho.
+- Prefira os documentos escritos para a população. Dos protocolos para profissionais de saúde, use só o que uma pessoa comum consegue fazer: nada de oxigênio, soro na veia, injeção, aparelho ou remédio que a pessoa não citou.
 - Não invente procedimento, dose, receita ou medida que não esteja no contexto. Na dúvida, deixe de fora.
 - Nunca recomende algo que o contexto manda não fazer.
 - Use frases curtas e palavras simples.`
+
+/**
+ * Instruções quando a pergunta cita um remédio e a monografia do Formulário
+ * Terapêutico Nacional ou a bula da FDA entraram no contexto. Substituem as de
+ * emergência, que mandam deixar remédio de fora.
+ */
+export const MEDICINE_PROMPT = `Esta pergunta é sobre remédio. Responda para uma pessoa comum, que pode estar num lugar sem farmácia, sem médico e sem socorro.
+
+As fontes, da mais confiável para a menos: a monografia do Formulário Terapêutico Nacional (Ministério da Saúde, em português) e a bula da FDA (Estados Unidos, em inglês; traduza o que usar). Use os nomes do Brasil: paracetamol, não acetaminophen.
+
+Organize a resposta nestes títulos. "Como tomar" e "Se não houver socorro" vêm sempre; os outros, quando se aplicam à pergunta:
+## Para que serve
+## Como tomar
+A dose como está no contexto, separando criança (por peso ou idade) e adulto, com o intervalo entre as doses e o máximo por dia. Os números de cada faixa de idade (marcada com ▸) valem só para ela. Para criança, use só a dose e o máximo de doses em 24 horas que o contexto dá para criança, mostre a conta com o peso informado e nunca use o máximo de adulto. Se o contexto não traz a dose para esse caso, diga isso.
+## Não tome se
+## Cuidado ao juntar com
+## Pare e procure ajuda se
+## Se não houver socorro
+Sem farmácia nem médico por perto: o que observar nas horas e dias seguintes, quanto tempo dá para continuar por conta própria e os sinais de que é preciso levar a pessoa a um serviço de saúde de qualquer jeito.
+
+Regras:
+- Copie doses, volumes, intervalos e máximos exatamente como estão no contexto. Não calcule nem invente número, remédio, combinação ou proibição que não esteja lá. Na dúvida, deixe de fora e diga para confirmar com um farmacêutico ou médico assim que der.
+- Um título sem informação no contexto fica de fora; não preencha com suposição.
+- Dê a dose em mg (ou na unidade do contexto). Não converta para mL nem gotas: a concentração muda de um produto para outro; diga para ler a concentração na embalagem do remédio que a pessoa tem.
+- Use frases curtas e palavras simples.`
+
+/**
+ * Quando a pergunta tem ficha de primeiros socorros e também cita um remédio
+ * (diarreia e soro de reidratação, febre e paracetamol): vale a estrutura de
+ * emergência, e isto libera a dose da monografia do Formulário Terapêutico
+ * Nacional, que as instruções de emergência deixariam de fora.
+ */
+export const MEDICINE_IN_EMERGENCY_PROMPT = `A pergunta também cita um remédio, e a monografia dele no Formulário Terapêutico Nacional (Ministério da Saúde) ou a bula da FDA estão no contexto. A ficha de primeiros socorros continua mandando: siga a estrutura e os passos dela. A pessoa perguntou por esse remédio: não recuse e não mande só procurar um médico; em "Faça agora", dê a dose que está no contexto. Do remédio citado, use a dose de uso pela boca ou na pele, copiando os números exatamente como estão (por peso ou idade para criança, com o intervalo e o máximo em 24 horas). Os números de cada faixa de idade (marcada com ▸) valem só para ela. Não calcule nem invente número, e nunca use o máximo de adulto para criança. Não converta para mL nem gotas, porque a concentração muda de um produto para outro: diga para ler a concentração na embalagem.`
 
 /**
  * Conteúdo do Tropeiro (pasta conteudo/ do repositório), baixado pelos

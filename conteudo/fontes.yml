@@ -84,6 +84,17 @@
   sha256: 93441d26f426c97db6776569015c1b2f137b2ef817d63b0cb6c4c0cbea15f24e
   tamanho: 533260
   licenca: Sem nota de licença no documento. As fichas usam texto próprio e citam a fonte.
+- id: ms-formulario-terapeutico-nacional-2010
+  titulo: Formulário Terapêutico Nacional 2010 (Rename 2010)
+  publicador: Ministério da Saúde
+  ano: 2010
+  tema: saude
+  publico: profissional
+  formato: pdf
+  url: https://bvsms.saude.gov.br/bvs/publicacoes/formulario_terapeutico_nacional_2010.pdf
+  sha256: 6d6eae4401884128dc2eb7cc21c084a0b8e9ad0cfe11a335c3fc2f286d4d1c79
+  tamanho: 5482129
+  licenca: É permitida a reprodução parcial ou total desta obra, desde que citada a fonte e que não seja para venda ou qualquer fim comercial.
 - id: anatel-cartilha-radioamador-2026
   titulo: Cartilha do Serviço Radioamador (versão 2026-06)
   publicador: Anatel

@@ -1627,6 +1627,10 @@ a.nv-app-button:not(.nv-secondary) {
   border-color: var(--nv-accent);
 }
 
+.nv-capitalize::first-letter {
+  text-transform: uppercase;
+}
+
 .nv-guide-note .nv-chip {
   align-self: flex-start;
 }
@@ -1690,5 +1694,79 @@ a.nv-app-button:not(.nv-secondary) {
   .nv-drug {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+/* Espera pela resposta da IA */
+.nv-waiting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nv-waiting-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.nv-waiting-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--nv-accent);
+  animation: nv-pulse 1.2s ease-in-out infinite;
+}
+
+.nv-waiting-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.nv-waiting-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.nv-waiting-time {
+  font-size: 14px;
+  color: var(--nv-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes nv-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Cursor no fim do texto enquanto a resposta é escrita */
+.nv-answer-writing > :last-child::after {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--nv-accent);
+  animation: nv-blink 1s steps(1) infinite;
+}
+
+@keyframes nv-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nv-waiting-dots span,
+  .nv-answer-writing > :last-child::after {
+    animation: none;
+    opacity: 1;
   }
 }

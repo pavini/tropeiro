@@ -24,6 +24,13 @@ Há também perguntas sobre comunicação por rádio (`radio.json`), para os gui
 node --import ts-node-maintained/register/esm tests/eval/emergencia/run.ts --model=llama3.1:8b --rotulo=radio --perguntas=radio
 ```
 
+E sobre remédios (`remedios.json`), com doses e interações tiradas do
+Formulário Terapêutico Nacional (precisa do FTN baixado em `storage/referencias`):
+
+```bash
+node --import ts-node-maintained/register/esm tests/eval/emergencia/run.ts --model=llama3.1:8b --rotulo=remedios --perguntas=remedios
+```
+
 O relatório (respostas completas e cada verificação) vai para
 `tests/eval/reports/emergencia-<rotulo>-<data>.json`, gravado a cada pergunta.
 

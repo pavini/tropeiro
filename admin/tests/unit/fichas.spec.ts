@@ -87,3 +87,16 @@ test('perguntas do teste de emergência encontram a ficha certa', () => {
   assert.equal(ficha('Uma pessoa cortou a perna e está sangrando muito. O que eu faço?'), 'sangramento')
   assert.equal(ficha('Um escorpião picou meu filho. O que eu faço?'), 'picada-de-animal-peconhento')
 })
+
+test('palavra-chave conta só como palavra inteira: "mar" não está em "tomar"', async () => {
+  const { searchFichas } = await import('../../app/utils/fichas_search.js')
+  const fichas = [{ slug: 'afogamento', title: 'Afogamento', keywords: ['afogamento', 'mar', 'rio'] }]
+  assert.deepEqual(searchFichas(fichas, 'Quanto de dipirona um adulto pode tomar por dia?', 1, 3), [])
+  assert.equal(searchFichas(fichas, 'criança caiu no mar', 1, 3).length, 1)
+})
+
+test('palavra da pergunta que estende a da ficha: "respirando" acha "respira"', () => {
+  const [ficha] = searchFichas(FICHAS, 'Tirei uma pessoa da água e ela não está respirando. O que fazer?', 1, 3)
+  assert.equal(ficha?.slug, 'parada-cardiaca')
+  assert.deepEqual(searchFichas(FICHAS, 'Meu filho está com febre e não tem farmácia aberta. Quantas gotas de dipirona?', 2, 3).map((f) => f.slug), ['crianca-sinais-de-perigo'])
+})

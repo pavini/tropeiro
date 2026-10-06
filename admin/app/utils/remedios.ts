@@ -3,7 +3,7 @@
  * estado da base e comparação. As listas de nomes ficam em constants/remedios.ts.
  */
 
-import { FORA_DOS_EUA, NOMES_NAS_BULAS } from '../../constants/remedios.js'
+import { APELIDOS_NO_FTN, FORA_DOS_EUA, NOMES_NAS_BULAS } from '../../constants/remedios.js'
 
 export function semAcento(text: string): string {
   return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim()
@@ -97,4 +97,69 @@ export function mencionados<T extends { id: number; generic_name: string | null;
       .filter((s) => s.length >= 4)
       .some((ingrediente) => new RegExp(`\\b${ingrediente.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).test(texto))
   })
+}
+
+/**
+ * Nomes, como estão nas bulas americanas, dos remédios citados num texto em
+ * português ("paracetamol" → "acetaminophen"). Os apelidos ("AAS") contam.
+ */
+export function termosDaBula(texto: string, max = 2): string[] {
+  let alvo = ` ${semAcento(texto).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ')} `
+  for (const [apelido, nome] of Object.entries(APELIDOS_NO_FTN)) if (alvo.includes(` ${apelido} `)) alvo += `${nome} `
+  const achados = Object.keys(NOMES_NAS_BULAS)
+    .filter((nome) => alvo.includes(` ${nome} `))
+    .sort((a, b) => alvo.indexOf(` ${a} `) - alvo.indexOf(` ${b} `))
+  return [...new Set(achados.map((nome) => NOMES_NAS_BULAS[nome]))].slice(0, max)
+}
+
+/** Entre os resultados da busca, a bula do remédio puro (só aquele princípio ativo), de venda livre se houver. */
+export function escolherBula<T extends { generic_name: string | null; product_type: string | null }>(
+  results: T[],
+  termo: string
+): T | null {
+  const alvo = semAcento(termo)
+  const puros = results.filter((r) => {
+    const g = semAcento(r.generic_name ?? '')
+    return g === alvo || (g.startsWith(`${alvo} `) && !g.includes(','))
+  })
+  return puros.find((r) => r.product_type === 'HUMAN OTC DRUG') ?? puros[0] ?? null
+}
+
+/** As partes da bula que importam para uma resposta, cortadas no limite. */
+export function bulaParaIa(
+  label: {
+    brand_name: string | null
+    generic_name: string | null
+    indications: string | null
+    dosage: string | null
+    contraindications: string | null
+    warnings: string | null
+    drug_interactions: string | null
+    stop_use: string | null
+  },
+  limite = 2500
+): string {
+  const corte = (t: string | null, n: number) => {
+    const limpo = (t ?? '').replace(/\s+/g, ' ').trim()
+    return limpo.length > n ? `${limpo.slice(0, n).replace(/\s+\S*$/, '')} […]` : limpo
+  }
+  const partes: [string, string | null, number][] = [
+    ['Uses', label.indications, 400],
+    ['Directions', label.dosage, 700],
+    ['Do not use', label.contraindications, 300],
+    ['Warnings', label.warnings, 600],
+    ['Drug interactions', label.drug_interactions, 500],
+    ['Stop use and ask a doctor if', label.stop_use, 300],
+  ]
+  const nome = [label.brand_name, label.generic_name].filter(Boolean).join(' — ')
+  const texto = [nome, ...partes.filter(([, t]) => t).map(([titulo, t, n]) => `${titulo}: ${corte(t, n)}`)].join('\n')
+  return texto.length > limite ? `${texto.slice(0, limite)} […]` : texto
+}
+
+/** Nome no Brasil de um princípio ativo das bulas americanas ("ACETAMINOPHEN" → "paracetamol"). */
+export function nomeNoBrasil(genericName: string | null): string | null {
+  const alvo = semAcento(genericName ?? '')
+  if (!alvo || alvo.includes(',')) return null
+  const entrada = Object.entries(NOMES_NAS_BULAS).find(([, en]) => alvo === en || alvo.startsWith(`${en} `))
+  return entrada ? entrada[0] : alvo
 }

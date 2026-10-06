@@ -158,3 +158,16 @@ test('conteúdo do Tropeiro usado na resposta aparece com link para ele', () => 
   ])
   assert.deepEqual(sources, [{ title: 'Rádios sem licença (Tropeiro)', href: '/temas/radio/radios-sem-licenca' }])
 })
+
+test('bula da FDA usada na resposta aparece uma vez, com link para a tela de Remédios', () => {
+  const bula = { archive_title: 'Bula da FDA (Estados Unidos, em inglês): Tylenol', drug_label_id: 12 }
+  const sources = buildCitations([
+    chunk({ archive_title: 'Formulário Terapêutico Nacional 2010 (Ministério da Saúde, 2010)', reference_id: 'ms-formulario-terapeutico-nacional-2010', page: 898 }),
+    chunk(bula),
+    chunk(bula),
+  ])
+  assert.deepEqual(
+    sources.map((s) => s.href),
+    ['/referencias/ms-formulario-terapeutico-nacional-2010#page=898', '/remedios/12']
+  )
+})

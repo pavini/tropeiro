@@ -507,7 +507,6 @@
   "It answers using the content on this server, without internet.": "Responde com base no conteúdo deste servidor, sem internet.",
   "The AI is not available on this server": "A IA não está disponível neste servidor",
   "Whoever manages the server can install the AI assistant and a model in the classic interface.": "Quem cuida do servidor pode instalar o assistente de IA e um modelo pela interface clássica.",
-  "Thinking…": "Pensando…",
   "Stopped.": "Interrompido.",
   "Based on": "Com base em",
   "Another question": "Outra pergunta",
@@ -905,5 +904,14 @@
   "{{formatted}} labels saved on this server._many": "{{formatted}} bulas guardadas neste servidor.",
   "{{formatted}} labels saved on this server._other": "{{formatted}} bulas guardadas neste servidor.",
   "The last update of the labels failed.": "A última atualização das bulas falhou.",
-  "The saved labels keep working.": "As bulas guardadas continuam funcionando."
+  "The saved labels keep working.": "As bulas guardadas continuam funcionando.",
+  "In Portuguese · Ministry of Health": "Em português · Ministério da Saúde",
+  "National Therapeutic Formulary, page {{page}}: what it is for, doses for children and adults, interactions and patient guidance.": "Formulário Terapêutico Nacional, página {{page}}: para que serve, doses para crianças e adultos, interações e orientações ao paciente.",
+  "United States labels (FDA, in English)": "Bulas dos Estados Unidos (FDA, em inglês)",
+  "Read in Portuguese": "Ler em português",
+  "National Therapeutic Formulary (Ministry of Health), page {{page}}: {{name}}.": "Formulário Terapêutico Nacional (Ministério da Saúde), página {{page}}: {{name}}.",
+  "Looking in the sources on this server…": "Procurando nas fontes deste servidor…",
+  "Preparing the answer…": "Preparando a resposta…",
+  "Still working. Without a graphics card, the AI can take a few minutes.": "Ainda trabalhando. Sem placa de vídeo, a IA pode levar alguns minutos.",
+  "{{seconds}} s": "{{seconds}} s"
 }

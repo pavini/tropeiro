@@ -251,7 +251,8 @@ export default class NovoController {
   /** Fichas que combinam com uma pergunta, para mostrar antes da resposta da IA. */
   async fichasSugeridas({ request }: HttpContext) {
     const q = String(request.input('q', '')).slice(0, 500)
-    return searchFichas(FICHAS, q, 2).map(({ slug, title, summary }) => ({ slug, title, summary }))
+    // Mesma exigência da IA: palavra-chave ou título, não uma palavra solta.
+    return searchFichas(FICHAS, q, 2, 3).map(({ slug, title, summary }) => ({ slug, title, summary }))
   }
 
   /**

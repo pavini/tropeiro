@@ -3,7 +3,11 @@ import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import {
   acaoParaInstalar,
+  bulaParaIa,
   buscaDeRemedio,
+  escolherBula,
+  nomeNoBrasil,
+  termosDaBula,
   estadoDaBase,
   mencionados,
   simplesPrimeiro,
@@ -77,4 +81,41 @@ test('aponta quando a bula de um cita o princípio ativo do outro', () => {
   assert.deepEqual(mencionados(varfarina, todos).map((d) => d.id), [2])
   assert.deepEqual(mencionados(aspirina, todos).map((d) => d.id), [1], 'warfarin sodium é citado como warfarin')
   assert.deepEqual(mencionados(ibuprofeno, todos), [])
+})
+
+test('nomes das bulas americanas a partir da pergunta em português', () => {
+  assert.deepEqual(termosDaBula('Posso dar paracetamol e ibuprofeno juntos?'), ['acetaminophen', 'ibuprofen'])
+  assert.deepEqual(termosDaBula('tomei AAS'), ['aspirin'])
+  assert.deepEqual(termosDaBula('dor de cabeça'), [])
+})
+
+test('escolhe a bula do remédio puro, de venda livre se houver', () => {
+  const r = (id: number, generic_name: string, product_type = 'HUMAN OTC DRUG') => ({ id, generic_name, product_type })
+  const lista = [r(1, 'ACETAMINOPHEN, CAFFEINE'), r(2, 'ACETAMINOPHEN', 'HUMAN PRESCRIPTION DRUG'), r(3, 'ACETAMINOPHEN')]
+  assert.equal(escolherBula(lista, 'acetaminophen')?.id, 3)
+  assert.equal(escolherBula([r(4, 'WARFARIN SODIUM', 'HUMAN PRESCRIPTION DRUG')], 'warfarin')?.id, 4)
+  assert.equal(escolherBula([r(1, 'ACETAMINOPHEN, CAFFEINE')], 'acetaminophen'), null)
+})
+
+test('bula para a IA: nome e partes que importam, dentro do limite', () => {
+  const texto = bulaParaIa({
+    brand_name: 'Tylenol',
+    generic_name: 'ACETAMINOPHEN',
+    indications: 'relieves minor aches',
+    dosage: 'take 2 caplets every 6 hours',
+    contraindications: null,
+    warnings: 'Liver warning '.repeat(100),
+    drug_interactions: 'warfarin',
+    stop_use: null,
+  })
+  assert.match(texto, /^Tylenol — ACETAMINOPHEN\nUses: relieves minor aches\nDirections: take 2 caplets/)
+  assert.ok(!texto.includes('Do not use'))
+  assert.ok(texto.length <= 2510)
+})
+
+test('nome no Brasil a partir do nome da bula', () => {
+  assert.equal(nomeNoBrasil('ACETAMINOPHEN'), 'paracetamol')
+  assert.equal(nomeNoBrasil('WARFARIN SODIUM'), 'varfarina')
+  assert.equal(nomeNoBrasil('ASPIRIN'), 'acido acetilsalicilico')
+  assert.equal(nomeNoBrasil('ACETAMINOPHEN, CAFFEINE'), null)
 })

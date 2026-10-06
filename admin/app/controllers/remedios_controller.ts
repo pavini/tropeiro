@@ -4,7 +4,9 @@ import { DrugReferenceService } from '#services/drug_reference_service'
 import { ConditionService } from '#services/condition_service'
 import { parseCompareIds } from '../../util/compare_ids.js'
 import { situationsForIndications } from '../../util/conditions.js'
-import { acaoParaInstalar, buscaDeRemedio, estadoDaBase, simplesPrimeiro } from '../utils/remedios.js'
+import { acaoParaInstalar, buscaDeRemedio, estadoDaBase, nomeNoBrasil, simplesPrimeiro } from '../utils/remedios.js'
+import { FtnService } from '#services/ftn_service'
+import { FTN_ID, monografiasCitadas, monografiasPorNome, type Monografia } from '../utils/ftn.js'
 import type { DrugIngestStatus } from '../../types/drug_reference.js'
 
 const RESULTADOS = 40
@@ -37,6 +39,13 @@ export default class RemediosController {
     return entries.map((e) => ({ id: e.id, name: e.brand_name ?? e.generic_name ?? `#${e.id}` }))
   }
 
+  /** Monografias do FTN; espera o índice só alguns segundos, para a página não travar. */
+  private async monografias(): Promise<Monografia[]> {
+    const ftn = new FtnService()
+    const timeout = new Promise<Monografia[]>((resolve) => setTimeout(() => resolve(ftn.prontas()), 3000))
+    return Promise.race([ftn.monografias(), timeout]).catch(() => [])
+  }
+
   async index({ inertia, request }: HttpContext) {
     const q = String(request.input('q', '')).trim().slice(0, 100)
     const base = await this.base()
@@ -48,8 +57,11 @@ export default class RemediosController {
         return []
       })
     }
+    const ftn = q ? monografiasPorNome(q, await this.monografias()).map(resumo) : []
     return inertia.render('novo/remedios', {
       ...base,
+      ftn,
+      ftnId: FTN_ID,
       situacoes: new ConditionService().listConditions(),
       q,
       busca,
@@ -66,9 +78,13 @@ export default class RemediosController {
     if (!label) return response.redirect().toPath('/remedios')
     const conditions = new ConditionService()
     const situacoes = situationsForIndications(label.indications, conditions.allConditions())
+    const nome = nomeNoBrasil(label.generic_name)
+    const [ftn] = nome ? monografiasCitadas(nome, await this.monografias(), 1) : []
     return inertia.render('novo/remedio', {
       label,
       situacoes,
+      ftn: ftn ? resumo(ftn) : null,
+      ftnId: FTN_ID,
       comparar: await this.escolhidos(String(request.input('comparar', ''))),
     })
   }
@@ -131,3 +147,5 @@ function progresso(status: DrugIngestStatus): { percent: number | null; etapa: '
   }
   return null
 }
+
+const resumo = (m: Monografia) => ({ nome: m.nome, pagina: m.pagina })
