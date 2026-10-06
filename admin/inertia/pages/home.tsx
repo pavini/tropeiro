@@ -27,6 +27,7 @@ import LinkTileModal from '~/components/LinkTileModal'
 import { IconPlus, IconPencil, IconTrash, IconExternalLink } from '@tabler/icons-react'
 import { useState } from 'react'
 import { linkTileColor } from '../../constants/link_tile_colors'
+import { useTranslation } from 'react-i18next'
 
 // Maps is a Core Capability (display_order: 4)
 const MAPS_ITEM = {
@@ -121,6 +122,7 @@ export default function Home(props: {
   // below so they only appear once the data exists.
   drugReferenceInstalled: boolean
 }) {
+  const { t } = useTranslation()
   const items: DashboardItem[] = []
   const updateInfo = useUpdateAvailable();
   const rerunBanner = useBenchmarkRerunBanner()
@@ -141,7 +143,7 @@ export default function Home(props: {
     const result = await api.deleteLinkTile(serviceName)
     setPendingDelete(null)
     if (!result?.success) {
-      setLinkError('Failed to remove this link.')
+      setLinkError(t('Failed to remove this link.'))
       return
     }
     refreshServices()
@@ -178,7 +180,7 @@ export default function Home(props: {
         target: '_blank',
         description:
           service.description ||
-          `Access the ${service.friendly_name || service.service_name} application`,
+          t('Access the {{name}} application', { name: t(service.friendly_name || service.service_name) }),
         icon: service.icon ? (
           <DynamicIcon icon={service.icon as DynamicIconName} className="!size-12" />
         ) : (
@@ -198,7 +200,7 @@ export default function Home(props: {
         label: service.friendly_name || service.service_name,
         to: getServiceLink('', service.custom_url),
         target: '_blank',
-        description: service.description || 'Opens in a new tab',
+        description: service.description || t('Opens in a new tab'),
         icon: <DynamicIcon icon={service.icon as DynamicIconName} className="!size-12" />,
         installed: true,
         displayOrder: service.display_order ?? 90,
@@ -225,18 +227,18 @@ export default function Home(props: {
 
   return (
     <AppLayout>
-      <Head title="Command Center" />
+      <Head title={t('Command Center')} />
       {
         updateInfo?.updateAvailable && (
           <div className='flex justify-center items-center p-4 w-full'>
             <Alert
-              title="An update is available for Project NOMAD!"
+              title={t('An update is available for Project NOMAD!')}
               type="info-inverted"
               variant="solid"
               className="w-full"
               buttonProps={{
                 variant: 'primary',
-                children: 'Go to Settings',
+                children: t('Go to Settings'),
                 icon: 'IconSettings',
                 onClick: () => router.visit('/settings/update'),
               }}
@@ -249,8 +251,8 @@ export default function Home(props: {
         rerunBanner?.show && (
           <div className='flex justify-center items-center px-4 pt-4 w-full'>
             <Alert
-              title="Your benchmark can be re-scored with Score v2"
-              message="We've upgraded the benchmark scoring system. Re-run your benchmark to get an updated Score v2 result on the community leaderboard."
+              title={t('Your benchmark can be re-scored with Score v2')}
+              message={t("We've upgraded the benchmark scoring system. Re-run your benchmark to get an updated Score v2 result on the community leaderboard.")}
               type="info-inverted"
               variant="solid"
               className="w-full"
@@ -258,7 +260,7 @@ export default function Home(props: {
               onDismiss={handleDismissRerunBanner}
               buttonProps={{
                 variant: 'primary',
-                children: 'Re-run benchmark',
+                children: t('Re-run benchmark'),
                 icon: 'IconRefresh',
                 onClick: () => router.visit('/settings/benchmark'),
               }}
@@ -291,7 +293,7 @@ export default function Home(props: {
               {isLinkTile && (
                 <span
                   className={`absolute top-2 left-2 ${tileColor.marker}`}
-                  title="A shortcut you added. NOMAD does not manage this."
+                  title={t('A shortcut you added. NOMAD does not manage this.')}
                 >
                   <IconExternalLink size={16} />
                 </span>
@@ -303,14 +305,14 @@ export default function Home(props: {
                     style={{ animationDuration: '1.5s' }}
                   ></span>
                   <span className="relative inline-flex items-center rounded-full px-2.5 py-1 bg-desert-orange-light text-xs font-semibold text-white shadow-sm">
-                    Start here!
+                    {t('Start here!')}
                   </span>
                 </span>
               )}
               <div className="flex items-center justify-center mb-2">{item.icon}</div>
-              <h3 className="font-bold text-2xl">{item.label}</h3>
-              {item.poweredBy && <p className="text-sm opacity-80">Powered by {item.poweredBy}</p>}
-              <p className="xl:text-lg mt-2">{item.description}</p>
+              <h3 className="font-bold text-2xl">{isLinkTile ? item.label : t(item.label)}</h3>
+              {item.poweredBy && <p className="text-sm opacity-80">{t('Powered by {{name}}', { name: item.poweredBy })}</p>}
+              <p className="xl:text-lg mt-2">{isLinkTile ? item.description : t(item.description)}</p>
             </div>
           )
 
@@ -331,14 +333,14 @@ export default function Home(props: {
                       onClick={() => handleDeleteTile(tile.service_name)}
                       className="rounded bg-desert-red px-2 py-1 text-xs font-medium text-white hover:brightness-110"
                     >
-                      Remove
+                      {t('Remove')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setPendingDelete(null)}
                       className="rounded border border-border-default bg-surface-primary px-2 py-1 text-xs text-text-secondary hover:bg-surface-secondary"
                     >
-                      Cancel
+                      {t('Cancel')}
                     </button>
                   </div>
                 ) : (
@@ -349,8 +351,8 @@ export default function Home(props: {
                         setEditingTile(tile)
                         setLinkModalOpen(true)
                       }}
-                      title="Edit this link"
-                      aria-label="Edit this link"
+                      title={t('Edit this link')}
+                      aria-label={t('Edit this link')}
                       className="rounded p-1 text-text-muted hover:bg-surface-secondary hover:text-text-primary"
                     >
                       <IconPencil size={16} />
@@ -358,8 +360,8 @@ export default function Home(props: {
                     <button
                       type="button"
                       onClick={() => setPendingDelete(tile.service_name)}
-                      title="Remove this link"
-                      aria-label="Remove this link"
+                      title={t('Remove this link')}
+                      aria-label={t('Remove this link')}
                       className="rounded p-1 text-text-muted hover:bg-surface-secondary hover:text-desert-red"
                     >
                       <IconTrash size={16} />
@@ -391,8 +393,8 @@ export default function Home(props: {
           className="rounded border-2 border-dashed border-border-default bg-transparent text-text-muted hover:border-desert-green hover:text-text-primary transition-colors h-48 flex flex-col items-center justify-center cursor-pointer text-center px-4"
         >
           <IconPlus size={40} />
-          <h3 className="font-bold text-xl mt-2">Add a Link</h3>
-          <p className="text-sm mt-1">A shortcut to something else on your network</p>
+          <h3 className="font-bold text-xl mt-2">{t('Add a Link')}</h3>
+          <p className="text-sm mt-1">{t('A shortcut to something else on your network')}</p>
         </button>
       </div>
 
