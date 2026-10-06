@@ -162,3 +162,25 @@ function rewriteSrc(src: string | undefined, articleUrl: URL): string | null {
   }
   return null
 }
+
+/**
+ * Primeiro parágrafo de verdade do artigo (pula parágrafos curtos ou vazios),
+ * sem as marcas de citação da Wikipedia ("[2]"). Serve de trecho na busca quando
+ * o do Kiwix vem de uma caixa de navegação.
+ */
+export function leadParagraph(raw: string, minLength = 60): string | null {
+  const $ = cheerio.load(raw)
+  let root = $('#mw-content-text').first()
+  if (!root.length) root = $('body').first()
+  root.find(REMOVE).remove()
+  for (const el of root.find('p').toArray()) {
+    const text = $(el)
+      .text()
+      .replace(/\[\d+\]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+    if (text.length >= minLength) return text
+  }
+  return null
+}
+

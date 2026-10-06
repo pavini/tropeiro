@@ -76,3 +76,15 @@ test('aceita só caminhos dentro de /content/ com livro e página', () => {
   assert.equal(toContentPath('livro'), null)
   assert.equal(toContentPath(''), null)
 })
+
+test('primeiro parágrafo longo do artigo, sem marcas de citação', async () => {
+  const { leadParagraph } = await import('../../app/utils/kiwix_article.js')
+  const html = page(
+    '<p></p><p>Curto.</p><p>Queimadura é uma lesão na pele ou noutros tecidos causada por calor ou eletricidade.[2] A maior parte é evitável.[3]</p>'
+  )
+  assert.equal(
+    leadParagraph(html),
+    'Queimadura é uma lesão na pele ou noutros tecidos causada por calor ou eletricidade. A maior parte é evitável.'
+  )
+  assert.equal(leadParagraph(page('<p>Curto.</p>')), null)
+})
