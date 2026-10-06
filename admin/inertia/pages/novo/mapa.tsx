@@ -26,6 +26,24 @@ function savedView(): View | null {
   return null
 }
 
+interface PlaceHit {
+  name: string
+  kind: 'city' | 'town' | 'village' | 'neighbourhood'
+  latitude: number
+  longitude: number
+  near: string | null
+}
+
+const PLACE_KIND: Record<PlaceHit['kind'], string> = {
+  city: 'City',
+  town: 'Town',
+  village: 'Village',
+  neighbourhood: 'Neighbourhood',
+}
+
+/** Zoom ao chegar no lugar: cidade grande mostra mais área que um bairro. */
+const PLACE_ZOOM: Record<PlaceHit['kind'], number> = { city: 11, town: 13, village: 14, neighbourhood: 14 }
+
 const pinColor = (marker: MapMarker) =>
   marker.customColor || PIN_COLORS.find((c) => c.id === marker.color)?.hex || PIN_COLORS[0].hex
 
@@ -47,8 +65,12 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
   const [saving, setSaving] = useState(false)
   const [selected, setSelected] = useState<MapMarker | null>(null)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [coords, setCoords] = useState('')
-  const [coordsError, setCoordsError] = useState(false)
+  const [query, setQuery] = useState('')
+  const [hits, setHits] = useState<PlaceHit[]>([])
+  const [hitsOpen, setHitsOpen] = useState(false)
+  const [activeHit, setActiveHit] = useState(0)
+  const [notFound, setNotFound] = useState(false)
+  const [found, setFound] = useState<PlaceHit | null>(null)
   const [listOpen, setListOpen] = useState(false)
   const [hideNotice, setHideNotice] = useState(false)
 
@@ -80,11 +102,56 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
     }
   }
 
-  const goToCoordinates = () => {
-    const parsed = parseCoordinates(coords)
-    setCoordsError(!parsed)
-    if (parsed) flyTo(parsed.longitude, parsed.latitude)
+  // Sugestões de lugares enquanto digita (coordenadas não precisam).
+  useEffect(() => {
+    const text = query.trim()
+    if (text.length < 2 || parseCoordinates(text)) {
+      setHits([])
+      return
+    }
+    const controller = new AbortController()
+    const timer = setTimeout(() => {
+      fetch(`/novo/mapa/lugares?q=${encodeURIComponent(text)}`, { signal: controller.signal })
+        .then((res) => (res.ok ? res.json() : []))
+        .then((places: PlaceHit[]) => {
+          setHits(places)
+          setActiveHit(0)
+        })
+        .catch(() => {})
+    }, 200)
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [query])
+
+  const goToPlace = (place: PlaceHit) => {
+    setQuery(place.name)
+    setHitsOpen(false)
+    setFound(place)
+    flyTo(place.longitude, place.latitude, PLACE_ZOOM[place.kind])
   }
+
+  const search = async () => {
+    const coords = parseCoordinates(query)
+    if (coords) {
+      setFound(null)
+      setHitsOpen(false)
+      return flyTo(coords.longitude, coords.latitude)
+    }
+    let places = hits
+    if (places.length === 0 && query.trim().length >= 2) {
+      places = await fetch(`/novo/mapa/lugares?q=${encodeURIComponent(query.trim())}`)
+        .then((res) => (res.ok ? res.json() : []))
+        .catch(() => [])
+    }
+    const place = places[activeHit] ?? places[0]
+    if (place) goToPlace(place)
+    else setNotFound(true)
+  }
+
+  const describe = (place: PlaceHit) =>
+    place.near ? t('{{kind}} · near {{city}}', { kind: t(PLACE_KIND[place.kind]), city: place.near }) : t(PLACE_KIND[place.kind])
 
   const visible = markers.filter((m) => m.visible)
   const unavailable = !props.ready || styleError
@@ -138,6 +205,12 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
       >
         <NavigationControl position="top-right" showCompass={false} />
         <ScaleControl position="bottom-right" unit="metric" />
+
+        {found && (
+          <Marker longitude={found.longitude} latitude={found.latitude} anchor="center">
+            <span className="nv-map-found" role="img" aria-label={found.name} />
+          </Marker>
+        )}
 
         {visible.map((marker) => (
           <Marker
@@ -237,36 +310,77 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
 
       <div className="nv-map-topbar">
         {back}
-        <form
-          className="nv-map-search"
-          onSubmit={(e) => {
-            e.preventDefault()
-            goToCoordinates()
-          }}
-        >
-          <label htmlFor="nv-coords" className="nv-sr-only">
-            {t('Coordinates')}
-          </label>
-          <input
-            id="nv-coords"
-            className="nv-input"
-            value={coords}
-            onChange={(e) => {
-              setCoords(e.target.value)
-              setCoordsError(false)
+        <div className="nv-map-searchbox">
+          <form
+            className="nv-map-search"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault()
+              void search()
             }}
-            placeholder={t('Coordinates, e.g. -23.55, -46.63')}
-            inputMode="decimal"
-            aria-invalid={coordsError}
-          />
-          <button type="submit" className="nv-map-go">
-            {t('Go')}
-          </button>
-        </form>
+          >
+            <label htmlFor="nv-map-query" className="nv-sr-only">
+              {t('Search the map')}
+            </label>
+            <input
+              id="nv-map-query"
+              className="nv-input"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value)
+                setHitsOpen(true)
+                setNotFound(false)
+              }}
+              onFocus={() => setHitsOpen(true)}
+              onBlur={() => setTimeout(() => setHitsOpen(false), 150)}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault()
+                  setActiveHit((i) => Math.min(i + 1, hits.length - 1))
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault()
+                  setActiveHit((i) => Math.max(i - 1, 0))
+                } else if (e.key === 'Escape') {
+                  setHitsOpen(false)
+                }
+              }}
+              placeholder={t('City, neighbourhood or coordinates')}
+              autoComplete="off"
+              role="combobox"
+              aria-expanded={hitsOpen && hits.length > 0}
+              aria-controls="nv-map-hits"
+              aria-autocomplete="list"
+            />
+            <button type="submit" className="nv-map-go">
+              {t('Go')}
+            </button>
+          </form>
+          {hitsOpen && hits.length > 0 && (
+            <ul id="nv-map-hits" className="nv-map-hits" role="listbox" aria-label={t('Places found')}>
+              {hits.map((place, i) => (
+                <li key={`${place.name}-${place.latitude}-${place.longitude}`} role="option" aria-selected={i === activeHit}>
+                  <button
+                    type="button"
+                    className={i === activeHit ? 'nv-map-hit nv-map-hit-active' : 'nv-map-hit'}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => goToPlace(place)}
+                  >
+                    <strong>{place.name}</strong>
+                    <span>{describe(place)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <div className="nv-map-notices">
-        {coordsError && <span className="nv-map-toast nv-map-toast-error">{t('Type latitude and longitude, e.g. -23.55, -46.63')}</span>}
+        {notFound && (
+          <span className="nv-map-toast nv-map-toast-error">
+            {t('No place with that name on this map. You can also type coordinates, e.g. -23.55, -46.63')}
+          </span>
+        )}
         {marking && <span className="nv-map-toast">{t('Tap the map where the place is.')}</span>}
         {props.regions.length === 0 && !hideNotice && (
           <span className="nv-map-toast nv-map-toast-link">

@@ -650,10 +650,7 @@
   "The map files are missing. Whoever manages the server can download them with internet.": "Faltam os arquivos do mapa. Quem cuida do servidor pode baixá-los com internet.",
   "Cancel marking": "Cancelar marcação",
   "Mark a place": "Marcar um lugar",
-  "Coordinates": "Coordenadas",
-  "Coordinates, e.g. -23.55, -46.63": "Coordenadas, ex.: -23.55, -46.63",
   "Go": "Ir",
-  "Type latitude and longitude, e.g. -23.55, -46.63": "Digite a latitude e a longitude, ex.: -23.55, -46.63",
   "Tap the map where the place is.": "Toque no mapa onde fica o lugar.",
   "Delete place": "Excluir lugar",
   "Name of the place": "Nome do lugar",
@@ -667,5 +664,14 @@
   "Only the world overview is on this server. Download the map of Brazil in a kit to see streets and cities.": "Este servidor só tem a visão geral do mundo. Baixe o mapa do Brasil num kit para ver ruas e cidades.",
   "Places ({{count}})_one": "Lugares ({{count}})",
   "Places ({{count}})_many": "Lugares ({{count}})",
-  "Places ({{count}})_other": "Lugares ({{count}})"
+  "Places ({{count}})_other": "Lugares ({{count}})",
+  "City": "Cidade",
+  "Town": "Cidade pequena",
+  "Village": "Vila ou povoado",
+  "Neighbourhood": "Bairro",
+  "{{kind}} · near {{city}}": "{{kind}} · perto de {{city}}",
+  "Search the map": "Buscar no mapa",
+  "City, neighbourhood or coordinates": "Cidade, bairro ou coordenadas",
+  "Places found": "Lugares encontrados",
+  "No place with that name on this map. You can also type coordinates, e.g. -23.55, -46.63": "Nenhum lugar com esse nome neste mapa. Você também pode digitar coordenadas, ex.: -23.55, -46.63"
 }

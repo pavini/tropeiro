@@ -16,6 +16,7 @@ import { DockerService } from '#services/docker_service'
 import { MapService } from '#services/map_service'
 import { mapTitle } from '../utils/installed_content.js'
 import { localizeLabels } from '../utils/map_labels.js'
+import { PlaceSearchService } from '#services/place_search_service'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
@@ -159,6 +160,18 @@ export default class NovoController {
     const protocol = forwarded ? forwarded.split(',')[0].trim() : request.protocol()
     const style = await this.maps.generateStylesJSON(request.host(), protocol)
     return response.json(localizeLabels(style, 'pt'))
+  }
+
+  /** Cidades, vilas e bairros do mapa cujo nome combina com a busca. */
+  async mapaLugares({ request }: HttpContext) {
+    const q = String(request.input('q', '')).trim().slice(0, 100)
+    try {
+      const places = await new PlaceSearchService(this.maps).search(q)
+      return places.map(({ name, kind, latitude, longitude, near }) => ({ name, kind, latitude, longitude, near: near ?? null }))
+    } catch (err) {
+      logger.error(`[NovoController] busca de lugares falhou: ${(err as Error).message}`)
+      return []
+    }
   }
 
   /** Apps do servidor: instalar, abrir, iniciar e parar. */
