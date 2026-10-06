@@ -13,6 +13,9 @@ import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
 import { InstalledContentService } from '#services/installed_content_service'
 import { DockerService } from '#services/docker_service'
+import { MapService } from '#services/map_service'
+import { mapTitle } from '../utils/installed_content.js'
+import { localizeLabels } from '../utils/map_labels.js'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
@@ -47,7 +50,8 @@ export default class NovoController {
     private downloads: DownloadService,
     private ollama: OllamaService,
     private installed: InstalledContentService,
-    private docker: DockerService
+    private docker: DockerService,
+    private maps: MapService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -132,6 +136,29 @@ export default class NovoController {
       logger.error(`[NovoController] falha ao apagar ${kind} ${id}: ${(err as Error).message}`)
       return response.redirect().toPath('/novo/conteudo?resultado=erro')
     }
+  }
+
+  /** Mapa offline, com os pontos marcados. */
+  async mapa({ inertia }: HttpContext) {
+    const [ready, regions] = await Promise.all([
+      this.maps.ensureBaseAssets().catch(() => false),
+      this.maps.listRegions().catch(() => ({ files: [] })),
+    ])
+    return inertia.render('novo/mapa', {
+      ready,
+      regions: regions.files.map((f) => mapTitle(f.name)),
+    })
+  }
+
+  /** Estilo do mapa com os nomes dos lugares em português. */
+  async mapaEstilo({ request, response }: HttpContext) {
+    if (!(await this.maps.ensureBaseAssets().catch(() => false))) {
+      return response.status(503).send({ message: 'Arquivos base do mapa ausentes' })
+    }
+    const forwarded = request.header('x-forwarded-proto')
+    const protocol = forwarded ? forwarded.split(',')[0].trim() : request.protocol()
+    const style = await this.maps.generateStylesJSON(request.host(), protocol)
+    return response.json(localizeLabels(style, 'pt'))
   }
 
   /** Apps do servidor: instalar, abrir, iniciar e parar. */

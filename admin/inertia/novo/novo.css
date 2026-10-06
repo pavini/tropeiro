@@ -1094,3 +1094,105 @@ ul.nv-ficha-list {
 a.nv-app-button:not(.nv-secondary) {
   color: #ffffff;
 }
+
+/* Mapa */
+.nv-map-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.nv-map-tools .nv-primary {
+  height: 48px;
+  padding: 0 18px;
+  font-size: 16px;
+}
+
+.nv-map-coords {
+  display: flex;
+  gap: 8px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.nv-map-coords .nv-input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+}
+
+.nv-map {
+  position: relative;
+  height: min(70vh, 640px);
+  min-height: 360px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--nv-line);
+  background: #e8ece9;
+}
+
+.nv-map-marking .maplibregl-canvas {
+  cursor: crosshair;
+}
+
+.nv-map-hint {
+  font-weight: 700;
+  color: var(--nv-accent-dark);
+}
+
+.nv-map-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--nv-ink-2);
+}
+
+.nv-map-popup .nv-input {
+  height: 44px;
+  font-size: 16px;
+}
+
+.nv-map-popup .nv-textarea {
+  height: auto;
+  min-height: 56px;
+}
+
+.nv-map-popup .nv-primary {
+  height: 42px;
+  padding: 0 14px;
+  font-size: 15px;
+}
+
+.nv-map-popup-coords {
+  font-size: 13px;
+  color: var(--nv-muted);
+}
+
+.nv-map-place {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nv-map-dot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.nv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

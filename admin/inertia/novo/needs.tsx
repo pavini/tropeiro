@@ -46,7 +46,7 @@ export function buildNeeds(services: ServiceSlim[], drugReferenceInstalled: bool
     { id: 'health', label: 'Health and first aid', icon: ICONS.health, iconBg: '#FCE4E1', iconFg: '#8A1C12', href: '/novo/fichas' },
     { id: 'water', label: 'Water and food', icon: ICONS.water, iconBg: '#DDEBF7', iconFg: '#1B4F7A', href: search('água potável') },
     { id: 'shelter', label: 'Shelter and safety', icon: ICONS.shelter, iconBg: '#FFF1CC', iconFg: '#7A4B00', href: search('abrigo') },
-    { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/maps' },
+    { id: 'maps', label: 'Maps', icon: ICONS.maps, iconBg: '#E3EFE7', iconFg: '#14492F', href: '/novo/mapa' },
     { id: 'medicine', label: 'Medicines', icon: ICONS.medicine, iconBg: '#EDE7F6', iconFg: '#4A2C7A', href: drugReferenceInstalled ? '/drug-reference' : null },
     { id: 'library', label: 'Encyclopedia', icon: ICONS.library, iconBg: '#E8EEF0', iconFg: '#2C4650', href: serviceHref(services, SERVICE_NAMES.KIWIX), external: true },
     { id: 'learn', label: 'Learn', icon: ICONS.learn, iconBg: '#E8EEF0', iconFg: '#2C4650', href: education, external: true },
