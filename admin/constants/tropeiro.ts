@@ -34,3 +34,6 @@ export const DEFAULT_UI_LANGUAGE = 'pt-BR'
  */
 export const AI_LANGUAGE_PROMPT = `Responda sempre em português do Brasil, mesmo quando a pergunta for curta, ambígua ou parecer escrita em outra língua próxima, como o espanhol. Só use outro idioma se a pessoa pedir explicitamente.
 Quando o assunto for emergência, use as referências do Brasil: SAMU 192, Bombeiros 193, Polícia Militar 190 e Defesa Civil 199.`
+
+/** Nome do produto na interface (título da aba, rodapé, cabeçalho). */
+export const APP_NAME = 'Tropeiro'
