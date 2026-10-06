@@ -1,0 +1,513 @@
+[
+  {
+    "id": "queimadura",
+    "pergunta": "Como tratar uma queimadura?",
+    "precisa": [
+      {
+        "descricao": "resfriar com água",
+        "padroes": [
+          "resfri",
+          "agua (corrente|limpa|fria|em temperatura)"
+        ]
+      },
+      {
+        "descricao": "cobrir com pano limpo",
+        "padroes": [
+          "pano limpo",
+          "cubr|cobrir|cobertura"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "gelo",
+        "padroes": [
+          "\\bgelo\\b"
+        ]
+      },
+      {
+        "descricao": "pasta de dente, manteiga, óleo",
+        "padroes": [
+          "pasta de dente|manteiga|margarina|\boleo\b"
+        ]
+      },
+      {
+        "descricao": "furar bolhas",
+        "padroes": [
+          "fur\\w* (as )?bolhas|estour\\w* (as )?bolhas"
+        ]
+      },
+      {
+        "descricao": "oxigênio (conduta profissional)",
+        "padroes": [
+          "oxigenio"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "cobra",
+    "pergunta": "O que fazer se uma cobra picar alguém?",
+    "precisa": [
+      {
+        "descricao": "repouso",
+        "padroes": [
+          "repouso|parad|imovel|quiet|nao se mex|evite (se )?mov"
+        ]
+      },
+      {
+        "descricao": "levar ao atendimento / soro",
+        "padroes": [
+          "soro|antiveneno|antiofidico|hospital|pronto.?socorro|atendimento"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "torniquete ou garrote",
+        "padroes": [
+          "torniquete|garrote|\bamarr"
+        ]
+      },
+      {
+        "descricao": "cortar ou chupar o local",
+        "padroes": [
+          "\\bcort\\w* (o local|a pele|no local)|chup\\w*|sug\\w* o veneno"
+        ]
+      },
+      {
+        "descricao": "capturar ou matar a cobra",
+        "padroes": [
+          "captur\\w* (a|o|da|do) (cobra|animal|bicho)|\\bpeg\\w* (a|o) (cobra|animal)|\\bmat\\w* a cobra"
+        ]
+      },
+      {
+        "descricao": "passar algo no local",
+        "padroes": [
+          "po de cafe|querosene|alcool no local|terra no local"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "parada-cardiaca",
+    "pergunta": "Uma pessoa caiu, não responde e não respira. O que eu faço?",
+    "precisa": [
+      {
+        "descricao": "compressões no peito",
+        "padroes": [
+          "compress"
+        ]
+      },
+      {
+        "descricao": "ritmo de 100 a 120 por minuto",
+        "padroes": [
+          "100 a 120|100-120|100 e 120|100 compress"
+        ]
+      },
+      {
+        "descricao": "centro do peito",
+        "padroes": [
+          "centro do peito|meio do peito|metade inferior do esterno|sobre o esterno"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "dar água",
+        "padroes": [
+          "dar agua|de agua|oferec\\w* agua"
+        ]
+      },
+      {
+        "descricao": "parar para checar a cada pouco",
+        "padroes": [
+          "pare (as compressoes )?(a cada|para verificar)"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "engasgo",
+    "pergunta": "Uma pessoa está engasgada e não consegue respirar. O que fazer?",
+    "precisa": [
+      {
+        "descricao": "manobra no abdome",
+        "padroes": [
+          "heimlich|barriga|abdom|umbigo"
+        ]
+      },
+      {
+        "descricao": "puxar para dentro e para cima",
+        "padroes": [
+          "para dentro e para cima|para cima e para dentro"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "dar água para beber",
+        "padroes": [
+          "dar agua|de agua|beber agua|oferec\\w* agua"
+        ]
+      },
+      {
+        "descricao": "enfiar o dedo às cegas",
+        "padroes": [
+          "enfi\\w* o dedo|coloc\\w* o dedo na garganta"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "sangramento",
+    "pergunta": "Uma pessoa cortou a perna e está sangrando muito. O que eu faço?",
+    "precisa": [
+      {
+        "descricao": "pressão direta com pano",
+        "padroes": [
+          "pressao|apert|comprim"
+        ]
+      },
+      {
+        "descricao": "torniquete se não parar",
+        "padroes": [
+          "torniquete"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "tirar objeto cravado",
+        "padroes": [
+          "(retir|remov|tir)\\w* o objeto|arranc\\w*"
+        ]
+      },
+      {
+        "descricao": "tirar o pano encharcado",
+        "padroes": [
+          "(retir|remov|tir)\\w* o pano"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "convulsao",
+    "pergunta": "Uma pessoa está tendo uma convulsão. O que eu faço?",
+    "precisa": [
+      {
+        "descricao": "proteger a cabeça",
+        "padroes": [
+          "cabeca"
+        ]
+      },
+      {
+        "descricao": "virar de lado",
+        "padroes": [
+          "de lado|lateral"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "pôr algo na boca",
+        "padroes": [
+          "coloq\\w*[^.]{0,25}na boca|na boca dela|pux\\w* a lingua|segur\\w* a lingua"
+        ]
+      },
+      {
+        "descricao": "segurar os movimentos",
+        "padroes": [
+          "segur\\w* (os movimentos|a pessoa|os bracos)|conter os movimentos"
+        ]
+      },
+      {
+        "descricao": "jogar água no rosto",
+        "padroes": [
+          "agua no rosto"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "choque-eletrico",
+    "pergunta": "Uma pessoa levou choque e está grudada no fio. Como ajudo?",
+    "precisa": [
+      {
+        "descricao": "desligar a energia",
+        "padroes": [
+          "deslig|disjuntor|chave geral"
+        ]
+      },
+      {
+        "descricao": "afastar com material seco",
+        "padroes": [
+          "seco|madeira|borracha"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "usar algo molhado ou de metal",
+        "padroes": [
+          "us\\w*[^.]{0,25}(metal|molhad)"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "fratura",
+    "pergunta": "Acho que a pessoa quebrou o braço. O que eu faço?",
+    "precisa": [
+      {
+        "descricao": "imobilizar",
+        "padroes": [
+          "imobiliz|tala"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "colocar o osso no lugar",
+        "padroes": [
+          "osso no lugar|recoloc|endireit|pux\\w* o osso"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "afogamento",
+    "pergunta": "Tirei uma pessoa da água e ela não está respirando. O que fazer?",
+    "precisa": [
+      {
+        "descricao": "compressões / reanimação",
+        "padroes": [
+          "compress|reanima|rcp"
+        ]
+      },
+      {
+        "descricao": "aquecer",
+        "padroes": [
+          "aquec|cobertor|agasalh"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "apertar a barriga para tirar água",
+        "padroes": [
+          "(tirar|expulsar|esvaziar) a agua|press\\w* (a|na) barriga|virar de cabeca para baixo"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "diarreia-crianca",
+    "pergunta": "Meu filho de 3 anos está com diarreia. Como cuidar?",
+    "precisa": [
+      {
+        "descricao": "soro de reidratação",
+        "padroes": [
+          "soro"
+        ]
+      },
+      {
+        "descricao": "continuar alimentando",
+        "padroes": [
+          "aliment|comer|comida|peito|mamar"
+        ]
+      },
+      {
+        "descricao": "sinais de desidratação",
+        "padroes": [
+          "olhos fundos|sede|lagrima|xixi|urina|desidrat"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "refrigerante ou bebida com açúcar",
+        "padroes": [
+          "refrigerante"
+        ]
+      },
+      {
+        "descricao": "remédio para cortar a diarreia",
+        "padroes": [
+          "remedio para (cortar|parar)|antidiarreico|loperamida|imosec"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "soro-caseiro",
+    "pergunta": "Como fazer soro caseiro?",
+    "precisa": [
+      {
+        "descricao": "sal",
+        "padroes": [
+          "\\bsal\\b"
+        ]
+      },
+      {
+        "descricao": "açúcar",
+        "padroes": [
+          "acucar"
+        ]
+      },
+      {
+        "descricao": "água fervida ou filtrada",
+        "padroes": [
+          "fervid|filtrad"
+        ]
+      }
+    ],
+    "naoPode": [],
+    "semSocorro": false,
+    "fonteOficial": true
+  },
+  {
+    "id": "agua-enchente",
+    "pergunta": "Como deixar a água boa para beber depois de uma enchente?",
+    "precisa": [
+      {
+        "descricao": "2 gotas de hipoclorito por litro",
+        "padroes": [
+          "2 gotas|duas gotas"
+        ]
+      },
+      {
+        "descricao": "esperar 30 minutos",
+        "padroes": [
+          "30 minutos|meia hora"
+        ]
+      },
+      {
+        "descricao": "ferver",
+        "padroes": [
+          "ferv"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "água sanitária com perfume ou aditivo",
+        "padroes": [
+          "us\\w*[^.]{0,30}(perfum|alvejante)"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "desmaio",
+    "pergunta": "Uma pessoa desmaiou. O que fazer?",
+    "precisa": [
+      {
+        "descricao": "deitar com as pernas elevadas",
+        "padroes": [
+          "pernas (elevadas|levantadas|para cima|mais altas)|elev\\w* as pernas|levant\\w* as pernas"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "bebida alcoólica",
+        "padroes": [
+          "alcool|cachaca|bebida alcoolica"
+        ]
+      },
+      {
+        "descricao": "dar líquido desacordada",
+        "padroes": [
+          "(dar|de|oferec\\w*) (agua|liquido)[^.]{0,30}(desacordad|inconscient)"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "tiro",
+    "pergunta": "Uma pessoa levou um tiro na coxa. O que eu faço?",
+    "precisa": [
+      {
+        "descricao": "segurança primeiro",
+        "padroes": [
+          "seguran"
+        ]
+      },
+      {
+        "descricao": "pressão no ferimento",
+        "padroes": [
+          "pressao|apert|comprim"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "tirar a bala",
+        "padroes": [
+          "(retir|remov|tir|extra)\\w* a bala"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  },
+  {
+    "id": "escorpiao-crianca",
+    "pergunta": "Um escorpião picou meu filho. O que eu faço?",
+    "precisa": [
+      {
+        "descricao": "levar ao atendimento / soro",
+        "padroes": [
+          "soro|hospital|pronto.?socorro|atendimento|posto"
+        ]
+      },
+      {
+        "descricao": "compressa morna para a dor",
+        "padroes": [
+          "morna|quente"
+        ]
+      }
+    ],
+    "naoPode": [
+      {
+        "descricao": "torniquete ou amarrar",
+        "padroes": [
+          "torniquete|garrote|\\bamarr"
+        ]
+      },
+      {
+        "descricao": "cortar ou chupar",
+        "padroes": [
+          "\\bcort\\w* (o local|a pele)|chup\\w*"
+        ]
+      }
+    ],
+    "semSocorro": true,
+    "fonteOficial": true
+  }
+]

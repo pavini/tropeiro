@@ -16,6 +16,7 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sha256: '4f110686a10c4e1ecf847397f40340d2df92ad106262729ce524a903bb3d76f2',
     sizeBytes: 9549199,
     license: 'É permitida a reprodução parcial ou total desta obra, desde que citada a fonte.',
+    audience: 'public',
   },
   {
     id: 'ms-samu-suporte-basico-de-vida-2016',
@@ -27,6 +28,7 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sizeBytes: 16541991,
     license:
       'Sem autorização de reprodução explícita; os protocolos dizem que "adaptações são permitidas de acordo com as particularidades dos serviços". As fichas usam texto próprio e citam a fonte.',
+    audience: 'professional',
   },
   {
     id: 'ms-cartilha-queimaduras-2012',
@@ -38,6 +40,7 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sizeBytes: 2598199,
     license:
       'É permitida a reprodução parcial ou total desta obra, desde que citada a fonte e que não seja para venda ou qualquer fim comercial.',
+    audience: 'public',
   },
   {
     id: 'ms-guia-animais-peconhentos-2024',
@@ -49,6 +52,7 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sizeBytes: 19959925,
     license:
       'Creative Commons Atribuição–NãoComercial–CompartilhaIgual 4.0. É permitida a reprodução parcial ou total desta obra, desde que citada a fonte.',
+    audience: 'public',
   },
   {
     id: 'ms-caderneta-crianca-2024',
@@ -60,6 +64,7 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sizeBytes: 14656857,
     license:
       'Creative Commons Atribuição–NãoComercial–CompartilhaIgual 4.0. É permitida a reprodução parcial ou total desta obra, desde que citada a fonte.',
+    audience: 'public',
   },
   {
     id: 'ms-manejo-diarreia-cartaz',
@@ -70,6 +75,7 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sha256: 'b19a1f0ec04cec2b8ae280008af0b6d5bf93a35e42ce36cd11af2cccafbc9526',
     sizeBytes: 216456,
     license: 'Sem nota de licença no documento. As fichas usam texto próprio e citam a fonte.',
+    audience: 'public',
   },
   {
     id: 'ms-orientacoes-enchentes',
@@ -80,5 +86,6 @@ export const REFERENCE_DOCS: ReferenceDoc[] = [
     sha256: '93441d26f426c97db6776569015c1b2f137b2ef817d63b0cb6c4c0cbea15f24e',
     sizeBytes: 533260,
     license: 'Sem nota de licença no documento. As fichas usam texto próprio e citam a fonte.',
+    audience: 'public',
   },
 ]

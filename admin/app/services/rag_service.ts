@@ -1334,8 +1334,11 @@ export class RagService {
         // Documentos oficiais das fichas (Ministério da Saúde, SAMU...) passam
         // à frente de outros trechos parecidos: numa emergência, são a fonte
         // mais confiável. Mesmo formato conservador dos reforços acima.
+        // Protocolos profissionais não ganham prioridade: servem de apoio, não
+        // de base para a resposta a um leigo.
         if (result.reference_id) {
-          finalScore += 0.1 * result.score
+          const audience = REFERENCE_DOCS.find((d) => d.id === result.reference_id)?.audience
+          if (audience === 'public') finalScore += 0.1 * result.score
         }
 
         finalScore = Math.min(1.0, finalScore + keywordBoost)

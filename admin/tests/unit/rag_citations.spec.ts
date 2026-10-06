@@ -130,3 +130,23 @@ test('o trecho do documento oficial chega à IA com a página no rótulo', () =>
   ])
   assert.equal(block, '[Context 1 — Cartilha Queimaduras (Ministério da Saúde, 2012), p. 6]\nResfrie com água corrente.')
 })
+
+test('protocolo profissional chega à IA marcado como tal', () => {
+  const block = buildContextBlock([
+    {
+      text: 'Administrar oxigênio.',
+      metadata: { archive_title: 'Protocolos SAMU (Ministério da Saúde, 2016)', reference_id: 'ms-samu-suporte-basico-de-vida-2016', page: 133 },
+    },
+  ])
+  assert.match(block, /p\. 133 — protocolo para profissionais de saúde\]/)
+})
+
+test('a ficha do Tropeiro vem antes de tudo nas fontes, com link para ela', () => {
+  const sources = buildCitations([
+    chunk({ source: '/x/storage/referencias/ms-samu.pdf', archive_title: 'SAMU', reference_id: 'ms-samu', page: 133 }),
+    chunk({ archive_title: 'Ficha de primeiros socorros do Tropeiro: Queimadura', ficha_slug: 'queimadura' }),
+  ])
+  assert.deepEqual(sources[0], { title: 'Ficha de primeiros socorros do Tropeiro: Queimadura', href: '/fichas/queimadura' })
+  assert.equal(sources[1].href, '/referencias/ms-samu#page=133')
+  assert.equal(sources.length, 2)
+})

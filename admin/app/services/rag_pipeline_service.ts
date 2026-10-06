@@ -15,7 +15,11 @@ import {
   SYSTEM_PROMPTS,
 } from '../../constants/ollama.js'
 import type { OllamaChatMessage } from '../../types/ollama.js'
-import { AI_LANGUAGE_PROMPT } from '../../constants/tropeiro.js'
+import { AI_LANGUAGE_PROMPT, EMERGENCY_PROMPT } from '../../constants/tropeiro.js'
+import { FICHAS } from '../content/fichas.js'
+import { REFERENCE_DOCS } from '../content/referencias.js'
+import { searchFichas } from '../utils/fichas_search.js'
+import { fichaContextText, fichaContextTitle } from '../utils/ficha_context.js'
 import type { PipelineOptions, PipelineTrace, RetrievalFloorStats, RetrievedChunk } from '../../types/rag.js'
 import { planPrompt } from '../utils/context_budget.js'
 import { estimateMessagesTokens } from '../utils/token_estimate.js'
@@ -185,6 +189,28 @@ export class RagPipelineService {
             trace.timings.relevanceCheckMs = verdict.ms
           }
         }
+      }
+    }
+
+    // --- Ficha de primeiros socorros e instruções de emergência -------------
+    // Quando a pergunta combina com uma ficha, ela entra como o primeiro trecho:
+    // é o conteúdo mais confiável do servidor. Ficha ou documento oficial no
+    // contexto indicam pergunta de emergência, e só então entram as instruções
+    // de emergência, para não mudar respostas de outros assuntos.
+    if (!opts.oracleContext && !opts.skipRetrieval) {
+      const [ficha] = searchFichas(FICHAS, String(query.content ?? ''), 1)
+      if (ficha) {
+        relevantDocs = [
+          {
+            text: fichaContextText(ficha, REFERENCE_DOCS),
+            score: 1,
+            metadata: { archive_title: fichaContextTitle(ficha), ficha_slug: ficha.slug },
+          } as RetrievedChunk,
+          ...relevantDocs,
+        ]
+      }
+      if (ficha || relevantDocs.some((d) => d.metadata?.reference_id)) {
+        systemBlocks.push({ role: 'system', content: EMERGENCY_PROMPT })
       }
     }
 
