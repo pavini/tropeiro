@@ -28,6 +28,7 @@ ${body}
   assert.deepEqual(problems, [])
   return {
     dir: '',
+    format: 1,
     themes: [{ id: 'radio', title: 'Rádio', description: '' }],
     sources: [
       { id: 'norma', title: 'Norma', publisher: 'Anatel', year: 2026, theme: 'radio', audience: 'public', format: 'html', url: 'https://x.gov.br/n', sha256: '', sizeBytes: 0, mustContain: ['Art. 1'], license: 'Lei' },

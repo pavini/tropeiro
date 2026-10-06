@@ -1,6 +1,7 @@
 import { tableProblems } from './conteudo.js'
 import type { ContentProblem } from '../../types/conteudo.js'
 import type { LoadedContent } from '../content/loader.js'
+import { CONTENT_FORMAT_VERSION } from '../../constants/tropeiro.js'
 
 /**
  * Regras que o conteúdo precisa cumprir além do formato de cada arquivo:
@@ -12,6 +13,9 @@ import type { LoadedContent } from '../content/loader.js'
 export function validateContent(content: LoadedContent, pageText?: (docId: string) => string | null): ContentProblem[] {
   const problems: ContentProblem[] = [...content.problems]
   const fontes = 'fontes.yml'
+  if (!Number.isInteger(content.format) || content.format < 1 || content.format > CONTENT_FORMAT_VERSION) {
+    problems.push({ file: 'formato.yml', message: `versão do formato ${content.format}: esta versão do Tropeiro lê até a ${CONTENT_FORMAT_VERSION}` })
+  }
 
   const ids = new Set<string>()
   for (const doc of content.sources) {

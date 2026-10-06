@@ -1,0 +1,4 @@
+# Versão do formato dos arquivos de conteúdo. Só muda quando o formato muda de
+# um jeito que versões antigas do Tropeiro não conseguem ler; elas então deixam
+# de baixar conteúdo novo até serem atualizadas.
+versao: 1
