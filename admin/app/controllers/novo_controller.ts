@@ -12,6 +12,7 @@ import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
 import { InstalledContentService } from '#services/installed_content_service'
+import { DockerService } from '#services/docker_service'
 import KVStore from '#models/kv_store'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
@@ -26,6 +27,12 @@ import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
 const applyKitValidator = vine.compile(
   vine.object({ kit: vine.enum(KITS.map((k) => k.id)) })
 )
+const appActionValidator = vine.compile(
+  vine.object({
+    service: vine.string().trim().maxLength(100),
+    action: vine.enum(['install', 'start', 'stop', 'restart'] as const),
+  })
+)
 const removeContentValidator = vine.compile(
   vine.object({ kind: vine.enum(['book', 'map', 'model'] as const), id: vine.string().trim().minLength(1).maxLength(255) })
 )
@@ -39,7 +46,8 @@ export default class NovoController {
     private kits: KitService,
     private downloads: DownloadService,
     private ollama: OllamaService,
-    private installed: InstalledContentService
+    private installed: InstalledContentService,
+    private docker: DockerService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -124,6 +132,50 @@ export default class NovoController {
       logger.error(`[NovoController] falha ao apagar ${kind} ${id}: ${(err as Error).message}`)
       return response.redirect().toPath('/novo/conteudo?resultado=erro')
     }
+  }
+
+  /** Apps do servidor: instalar, abrir, iniciar e parar. */
+  async apps({ inertia, request }: HttpContext) {
+    return inertia.render('novo/apps', {
+      apps: await this.appList(),
+      result: String(request.input('resultado', '')),
+    })
+  }
+
+  async appAcao({ request, response }: HttpContext) {
+    const { service, action } = await request.validateUsing(appActionValidator)
+    // Só apps que a tela mostra: nada de dependências internas nem atalhos.
+    if (!(await this.appList()).some((a) => a.name === service)) {
+      return response.redirect().toPath('/novo/apps?resultado=erro')
+    }
+    try {
+      const result =
+        action === 'install'
+          ? await this.docker.createContainerPreflight(service)
+          : await this.docker.affectContainer(service, action)
+      if (!result.success) throw new Error(result.message)
+      return response.redirect().toPath(`/novo/apps?resultado=${action}`)
+    } catch (err) {
+      logger.error(`[NovoController] falha em ${action} de ${service}: ${(err as Error).message}`)
+      return response.redirect().toPath('/novo/apps?resultado=erro')
+    }
+  }
+
+  private async appList() {
+    const services = await this.systemService.getServices({ installedOnly: false })
+    return services
+      .filter((s) => !s.is_link_tile)
+      .map((s) => ({
+        name: s.service_name,
+        label: s.friendly_name || s.service_name,
+        description: s.description ?? null,
+        isCustom: !!s.is_custom,
+        installed: !!s.installed,
+        installation: s.installation_status ?? 'idle',
+        status: s.status ?? 'unknown',
+        uiLocation: s.ui_location || null,
+        customUrl: s.custom_url ?? null,
+      }))
   }
 
   /** Pergunta à IA local, que responde com base no acervo do servidor. */

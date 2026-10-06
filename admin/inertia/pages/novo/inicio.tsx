@@ -75,6 +75,7 @@ export default function NovoInicio(props: {
         <div className="nv-fichas">
           <AdminLink href="/novo/estado" title={t('Server status')} text={t('See if everything is working.')} />
           <AdminLink href="/novo/montar" title={t('Set up the server')} text={t('Choose which content this server keeps.')} />
+          <AdminLink href="/novo/apps" title={t('Apps')} text={t('Install, start and stop the programs on the server.')} />
           <AdminLink href="/novo/conteudo" title={t('Installed content')} text={t('See what is on the server and free up space.')} />
         </div>
       </section>
