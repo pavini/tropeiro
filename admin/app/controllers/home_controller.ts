@@ -1,6 +1,5 @@
 import { SystemService } from '#services/system_service'
-import { DrugReferenceService } from '#services/drug_reference_service'
-import logger from '@adonisjs/core/services/logger'
+import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -26,32 +25,7 @@ export default class HomeController {
             // reached 'ready' OR an install is in flight (downloading/ingesting) —
             // so the tile appears the moment the user opts in and persists through
             // the long install, rather than popping in only at the very end.
-            drugReferenceInstalled: await this.computeDrugReferenceInstalled(),
+            drugReferenceInstalled: await isDrugReferenceInstalled(),
         })
-    }
-
-    /**
-     * True when the offline FDA drug dataset is installed or installing. Reads the
-     * two-phase ingest status: ready (fully installed) or an active phase
-     * (downloading/downloaded/ingesting). rowCount > 0 covers a populated table
-     * whose job history was pruned. Never throws — a status read failure hides the
-     * tiles (fail-closed) rather than 500-ing the dashboard.
-     */
-    private async computeDrugReferenceInstalled(): Promise<boolean> {
-        try {
-            const status = await new DrugReferenceService().getIngestStatus()
-            const installing =
-                status.phase === 'downloading' ||
-                status.phase === 'downloaded' ||
-                status.phase === 'ingesting'
-            return status.phase === 'ready' || installing || status.rowCount > 0
-        } catch (err) {
-            logger.error(
-                `[HomeController] drug-reference install check failed: ${
-                    err instanceof Error ? err.message : String(err)
-                }`
-            )
-            return false
-        }
     }
 }

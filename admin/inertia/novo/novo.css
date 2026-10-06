@@ -1,0 +1,294 @@
+/*
+ * Estilo da interface nova (/novo). Tudo fica sob .nv para não vazar para a
+ * interface clássica, e a clássica não depende de nada daqui.
+ */
+
+.nv {
+  --nv-ground: #f2f4f1;
+  --nv-surface: #ffffff;
+  --nv-ink: #15201a;
+  --nv-ink-2: #2f3a35;
+  --nv-muted: #4a5550;
+  --nv-line: #dce3de;
+  --nv-line-strong: #c9d1cc;
+  --nv-accent: #1e6b47;
+  --nv-accent-dark: #14492f;
+  --nv-accent-tint: #e3efe7;
+  --nv-sun: #f2c14e;
+
+  min-height: 100vh;
+  background: var(--nv-ground);
+  color: var(--nv-ink);
+  font-family: 'Atkinson Hyperlegible', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+}
+
+.nv *:focus-visible {
+  outline: 3px solid var(--nv-accent);
+  outline-offset: 2px;
+}
+
+.nv a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Cabeçalho */
+.nv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 12px;
+  max-width: 760px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.nv-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.nv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--nv-accent-tint);
+  color: var(--nv-accent-dark);
+}
+
+.nv-pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--nv-accent);
+}
+
+/* Conteúdo */
+.nv-main {
+  flex: 1;
+  width: 100%;
+  max-width: 760px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 4px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.nv-title {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.nv-section-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--nv-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0;
+}
+
+.nv-text {
+  font-size: 16px;
+  color: var(--nv-ink-2);
+  margin: 0;
+}
+
+/* Busca */
+.nv-search {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nv-search-row {
+  display: flex;
+  gap: 8px;
+}
+
+.nv-input {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  box-sizing: border-box;
+  border: 2px solid var(--nv-ink);
+  border-radius: 14px;
+  padding: 0 16px;
+  font-size: 18px;
+  font-family: inherit;
+  background: var(--nv-surface);
+  color: var(--nv-ink);
+}
+
+.nv-input::placeholder {
+  color: #5b6661;
+}
+
+.nv-icon-btn {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  background: var(--nv-accent);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.nv-icon-btn:hover {
+  background: var(--nv-accent-dark);
+}
+
+.nv-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nv-chip {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--nv-line-strong);
+  background: var(--nv-surface);
+  color: var(--nv-ink);
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nv-chip:hover {
+  border-color: var(--nv-accent);
+}
+
+/* Atalhos por necessidade */
+.nv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .nv-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.nv-tile {
+  min-height: 92px;
+  box-sizing: border-box;
+  padding: 14px;
+  border-radius: 16px;
+  border: 2px solid var(--nv-line);
+  background: var(--nv-surface);
+  color: var(--nv-ink);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nv-tile:hover {
+  border-color: var(--nv-accent);
+}
+
+.nv-tile[aria-disabled='true'] {
+  cursor: default;
+  background: transparent;
+  border-style: dashed;
+}
+
+.nv-tile[aria-disabled='true']:hover {
+  border-color: var(--nv-line);
+}
+
+.nv-tile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nv-tile-label {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.nv-tile-hint {
+  font-size: 13px;
+  color: var(--nv-muted);
+}
+
+/* Cartões */
+.nv-card {
+  background: var(--nv-surface);
+  border: 2px solid var(--nv-line);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nv-card-link:hover {
+  border-color: var(--nv-accent);
+}
+
+.nv-back {
+  align-self: flex-start;
+  height: 44px;
+  padding: 0 12px 0 6px;
+  border: none;
+  background: transparent;
+  color: var(--nv-accent);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+/* Rodapé */
+.nv-footer {
+  border-top: 1px solid var(--nv-line);
+  padding: 16px 20px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.nv-footer a {
+  color: var(--nv-accent);
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

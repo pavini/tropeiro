@@ -26,6 +26,10 @@ export default function Footer() {
           {t('Debug Info')}
         </button>
         <ThemeToggle />
+        <span className="text-gray-300">|</span>
+        <a href="/novo" className="text-sm/6 font-semibold text-desert-green hover:underline">
+          {t('Try the new interface')}
+        </a>
       </div>
       <DebugInfoModal open={debugModalOpen} onClose={() => setDebugModalOpen(false)} />
     </footer>
