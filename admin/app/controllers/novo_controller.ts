@@ -1,6 +1,10 @@
 import { SystemService } from '#services/system_service'
 import { LibrarySearchService } from '#services/library_search_service'
 import { LibraryReaderService } from '#services/library_reader_service'
+import { KitService } from '#services/kit_service'
+import logger from '@adonisjs/core/services/logger'
+import vine from '@vinejs/vine'
+import { KITS } from '../../constants/kits.js'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
@@ -9,12 +13,17 @@ import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
  * Interface nova do Tropeiro, servida em /novo enquanto convive com a clássica.
  * Usa os mesmos serviços e dados; só as telas são outras.
  */
+const applyKitValidator = vine.compile(
+  vine.object({ kit: vine.enum(KITS.map((k) => k.id)) })
+)
+
 @inject()
 export default class NovoController {
   constructor(
     private systemService: SystemService,
     private librarySearch: LibrarySearchService,
-    private libraryReader: LibraryReaderService
+    private libraryReader: LibraryReaderService,
+    private kits: KitService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -51,6 +60,25 @@ export default class NovoController {
     // SVG pode carregar script; servido isolado, sem poder executar nada.
     response.header('Content-Security-Policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox")
     return response.stream(result.stream)
+  }
+
+  /** Montagem do servidor por kits. */
+  async montar({ inertia, request }: HttpContext) {
+    return inertia.render('novo/montar', {
+      kits: await this.kits.plans(),
+      result: String(request.input('resultado', '')),
+    })
+  }
+
+  async aplicarKit({ request, response }: HttpContext) {
+    const { kit } = await request.validateUsing(applyKitValidator)
+    try {
+      const { started } = await this.kits.apply(kit)
+      return response.redirect().toPath(`/novo/montar?resultado=${started > 0 ? 'iniciado' : 'nada'}`)
+    } catch (err) {
+      logger.error(`[NovoController] falha ao aplicar o kit ${kit}: ${(err as Error).message}`)
+      return response.redirect().toPath('/novo/montar?resultado=erro')
+    }
   }
 
   /** Parte do caminho depois do prefixo, ainda codificada como veio na URL. */

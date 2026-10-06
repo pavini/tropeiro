@@ -469,3 +469,180 @@
   border: none;
   border-bottom: 1px solid var(--nv-line);
 }
+
+/* Montagem do servidor */
+.nv-card-ok {
+  background: var(--nv-accent-tint);
+  border-color: transparent;
+}
+
+.nv-card-error {
+  background: #fce4e1;
+  border-color: transparent;
+}
+
+.nv-disk {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  color: var(--nv-accent);
+}
+
+.nv-kits {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .nv-kits {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.nv-kit {
+  text-align: left;
+  font-family: inherit;
+  color: var(--nv-ink);
+  background: var(--nv-surface);
+  border: 2px solid var(--nv-line);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.nv-kit:hover {
+  border-color: var(--nv-accent);
+}
+
+.nv-kit-selected {
+  border: 3px solid var(--nv-accent);
+  background: #f1f8f3;
+  padding: 15px;
+}
+
+.nv-kit[aria-disabled='true'] {
+  cursor: default;
+}
+
+.nv-kit[aria-disabled='true']:hover {
+  border-color: var(--nv-line);
+}
+
+.nv-kit-head {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nv-kit-name {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.nv-kit-size {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--nv-accent-dark);
+}
+
+.nv-badge {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-radius: 6px;
+  padding: 3px 8px;
+  background: var(--nv-ground);
+  color: var(--nv-ink-2);
+}
+
+.nv-badge-strong {
+  background: var(--nv-accent);
+  color: #ffffff;
+}
+
+.nv-badge-ok {
+  background: var(--nv-accent-tint);
+  color: var(--nv-accent-dark);
+}
+
+.nv-badge-warn {
+  background: #fff1cc;
+  color: #7a4b00;
+}
+
+.nv-primary {
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  background: var(--nv-accent);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nv-primary:hover {
+  background: var(--nv-accent-dark);
+}
+
+.nv-primary:disabled {
+  background: #8fa79a;
+  cursor: default;
+}
+
+.nv-center {
+  text-align: center;
+}
+
+.nv-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nv-progress-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nv-progress-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.nv-progress-status {
+  flex: none;
+  font-weight: 700;
+  color: var(--nv-ink-2);
+}
+
+.nv-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #e6eae7;
+  overflow: hidden;
+}
+
+.nv-bar-fill {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--nv-accent);
+}
+
+.nv-admin-link {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
