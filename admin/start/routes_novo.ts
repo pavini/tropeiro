@@ -30,6 +30,7 @@ router
     router.get('/apps', [NovoController, 'apps'])
     router.get('/mapa', [NovoController, 'mapa'])
     router.get('/mapa/estilo', [NovoController, 'mapaEstilo'])
+    router.get('/mapa/lugares', [NovoController, 'mapaLugares'])
     router.post('/apps', [NovoController, 'appAcao'])
     router.get('/fichas-sugeridas', [NovoController, 'fichasSugeridas'])
   })

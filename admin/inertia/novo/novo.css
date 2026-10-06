@@ -1159,7 +1159,6 @@ a.nv-app-button:not(.nv-secondary) {
 
 .nv-map-search {
   display: flex;
-  flex: 0 1 380px;
   min-width: 0;
   height: 48px;
   border-radius: 999px;
@@ -1366,4 +1365,67 @@ a.nv-app-button:not(.nv-secondary) {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* Busca de lugares no mapa */
+.nv-map-searchbox {
+  position: relative;
+  flex: 0 1 420px;
+  min-width: 0;
+}
+
+.nv-map-searchbox .nv-map-search {
+  width: 100%;
+}
+
+.nv-map-hits {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--nv-surface);
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(21, 32, 26, 0.22);
+}
+
+.nv-map-hit {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--nv-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.nv-map-hit span {
+  font-size: 14px;
+  color: var(--nv-muted);
+}
+
+.nv-map-hit:hover,
+.nv-map-hit-active {
+  background: var(--nv-accent-tint);
+}
+
+.nv-map-found {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--nv-accent);
+  border: 4px solid #ffffff;
+  box-shadow: 0 0 0 6px rgba(30, 107, 71, 0.3);
 }
