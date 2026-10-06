@@ -6,6 +6,7 @@
 | The routes file is used for defining the HTTP routes.
 |
 */
+import './routes_novo.js'
 import BenchmarkController from '#controllers/benchmark_controller'
 import ChatsController from '#controllers/chats_controller'
 import ConditionsController from '#controllers/conditions_controller'
