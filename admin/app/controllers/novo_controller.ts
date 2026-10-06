@@ -1,4 +1,5 @@
 import { SystemService } from '#services/system_service'
+import { LibrarySearchService } from '#services/library_search_service'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
@@ -9,7 +10,10 @@ import { isDrugReferenceInstalled } from '../utils/drug_reference_installed.js'
  */
 @inject()
 export default class NovoController {
-  constructor(private systemService: SystemService) {}
+  constructor(
+    private systemService: SystemService,
+    private librarySearch: LibrarySearchService
+  ) {}
 
   async inicio({ inertia }: HttpContext) {
     return inertia.render('novo/inicio', await this.sharedProps())
@@ -17,7 +21,8 @@ export default class NovoController {
 
   async busca({ inertia, request }: HttpContext) {
     const q = String(request.input('q', '')).trim().slice(0, 200)
-    return inertia.render('novo/busca', { ...(await this.sharedProps()), q })
+    const [shared, library] = await Promise.all([this.sharedProps(), this.librarySearch.search(q)])
+    return inertia.render('novo/busca', { ...shared, q, library })
   }
 
   private async sharedProps() {
