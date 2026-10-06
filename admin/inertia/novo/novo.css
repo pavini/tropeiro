@@ -335,3 +335,137 @@
 .nv-card-ai .nv-text {
   color: var(--nv-accent-dark);
 }
+
+/* Leitura de artigos */
+.nv-reading {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.nv-article {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--nv-ink);
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+.nv-article p,
+.nv-article ul,
+.nv-article ol,
+.nv-article dl,
+.nv-article blockquote,
+.nv-article figure {
+  margin: 0 0 16px;
+}
+
+.nv-article ul,
+.nv-article ol {
+  padding-left: 24px;
+}
+
+.nv-article ul {
+  list-style: disc;
+}
+
+.nv-article ol {
+  list-style: decimal;
+}
+
+.nv-article li {
+  margin-bottom: 6px;
+}
+
+.nv-article h2,
+.nv-article h3,
+.nv-article h4 {
+  line-height: 1.25;
+  margin: 28px 0 12px;
+  font-weight: 700;
+}
+
+.nv-article h2 {
+  font-size: 23px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--nv-line);
+}
+
+.nv-article h3 {
+  font-size: 20px;
+}
+
+.nv-article h4 {
+  font-size: 18px;
+}
+
+.nv-article a {
+  color: var(--nv-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.nv-article a.nv-ext::after {
+  content: ' ↗';
+  font-size: 0.8em;
+}
+
+.nv-article img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.nv-article figcaption {
+  font-size: 15px;
+  color: var(--nv-muted);
+  margin-top: 6px;
+}
+
+.nv-article sup {
+  font-size: 0.7em;
+  line-height: 0;
+}
+
+.nv-article blockquote {
+  border-left: 4px solid var(--nv-line-strong);
+  padding-left: 14px;
+  color: var(--nv-ink-2);
+}
+
+/* Tabelas rolam dentro do próprio bloco no celular. */
+.nv-article table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+.nv-article th,
+.nv-article td {
+  border: 1px solid var(--nv-line);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.nv-article th {
+  background: var(--nv-ground);
+}
+
+/* A caixa de resumo que abre o artigo vira um cartão. */
+.nv-article > div > section:first-child > table:first-child {
+  background: var(--nv-surface);
+  border: 2px solid var(--nv-line);
+  border-radius: 16px;
+  padding: 4px;
+}
+
+.nv-article > div > section:first-child > table:first-child th,
+.nv-article > div > section:first-child > table:first-child td {
+  border: none;
+  border-bottom: 1px solid var(--nv-line);
+}

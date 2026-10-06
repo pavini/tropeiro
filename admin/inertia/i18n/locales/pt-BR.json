@@ -448,5 +448,9 @@
   "Didn’t find it? Ask the AI": "Não achou? Pergunte à IA",
   "{{count}} results_one": "{{count}} resultado",
   "{{count}} results_many": "{{count}} resultados",
-  "{{count}} results_other": "{{count}} resultados"
+  "{{count}} results_other": "{{count}} resultados",
+  "Results": "Resultados",
+  "Library": "Biblioteca",
+  "Page not found": "Página não encontrada",
+  "This page is not in the library. Try searching for the subject.": "Esta página não está na biblioteca. Tente buscar pelo assunto."
 }

@@ -3,9 +3,9 @@ import logger from '@adonisjs/core/services/logger'
 import axios from 'axios'
 import { XMLParser } from 'fast-xml-parser'
 import { DockerService } from '#services/docker_service'
-import { SERVICE_NAMES } from '../../constants/service_names.js'
 import type { LibraryBookResult, LibrarySearchResult } from '../../types/library_search.js'
 import { decodeEntities, parseSnippet } from '../utils/kiwix_snippet.js'
+import { resolveKiwixInternalUrl } from '../utils/kiwix_url.js'
 
 interface KiwixBook {
   id: string
@@ -16,9 +16,6 @@ interface KiwixBook {
 const HITS_PER_BOOK = 3
 const MAX_BOOKS = 12
 const TIMEOUT_MS = 5000
-
-/** Porta em que o kiwix-serve escuta dentro do container. */
-const KIWIX_CONTAINER_PORT = 8080
 
 const asArray = <T>(v: T | T[] | undefined): T[] => (v === undefined ? [] : Array.isArray(v) ? v : [v])
 
@@ -39,7 +36,7 @@ export class LibrarySearchService {
 
   async search(query: string): Promise<LibrarySearchResult> {
     const q = query.trim()
-    const baseUrl = await this.kiwixUrl()
+    const baseUrl = await resolveKiwixInternalUrl(this.dockerService)
     if (!baseUrl) return { status: 'not_installed', books: [] }
     if (!q) return { status: 'ok', books: [] }
 
@@ -64,21 +61,6 @@ export class LibrarySearchService {
       })
 
     return { status: 'ok', books: found }
-  }
-
-  /**
-   * Endereço do Kiwix visto pelo servidor. Em produção o app roda na mesma rede
-   * Docker e fala com a porta interna do container; em desenvolvimento usa a
-   * porta publicada no host. KIWIX_INTERNAL_URL força um endereço.
-   */
-  private async kiwixUrl(): Promise<string | null> {
-    if (process.env.KIWIX_INTERNAL_URL) return process.env.KIWIX_INTERNAL_URL.replace(/\/$/, '')
-    const published = await this.dockerService.getServiceURL(SERVICE_NAMES.KIWIX)
-    if (!published) return null
-    if (process.env.NODE_ENV === 'production') {
-      return `http://${SERVICE_NAMES.KIWIX}:${KIWIX_CONTAINER_PORT}`
-    }
-    return published.replace(/\/$/, '')
   }
 
   private async listBooks(baseUrl: string): Promise<KiwixBook[]> {

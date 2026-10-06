@@ -2,7 +2,6 @@ import { Head, Link, router } from '@inertiajs/react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import NovoLayout from '~/novo/NovoLayout'
-import { getServiceLink } from '~/lib/navigation'
 import type { ServiceSlim } from '../../../types/services'
 import type { LibraryBookResult, LibrarySearchResult, SnippetPart } from '../../../types/library_search'
 import { SERVICE_NAMES } from '../../../constants/service_names'
@@ -16,8 +15,6 @@ export default function NovoBusca(props: {
   const { t } = useTranslation()
   const [query, setQuery] = useState(props.q)
 
-  const kiwix = props.services.find((s) => s.service_name === SERVICE_NAMES.KIWIX && s.installed)
-  const kiwixBase = kiwix ? getServiceLink(kiwix.ui_location || '', kiwix.custom_url).replace(/\/$/, '') : null
   const ollama = props.services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA && s.installed)
   const { status, books } = props.library
 
@@ -68,7 +65,7 @@ export default function NovoBusca(props: {
             <>
               <h1 className="nv-title">{t('Results for “{{q}}”', { q: props.q })}</h1>
               {books.map((book) => (
-                <BookResults key={book.bookId} book={book} kiwixBase={kiwixBase} />
+                <BookResults key={book.bookId} book={book} q={props.q} />
               ))}
             </>
           )}
@@ -110,7 +107,12 @@ export default function NovoBusca(props: {
   )
 }
 
-function BookResults({ book, kiwixBase }: { book: LibraryBookResult; kiwixBase: string | null }) {
+/** `/content/livro/Artigo` → leitura dentro do Tropeiro, levando a busca junto. */
+function readHref(contentPath: string, q: string): string {
+  return `/novo/ler/${contentPath.replace(/^\/content\//, '')}?q=${encodeURIComponent(q)}`
+}
+
+function BookResults({ book, q }: { book: LibraryBookResult; q: string }) {
   const { t } = useTranslation()
   return (
     <section className="nv-book" aria-labelledby={`livro-${book.bookId}`}>
@@ -129,20 +131,10 @@ function BookResults({ book, kiwixBase }: { book: LibraryBookResult; kiwixBase: 
             )}
           </>
         )
-        return kiwixBase ? (
-          <a
-            key={hit.path}
-            className="nv-card nv-card-link"
-            href={`${kiwixBase}${hit.path}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+        return (
+          <Link key={hit.path} className="nv-card nv-card-link" href={readHref(hit.path, q)}>
             {body}
-          </a>
-        ) : (
-          <div key={hit.path} className="nv-card">
-            {body}
-          </div>
+          </Link>
         )
       })}
     </section>
