@@ -148,7 +148,15 @@ export default function NovoPerguntar(props: { q: string; model: string | null }
                       <span className="nv-section-label">{t('Based on')}</span>
                       <ul>
                         {turn.sources.map((source, j) => (
-                          <li key={j}>{source.title}</li>
+                          <li key={j}>
+                            {source.href ? (
+                              <a href={source.href} target="_blank" rel="noopener" className="nv-answer-source-link">
+                                {source.title}
+                              </a>
+                            ) : (
+                              source.title
+                            )}
+                          </li>
                         ))}
                       </ul>
                     </div>

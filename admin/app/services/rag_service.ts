@@ -48,6 +48,9 @@ import { ZIMExtractionService } from './zim_extraction_service.js'
 import { ZIM_BATCH_SIZE } from '../../constants/zim_extraction.js'
 import { hasMoreArticleBatches } from '../utils/zim_batch_decision.js'
 import { EMBEDDING_MODEL_NAME } from '../../constants/ollama.js'
+import { REFERENCE_DOCS } from '../content/referencias.js'
+import { pagesToEmbed, referenceForPath, referenceLabel } from '../utils/reference_pages.js'
+import type { ReferenceDoc } from '../../types/fichas.js'
 import {
   ProcessAndEmbedFileResponse,
   ProcessZIMFileResponse,
@@ -76,6 +79,7 @@ export class RagService {
   // every embed call — ~45% of per-document Qdrant time on large ingestions (#1129)
   private ensuredCollections = new Set<string>()
   public static UPLOADS_STORAGE_PATH = 'storage/kb_uploads'
+  public static REFERENCES_STORAGE_PATH = 'storage/referencias'
   public static CONTENT_COLLECTION_NAME = 'nomad_knowledge_base'
   public static EMBEDDING_DIMENSION = 768 // Nomic Embed Text v1.5 dimension is 768
   // Upper bound on distinct sources returned by Qdrant's facet API. Real
@@ -853,6 +857,57 @@ export class RagService {
     }
   }
 
+  /** O documento oficial das fichas guardado neste caminho, se for um. */
+  private referenceDocFor(filepath: string): ReferenceDoc | null {
+    const dir = resolve(join(process.cwd(), RagService.REFERENCES_STORAGE_PATH))
+    if (!resolve(filepath).startsWith(dir + sep)) return null
+    return referenceForPath(REFERENCE_DOCS, filepath)
+  }
+
+  /**
+   * Documento oficial das fichas (Ministério da Saúde, SAMU, Fiocruz...): cada
+   * página entra na base com o número dela, para a resposta citar "p. 133" e o
+   * link abrir o PDF já na página.
+   */
+  private async processReferencePdf(
+    filepath: string,
+    fileBuffer: Buffer,
+    doc: ReferenceDoc,
+    onProgress?: (percent: number) => Promise<void>,
+    collection?: string
+  ): Promise<ProcessAndEmbedFileResponse> {
+    if (onProgress) await onProgress(5)
+    const parser = new PDFParse({ data: fileBuffer })
+    const result = await parser.getText()
+    await parser.destroy()
+
+    const pages = pagesToEmbed(result.pages)
+    if (pages.length === 0) {
+      return { success: false, message: 'No text found in the reference document.' }
+    }
+
+    const label = referenceLabel(doc)
+    let chunks = 0
+    for (const [i, page] of pages.entries()) {
+      const embedded = await this.embedAndStoreText(page.text, {
+        source: filepath,
+        archive_title: label,
+        article_title: doc.title,
+        reference_id: doc.id,
+        page: page.page,
+        ...(collection ? { collection } : {}),
+      })
+      if (!embedded) {
+        return { success: false, message: `Failed to embed page ${page.page} of ${doc.id}.` }
+      }
+      chunks += embedded.chunks
+      if (onProgress) await onProgress(5 + ((i + 1) / pages.length) * 95)
+    }
+
+    logger.info(`[RAG] Documento oficial ${doc.id}: ${pages.length} páginas, ${chunks} trechos`)
+    return { success: true, message: 'Reference document embedded page by page.', chunks }
+  }
+
   /**
    * Main pipeline to process and embed an uploaded file into the RAG knowledge base.
    * This includes text extraction, chunking, embedding, and storing in Qdrant.
@@ -885,6 +940,12 @@ export class RagService {
       // ZIM files are handled specially since they have their own embedding workflow
       if (fileType === 'zim') {
         return await this.processZIMFile(filepath, deleteAfterEmbedding, batchOffset, onProgress, collection)
+      }
+
+      // Documento oficial das fichas: página a página, para citar a página.
+      const reference = fileType === 'pdf' ? this.referenceDocFor(filepath) : null
+      if (reference) {
+        return await this.processReferencePdf(filepath, fileBuffer!, reference, onProgress, collection)
       }
 
       // Extract text based on file type
@@ -1063,6 +1124,9 @@ export class RagService {
         // carries no equivalent embedded metadata.
         archive_title: result.payload?.archive_title as string | undefined,
         archive_date: result.payload?.archive_date as string | undefined,
+        // Documento oficial das fichas e a página do trecho.
+        reference_id: result.payload?.reference_id as string | undefined,
+        page: result.payload?.page as number | undefined,
       }))
 
       const rerankedResults = this.rerankResults(resultsWithMetadata, keywords, query)
@@ -1151,6 +1215,8 @@ export class RagService {
           // Citation metadata (#1179)
           archive_title: result.archive_title,
           archive_date: result.archive_date,
+          reference_id: result.reference_id,
+          page: result.page,
         },
       }))
     } catch (error) {
@@ -1263,6 +1329,13 @@ export class RagService {
             )
             finalScore += headingBoost
           }
+        }
+
+        // Documentos oficiais das fichas (Ministério da Saúde, SAMU...) passam
+        // à frente de outros trechos parecidos: numa emergência, são a fonte
+        // mais confiável. Mesmo formato conservador dos reforços acima.
+        if (result.reference_id) {
+          finalScore += 0.1 * result.score
         }
 
         finalScore = Math.min(1.0, finalScore + keywordBoost)
@@ -2136,10 +2209,12 @@ export class RagService {
    * orphaned and purged the first time it's added (see _nomadDocsRoots()
    * for exactly that lesson learned with README.md/docs).
    */
-  private _kbScanRoots(): { kbUploadsPath: string; zimPath: string } {
+  private _kbScanRoots(): { kbUploadsPath: string; zimPath: string; referencesPath: string } {
     return {
       kbUploadsPath: join(process.cwd(), RagService.UPLOADS_STORAGE_PATH),
       zimPath: join(process.cwd(), ZIM_STORAGE_PATH),
+      // Documentos oficiais das fichas (ReferenceDocsService), lidos página a página.
+      referencesPath: join(process.cwd(), RagService.REFERENCES_STORAGE_PATH),
     }
   }
 
@@ -2178,13 +2253,18 @@ export class RagService {
     files: string[]
     scannedRoots: string[]
   }> {
-    const { kbUploadsPath: KB_UPLOADS_PATH, zimPath: ZIM_PATH } = this._kbScanRoots()
+    const {
+      kbUploadsPath: KB_UPLOADS_PATH,
+      zimPath: ZIM_PATH,
+      referencesPath: REFERENCES_PATH,
+    } = this._kbScanRoots()
     const filesInStorage: string[] = []
     const scannedRoots: string[] = []
 
     for (const [label, dirPath] of [
       [RagService.UPLOADS_STORAGE_PATH, KB_UPLOADS_PATH] as const,
       [ZIM_STORAGE_PATH, ZIM_PATH] as const,
+      [RagService.REFERENCES_STORAGE_PATH, REFERENCES_PATH] as const,
     ]) {
       try {
         const contents = await listDirectoryContentsRecursive(dirPath)

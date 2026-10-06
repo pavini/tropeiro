@@ -5,6 +5,8 @@ export interface AskSource {
   title: string
   date?: string
   source?: string
+  /** Documento oficial das fichas: abre o PDF guardado já na página citada. */
+  href?: string
 }
 
 export interface AskMessage {

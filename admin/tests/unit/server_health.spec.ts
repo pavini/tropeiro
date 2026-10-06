@@ -55,3 +55,13 @@ test('app parado é aviso e aparece pelo nome', () => {
   assert.equal(check?.titleParams?.names, 'Biblioteca de Informações')
   assert.equal(check?.action?.href, '/apps')
 })
+
+test('documentos oficiais na IA: lendo é informação, falha é aviso, prontos é ok', () => {
+  const ai = (ready: number, failed = 0) => ({ ...healthy, references: { total: 7, available: 7, ai: { total: 7, ready, failed } } })
+  assert.equal(level(ai(3), 'references-ai'), 'info')
+  assert.equal(healthChecks(ai(3)).find((c) => c.id === 'references-ai')?.titleParams?.ready, 3)
+  assert.equal(level(ai(6, 1), 'references-ai'), 'warn')
+  assert.equal(level(ai(7), 'references-ai'), 'ok')
+  // sem IA instalada, o item não aparece
+  assert.equal(level({ ...healthy, references: { total: 7, available: 7, ai: null } }, 'references-ai'), undefined)
+})

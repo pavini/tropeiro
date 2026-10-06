@@ -7,6 +7,10 @@ export interface ChatSource {
   title: string
   date?: string
   source?: string
+  /** Onde abrir a fonte no Tropeiro (documento oficial já na página citada). */
+  href?: string
+  /** Páginas do documento oficial usadas na resposta. */
+  pages?: number[]
 }
 
 export interface ChatMessage {

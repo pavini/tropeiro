@@ -1429,3 +1429,9 @@ a.nv-app-button:not(.nv-secondary) {
   border: 4px solid #ffffff;
   box-shadow: 0 0 0 6px rgba(30, 107, 71, 0.3);
 }
+
+.nv a.nv-answer-source-link {
+  color: var(--nv-accent);
+  font-weight: 700;
+  text-decoration: underline;
+}

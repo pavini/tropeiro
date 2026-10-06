@@ -673,5 +673,13 @@
   "Search the map": "Buscar no mapa",
   "City, neighbourhood or coordinates": "Cidade, bairro ou coordenadas",
   "Places found": "Lugares encontrados",
-  "No place with that name on this map. You can also type coordinates, e.g. -23.55, -46.63": "Nenhum lugar com esse nome neste mapa. Você também pode digitar coordenadas, ex.: -23.55, -46.63"
+  "No place with that name on this map. You can also type coordinates, e.g. -23.55, -46.63": "Nenhum lugar com esse nome neste mapa. Você também pode digitar coordenadas, ex.: -23.55, -46.63",
+  "The AI could not read {{count}} official documents_one": "A IA não conseguiu ler {{count}} documento oficial",
+  "The AI could not read {{count}} official documents_many": "A IA não conseguiu ler {{count}} documentos oficiais",
+  "The AI could not read {{count}} official documents_other": "A IA não conseguiu ler {{count}} documentos oficiais",
+  "It tries again within an hour. Meanwhile, answers do not use them.": "Ela tenta de novo em até uma hora. Enquanto isso, as respostas não usam esses documentos.",
+  "The AI is reading the official documents: {{ready}} of {{total}}": "A IA está lendo os documentos oficiais: {{ready}} de {{total}}",
+  "Until it finishes, answers may be slower and do not cite every document yet.": "Até terminar, as respostas podem ficar mais lentas e ainda não citam todos os documentos.",
+  "Official documents ready for the AI": "Documentos oficiais prontos para a IA",
+  "Health answers cite the Ministry of Health manuals, with the page.": "As respostas sobre saúde citam os manuais do Ministério da Saúde, com a página."
 }

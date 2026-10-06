@@ -24,7 +24,12 @@ export interface HealthInput {
   downloads: { workerAlive: boolean | null; active: number; failed: number } | null
   /** Espaço livre e total do disco, em bytes; null se não deu para medir. */
   disk: { free: number; total: number } | null
-  references: { total: number; available: number }
+  references: {
+    total: number
+    available: number
+    /** Documentos baixados que a IA já leu; null sem IA instalada. */
+    ai?: { total: number; ready: number; failed: number } | null
+  }
   online: boolean
 }
 
@@ -103,6 +108,35 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
     })
   } else {
     checks.push({ id: 'references', level: 'ok', title: 'Reference documents available offline' })
+  }
+
+  // Documentos oficiais na base de conhecimento da IA
+  const ai = input.references.ai
+  if (ai && ai.total > 0) {
+    if (ai.failed > 0) {
+      checks.push({
+        id: 'references-ai',
+        level: 'warn',
+        title: 'The AI could not read {{count}} official documents',
+        titleParams: { count: ai.failed },
+        detail: 'It tries again within an hour. Meanwhile, answers do not use them.',
+      })
+    } else if (ai.ready < ai.total) {
+      checks.push({
+        id: 'references-ai',
+        level: 'info',
+        title: 'The AI is reading the official documents: {{ready}} of {{total}}',
+        titleParams: { ready: ai.ready, total: ai.total },
+        detail: 'Until it finishes, answers may be slower and do not cite every document yet.',
+      })
+    } else {
+      checks.push({
+        id: 'references-ai',
+        level: 'ok',
+        title: 'Official documents ready for the AI',
+        detail: 'Health answers cite the Ministry of Health manuals, with the page.',
+      })
+    }
   }
 
   // Internet não é problema: o servidor existe para funcionar sem ela.

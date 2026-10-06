@@ -41,6 +41,9 @@ export type RAGResult = {
   source?: string
   archive_title?: string
   archive_date?: string
+  /** Documento oficial das fichas (storage/referencias) e a página do trecho. */
+  reference_id?: string
+  page?: number
 }
 
 export type RerankedRAGResult = Omit<RAGResult, 'keywords'> & {

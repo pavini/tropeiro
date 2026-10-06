@@ -16,6 +16,7 @@
 
 import { parseParameterBillions } from './context_window.js'
 import type { ChatSource } from '../../types/chat.js'
+import { groupReferencePages, referenceHref } from './reference_pages.js'
 
 export type ContextLimits = { maxResults: number; maxTokens: number }
 export type ContextLimitTier = { maxParams: number; maxResults: number; maxTokens: number }
@@ -65,8 +66,10 @@ export function buildContextBlock(docs: BudgetableChunk[]): string {
       const title =
         doc.metadata?.archive_title || doc.metadata?.full_title || doc.metadata?.article_title
       const date = doc.metadata?.archive_date
+      // Documento oficial das fichas: a página, para a resposta poder citá-la.
+      const page = doc.metadata?.page ? `, p. ${doc.metadata.page}` : ''
       const label = title
-        ? `[Context ${idx + 1} — ${title}${date ? ` (${date})` : ''}]`
+        ? `[Context ${idx + 1} — ${title}${date ? ` (${date})` : ''}${page}]`
         : `[Context ${idx + 1}]`
       return `${label}\n${doc.text}`
     })
@@ -90,7 +93,27 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
   const seen = new Set<string>()
   const sources: ChatSource[] = []
 
+  // Documentos oficiais das fichas vêm primeiro, um por documento, com as
+  // páginas usadas e o link que abre o PDF guardado na primeira delas.
+  const references = groupReferencePages(
+    docs
+      .filter((d) => d.metadata?.reference_id && d.metadata?.page)
+      .map((d) => ({
+        id: d.metadata!.reference_id as string,
+        label: (d.metadata!.archive_title as string) || (d.metadata!.reference_id as string),
+        page: Number(d.metadata!.page),
+      }))
+  )
+  for (const ref of references) {
+    sources.push({
+      title: `${ref.label}, p. ${ref.pages.join(', ')}`,
+      href: referenceHref(ref.id, ref.pages[0]),
+      pages: ref.pages,
+    })
+  }
+
   for (const doc of docs) {
+    if (doc.metadata?.reference_id) continue
     const title =
       doc.metadata?.archive_title || doc.metadata?.full_title || doc.metadata?.article_title
     const path = doc.metadata?.source as string | undefined
