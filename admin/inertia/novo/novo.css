@@ -888,3 +888,74 @@ ul.nv-ficha-list {
   font-size: 14px;
   color: var(--nv-muted);
 }
+
+/* Estado do servidor */
+.nv-health-summary.nv-health-ok,
+.nv-health-summary.nv-health-info {
+  background: var(--nv-accent-tint);
+  border-color: transparent;
+}
+
+.nv-health-summary.nv-health-warn {
+  background: #fff1cc;
+  border-color: transparent;
+}
+
+.nv-health-summary.nv-health-error {
+  background: #fce4e1;
+  border-color: transparent;
+}
+
+.nv-health-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nv-health-item {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.nv-health-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.nv-health-ok .nv-health-icon {
+  background: var(--nv-accent);
+}
+
+.nv-health-info .nv-health-icon {
+  background: #2c4650;
+}
+
+.nv-health-warn .nv-health-icon {
+  background: #b07400;
+}
+
+.nv-health-error .nv-health-icon {
+  background: #b42318;
+}
+
+.nv-health-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.nv-health-action {
+  color: var(--nv-accent) !important;
+  font-weight: 700;
+}
