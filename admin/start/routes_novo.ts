@@ -17,5 +17,7 @@ router
     router.get('/busca', [NovoController, 'busca'])
     router.get('/ler/*', [NovoController, 'ler'])
     router.get('/arquivo/*', [NovoController, 'arquivo'])
+    router.get('/montar', [NovoController, 'montar'])
+    router.post('/montar', [NovoController, 'aplicarKit'])
   })
   .prefix('/novo')
