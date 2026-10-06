@@ -75,7 +75,6 @@ test('unknown backend image rejection returns actionable compatibility details o
   }
   const controller = new OllamaController(
     {} as any,
-    {} as any,
     ollamaService as any,
     // dev moved prompt assembly, NOMAD.md injection and retrieval into
     // RagPipelineService after this test was written. The stub returns the
@@ -89,11 +88,8 @@ test('unknown backend image rejection returns actionable compatibility details o
         injected: [],
       }),
     } as any,
-    {
-      hasDocuments: async () => false,
-      searchSimilarDocuments: async () => [],
-    } as any,
-    { record: async () => undefined } as any
+    { record: async () => undefined } as any,
+    {} as any
   )
 
   try {
@@ -164,7 +160,6 @@ test('unknown backend image rejection returns actionable compatibility details w
   }
   const controller = new OllamaController(
     {} as any,
-    {} as any,
     ollamaService as any,
     // dev moved prompt assembly, NOMAD.md injection and retrieval into
     // RagPipelineService after this test was written. The stub returns the
@@ -178,11 +173,8 @@ test('unknown backend image rejection returns actionable compatibility details w
         injected: [],
       }),
     } as any,
-    {
-      hasDocuments: async () => false,
-      searchSimilarDocuments: async () => [],
-    } as any,
-    { record: async () => undefined } as any
+    { record: async () => undefined } as any,
+    {} as any
   )
 
   try {
@@ -248,7 +240,6 @@ test('unknown backend image requests do not mislabel preprocessing failures as i
   }
   const controller = new OllamaController(
     {} as any,
-    {} as any,
     ollamaService as any,
     // Prompt assembly (NOMAD.md included) now lives in RagPipelineService, so
     // that is where this failure originates. The assertion is unchanged and is
@@ -259,11 +250,8 @@ test('unknown backend image requests do not mislabel preprocessing failures as i
         throw new Error('Prompt assembly unavailable')
       },
     } as any,
-    {
-      hasDocuments: async () => false,
-      searchSimilarDocuments: async () => [],
-    } as any,
-    { record: async () => undefined } as any
+    { record: async () => undefined } as any,
+    {} as any
   )
 
   try {
@@ -315,7 +303,6 @@ test('text-only JSON chat preserves long histories through the controller bounda
   }
   const controller = new OllamaController(
     {} as any,
-    {} as any,
     ollamaService as any,
     // dev moved prompt assembly, NOMAD.md injection and retrieval into
     // RagPipelineService after this test was written. The stub returns the
@@ -329,11 +316,8 @@ test('text-only JSON chat preserves long histories through the controller bounda
         injected: [],
       }),
     } as any,
-    {
-      hasDocuments: async () => false,
-      searchSimilarDocuments: async () => [],
-    } as any,
-    { record: async () => undefined } as any
+    { record: async () => undefined } as any,
+    {} as any
   )
 
   const result = await controller.chat({ request, response } as any)

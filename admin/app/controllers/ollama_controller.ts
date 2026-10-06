@@ -1,17 +1,13 @@
 import { ChatService } from '#services/chat_service'
-import { DockerService } from '#services/docker_service'
 import { OllamaService, type NomadChatUsage } from '#services/ollama_service'
 import { TokenCalibrationService } from '#services/token_calibration_service'
 import { RagPipelineService } from '#services/rag_pipeline_service'
-import { RagService } from '#services/rag_service'
-import Service from '#models/service'
+import { RemoteOllamaService } from '#services/remote_ollama_service'
 import KVStore from '#models/kv_store'
 import { modelNameSchema } from '#validators/download'
 import { chatSchema, getAvailableModelsSchema, unloadChatModelsSchema } from '#validators/ollama'
-import { assertNotCloudMetadataUrl } from '#validators/common'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
-import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { DEFAULT_KEEP_ALIVE } from '../../constants/ollama.js'
 import { resolveResponseStyle } from '../utils/response_style.js'
 import { resolveSamplerProfile } from '../utils/sampler.js'
@@ -33,11 +29,10 @@ const unknownVisionCompatibilityMessage = (model: string) =>
 export default class OllamaController {
   constructor(
     private chatService: ChatService,
-    private dockerService: DockerService,
     private ollamaService: OllamaService,
     private ragPipelineService: RagPipelineService,
-    private ragService: RagService,
-    private tokenCalibration: TokenCalibrationService
+    private tokenCalibration: TokenCalibrationService,
+    private remoteOllama: RemoteOllamaService
   ) { }
 
   async availableModels({ request }: HttpContext) {
@@ -392,141 +387,19 @@ export default class OllamaController {
   }
 
   async remoteStatus() {
-    const remoteUrl = await KVStore.getValue('ai.remoteOllamaUrl')
-    if (!remoteUrl) {
-      return { configured: false, connected: false }
-    }
-    try {
-      const testResponse = await fetch(`${remoteUrl.replace(/\/$/, '')}/v1/models`, {
-        signal: AbortSignal.timeout(3000),
-      })
-      return { configured: true, connected: testResponse.ok }
-    } catch {
-      return { configured: true, connected: false }
-    }
+    const { configured, connected } = await this.remoteOllama.status()
+    return { configured, connected }
   }
 
   async configureRemote({ request, response }: HttpContext) {
     const remoteUrl: string | null = request.input('remoteUrl', null)
-
-    const ollamaService = await Service.query().where('service_name', SERVICE_NAMES.OLLAMA).first()
-    if (!ollamaService) {
-      return response.status(404).send({ success: false, message: 'Ollama service record not found.' })
+    const result = await this.remoteOllama.configure(remoteUrl)
+    if (!result.success) {
+      return response
+        .status(result.reason === 'not_found' ? 404 : 400)
+        .send({ success: false, message: result.message })
     }
-
-    // Clear path: null or empty URL removes remote config. If a local nomad_ollama container
-    // still exists (user had previously installed AI Assistant locally), restart it and keep
-    // the service marked installed. Otherwise fall back to uninstalled.
-    if (!remoteUrl || remoteUrl.trim() === '') {
-      await KVStore.clearValue('ai.remoteOllamaUrl')
-      const hasLocalContainer = await this._startLocalOllamaContainerIfExists()
-      ollamaService.installed = hasLocalContainer
-      ollamaService.installation_status = 'idle'
-      await ollamaService.save()
-      return {
-        success: true,
-        message: hasLocalContainer
-          ? 'Remote Ollama cleared. Local Ollama container restored.'
-          : 'Remote Ollama configuration cleared.',
-      }
-    }
-
-    try {
-      assertNotCloudMetadataUrl(remoteUrl)
-    } catch (err) {
-      return response.status(400).send({
-        success: false,
-        message: err instanceof Error ? err.message : 'Invalid URL.',
-      })
-    }
-
-    // Test connectivity via OpenAI-compatible /v1/models endpoint (works with Ollama, LM Studio, llama.cpp, etc.)
-    try {
-      const testResponse = await fetch(`${remoteUrl.replace(/\/$/, '')}/v1/models`, {
-        signal: AbortSignal.timeout(5000),
-      })
-      if (!testResponse.ok) {
-        return response.status(400).send({
-          success: false,
-          message: `Could not connect to ${remoteUrl} (HTTP ${testResponse.status}). Make sure the server is running and accessible. For Ollama, start it with OLLAMA_HOST=0.0.0.0.`,
-        })
-      }
-    } catch (error) {
-      return response.status(400).send({
-        success: false,
-        message: `Could not connect to ${remoteUrl}. Make sure the server is running and reachable. For Ollama, start it with OLLAMA_HOST=0.0.0.0.`,
-      })
-    }
-
-    // Save remote URL and mark service as installed
-    await KVStore.setValue('ai.remoteOllamaUrl', remoteUrl.trim())
-    ollamaService.installed = true
-    ollamaService.installation_status = 'idle'
-    await ollamaService.save()
-
-    // Stop the local nomad_ollama container (if running) so it doesn't compete with the
-    // remote host for GPU / port 11434. Preserves the container and its models volume.
-    await this._stopLocalOllamaContainer()
-
-    // Install Qdrant if not already installed (fire-and-forget)
-    const qdrantService = await Service.query().where('service_name', SERVICE_NAMES.QDRANT).first()
-    if (qdrantService && !qdrantService.installed) {
-      this.dockerService.createContainerPreflight(SERVICE_NAMES.QDRANT).catch((error) => {
-        logger.error('[OllamaController] Failed to start Qdrant preflight:', error)
-      })
-    }
-
-    // Mirror post-install side effects: disable suggestions, trigger docs discovery
-    await KVStore.setValue('chat.suggestionsEnabled', false)
-    this.ragService.discoverNomadDocs().catch((error) => {
-      logger.error('[OllamaController] Failed to discover Nomad docs:', error)
-    })
-
-    return { success: true, message: 'Remote Ollama configured.' }
-  }
-
-  private async _stopLocalOllamaContainer(): Promise<void> {
-    try {
-      const containers = await this.dockerService.docker.listContainers({ all: true })
-      const ollamaContainer = containers.find((c) =>
-        c.Names.includes(`/${SERVICE_NAMES.OLLAMA}`)
-      )
-      if (!ollamaContainer || ollamaContainer.State !== 'running') {
-        return
-      }
-      await this.dockerService.docker.getContainer(ollamaContainer.Id).stop()
-      this.dockerService.invalidateServicesStatusCache()
-      logger.info('[OllamaController] Stopped local nomad_ollama (remote Ollama configured)')
-    } catch (error: any) {
-      logger.error(
-        { err: error },
-        '[OllamaController] Failed to stop local nomad_ollama; remote Ollama is still active'
-      )
-    }
-  }
-
-  private async _startLocalOllamaContainerIfExists(): Promise<boolean> {
-    try {
-      const containers = await this.dockerService.docker.listContainers({ all: true })
-      const ollamaContainer = containers.find((c) =>
-        c.Names.includes(`/${SERVICE_NAMES.OLLAMA}`)
-      )
-      if (!ollamaContainer) {
-        return false
-      }
-      if (ollamaContainer.State !== 'running') {
-        await this.dockerService.docker.getContainer(ollamaContainer.Id).start()
-        this.dockerService.invalidateServicesStatusCache()
-        logger.info('[OllamaController] Started local nomad_ollama (remote Ollama cleared)')
-      }
-      return true
-    } catch (error: any) {
-      logger.error(
-        { err: error },
-        '[OllamaController] Failed to start local nomad_ollama on remote clear'
-      )
-      return false
-    }
+    return { success: true, message: result.message }
   }
 
   async deleteModel({ request }: HttpContext) {

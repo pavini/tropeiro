@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import NovoLayout from '~/novo/NovoLayout'
-import { healthChecks, overallLevel, type HealthCheck, type HealthLevel } from '~/novo/serverHealth'
+import { healthChecks, overallLevel, stoppedServices, type HealthCheck, type HealthLevel } from '~/novo/serverHealth'
 import { useSystemInfo } from '~/hooks/useSystemInfo'
 import { getPrimaryDiskInfo } from '~/hooks/useDiskDisplayData'
 import useInternetStatus from '~/hooks/useInternetStatus'
@@ -12,7 +12,7 @@ import type { DownloadJobWithProgress } from '../../../types/downloads'
 interface Props {
   services: { name: string; label: string; isCustom: boolean; status: string }[]
   library: { installed: boolean; reachable: boolean; books: number }
-  ai: { installed: boolean; model: string | null }
+  ai: { installed: boolean; model: string | null; remote: { url: string; reachable: boolean } | null }
   references: {
     total: number
     available: number
@@ -57,7 +57,7 @@ export default function NovoEstado(props: Props) {
   const checks = healthChecks({
     library: props.library,
     ai: props.ai,
-    stoppedApps: props.services.filter((s) => s.status !== 'running').map((s) => tr(s.label, s.isCustom)),
+    stoppedApps: stoppedServices(props.services, !!props.ai.remote).map((s) => tr(s.label, s.isCustom)),
     downloads: downloads
       ? {
           workerAlive: downloads.workerAlive,

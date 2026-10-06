@@ -54,3 +54,16 @@ test('grupos na ordem da tela, sem grupos vazios', () => {
     ['essentials', 'tools', 'own']
   )
 })
+
+test('IA em outro endereço: não é app parado nem oferece iniciar', () => {
+  const ollama = app({ name: 'nomad_ollama', status: 'exited', remoteAi: true })
+  assert.equal(appState(ollama), 'remote')
+  // sem contêiner local, o status vem desconhecido: continua "em outro endereço"
+  assert.equal(appState({ ...ollama, status: 'unknown' }), 'remote')
+  assert.equal(appState({ ...ollama, remoteAi: false }), 'stopped')
+})
+
+test('card da IA leva para a tela de inteligência artificial', () => {
+  assert.equal(appInfo(app({ name: 'nomad_ollama' })).settingsHref, '/ia')
+  assert.equal(appInfo(app({})).settingsHref, undefined)
+})

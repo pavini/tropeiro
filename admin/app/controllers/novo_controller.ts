@@ -11,6 +11,8 @@ import { KITS } from '../../constants/kits.js'
 import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
+import { RemoteOllamaService } from '#services/remote_ollama_service'
+import { EMBEDDING_MODEL_NAME } from '../../constants/ollama.js'
 import { InstalledContentService } from '#services/installed_content_service'
 import { DockerService } from '#services/docker_service'
 import { MapService } from '#services/map_service'
@@ -37,6 +39,12 @@ const appActionValidator = vine.compile(
     action: vine.enum(['install', 'start', 'stop', 'restart'] as const),
   })
 )
+const aiAddressValidator = vine.compile(
+  vine.object({ url: vine.string().trim().maxLength(500).nullable() })
+)
+const aiModelValidator = vine.compile(
+  vine.object({ model: vine.string().trim().minLength(1).maxLength(255) })
+)
 const removeContentValidator = vine.compile(
   vine.object({ kind: vine.enum(['book', 'map', 'model'] as const), id: vine.string().trim().minLength(1).maxLength(255) })
 )
@@ -52,7 +60,8 @@ export default class NovoController {
     private ollama: OllamaService,
     private installed: InstalledContentService,
     private docker: DockerService,
-    private maps: MapService
+    private maps: MapService,
+    private remoteOllama: RemoteOllamaService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -188,6 +197,10 @@ export default class NovoController {
     if (!(await this.appList()).some((a) => a.name === service)) {
       return response.redirect().toPath('/apps?resultado=erro')
     }
+    // Com a IA em outro endereço, subir o contêiner local brigaria pela porta 11434.
+    if (service === SERVICE_NAMES.OLLAMA && action !== 'stop' && (await this.remoteOllama.url())) {
+      return response.redirect().toPath('/apps?resultado=ia-externa')
+    }
     try {
       const result =
         action === 'install'
@@ -202,7 +215,10 @@ export default class NovoController {
   }
 
   private async appList() {
-    const services = await this.systemService.getServices({ installedOnly: false })
+    const [services, remoteUrl] = await Promise.all([
+      this.systemService.getServices({ installedOnly: false }),
+      this.remoteOllama.url(),
+    ])
     return services
       .filter((s) => !s.is_link_tile)
       .map((s) => ({
@@ -215,6 +231,7 @@ export default class NovoController {
         status: s.status ?? 'unknown',
         uiLocation: s.ui_location || null,
         customUrl: s.custom_url ?? null,
+        remoteAi: s.service_name === SERVICE_NAMES.OLLAMA && !!remoteUrl,
       }))
   }
 
@@ -235,22 +252,91 @@ export default class NovoController {
    * o primeiro instalado. null quando não há IA ou modelo.
    */
   private async chatModel(): Promise<string | null> {
+    return this.pickChatModel((await this.aiModels()).chat)
+  }
+
+  private async pickChatModel(models: string[]): Promise<string | null> {
+    if (models.length === 0) return null
+    const last = await KVStore.getValue('chat.lastModel')
+    return last && models.includes(last) ? last : models[0]
+  }
+
+  /** Modelos da IA em uso: os de conversa e se há o que lê os documentos. */
+  private async aiModels(): Promise<{ chat: string[]; embedding: boolean }> {
     try {
-      const models = await this.ollama.getModels()
-      if (models.length === 0) return null
-      const last = await KVStore.getValue('chat.lastModel')
-      return models.some((m) => m.name === last) ? (last as string) : models[0].name
+      const names = (await this.ollama.getModels(true)).map((m) => m.name)
+      return {
+        chat: names.filter((n) => !n.includes('embed')),
+        embedding: names.some((n) => n === EMBEDDING_MODEL_NAME || n.toLowerCase().includes('nomic-embed-text')),
+      }
     } catch {
-      return null
+      return { chat: [], embedding: false }
     }
+  }
+
+  /** Onde a IA roda, o modelo das respostas e os documentos oficiais. */
+  async ia({ inertia, request }: HttpContext) {
+    // Endereço externo fora do ar: nem pergunta os modelos, que demoraria a falhar.
+    const remote = await this.remoteOllama.status()
+    const noAnswer = { chat: [], embedding: false }
+    const [services, models, references] = await Promise.all([
+      this.systemService.getServices({ installedOnly: false }),
+      remote.configured && !remote.connected ? noAnswer : this.aiModels(),
+      new ReferenceDocsService().aiStatus().catch(() => null),
+    ])
+    const local = services.find((s) => s.service_name === SERVICE_NAMES.OLLAMA)
+    // Com endereço externo o serviço fica marcado como instalado mesmo sem contêiner.
+    const container = !!local?.status && local.status !== 'unknown'
+    return inertia.render('novo/ia', {
+      remote: remote.url ? { url: remote.url, reachable: remote.connected } : null,
+      local: {
+        installed: !!local?.installed && (remote.url ? container : true),
+        running: local?.status === 'running',
+      },
+      models: models.chat,
+      model: await this.pickChatModel(models.chat),
+      embedding: models.embedding,
+      embeddingModel: EMBEDDING_MODEL_NAME,
+      references,
+      result: String(request.input('resultado', '')),
+    })
+  }
+
+  /** Testa um endereço de IA sem gravar nada: responde e quais modelos tem. */
+  async iaTestar({ request }: HttpContext) {
+    const url = String(request.input('url', '')).trim().slice(0, 500)
+    if (!url) return { ok: false, reason: 'invalid_url', models: [] }
+    const probe = await this.remoteOllama.probe(url)
+    return probe.ok
+      ? { ok: true, models: probe.models }
+      : { ok: false, reason: probe.reason, status: probe.status ?? null, models: [] }
+  }
+
+  /** Passa a usar a IA de outro endereço; sem endereço, volta para a deste servidor. */
+  async iaEndereco({ request, response }: HttpContext) {
+    const { url } = await request.validateUsing(aiAddressValidator)
+    const result = await this.remoteOllama.configure(url ?? null)
+    if (result.success) return response.redirect().toPath(`/ia?resultado=${url ? 'endereco' : 'local'}`)
+    logger.error(`[NovoController] falha ao configurar a IA em ${url ?? '(local)'}: ${result.message}`)
+    return response.redirect().toPath(`/ia?resultado=${result.reason === 'not_found' ? 'erro' : 'sem-resposta'}`)
+  }
+
+  /** Modelo que responde às perguntas: o mesmo que a tela Perguntar usa. */
+  async iaModelo({ request, response }: HttpContext) {
+    const { model } = await request.validateUsing(aiModelValidator)
+    const { chat } = await this.aiModels()
+    if (!chat.includes(model)) return response.redirect().toPath('/ia?resultado=erro')
+    await KVStore.setValue('chat.lastModel', model)
+    return response.redirect().toPath('/ia?resultado=modelo')
   }
 
   /** Estado do servidor para quem cuida dele. */
   async estado({ inertia }: HttpContext) {
+    const remote = await this.remoteOllama.status()
     const [services, library, model, docs] = await Promise.all([
       this.systemService.getServices({ installedOnly: true }),
       this.librarySearch.status(),
-      this.chatModel(),
+      remote.configured && !remote.connected ? null : this.chatModel(),
       new ReferenceDocsService().status(),
     ])
     return inertia.render('novo/estado', {
@@ -266,6 +352,7 @@ export default class NovoController {
       ai: {
         installed: services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA),
         model,
+        remote: remote.url ? { url: remote.url, reachable: remote.connected } : null,
       },
       references: {
         total: docs.length,
