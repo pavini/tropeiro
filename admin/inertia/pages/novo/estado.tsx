@@ -1,4 +1,5 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
+import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import NovoLayout from '~/novo/NovoLayout'
@@ -12,7 +13,11 @@ interface Props {
   services: { name: string; label: string; isCustom: boolean; status: string }[]
   library: { installed: boolean; reachable: boolean; books: number }
   ai: { installed: boolean; model: string | null }
-  references: { total: number; available: number }
+  references: {
+    total: number
+    available: number
+    ai: { total: number; ready: number; failed: number } | null
+  }
 }
 
 const ICON: Record<HealthLevel, string> = {
@@ -38,6 +43,15 @@ export default function NovoEstado(props: Props) {
     },
     refetchInterval: 10000,
   })
+
+  // Enquanto a IA lê os documentos oficiais, acompanha o andamento.
+  const ai = props.references.ai
+  const aiReading = !!ai && ai.failed === 0 && ai.ready < ai.total
+  useEffect(() => {
+    if (!aiReading) return
+    const timer = setInterval(() => router.reload({ only: ['references'] }), 15000)
+    return () => clearInterval(timer)
+  }, [aiReading])
 
   const tr = (name: string, isCustom: boolean) => (isCustom ? name : t(name))
   const checks = healthChecks({

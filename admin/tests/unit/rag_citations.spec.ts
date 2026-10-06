@@ -12,7 +12,7 @@
 import * as assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { buildCitations } from '../../app/utils/rag_prompt.js'
+import { buildCitations, buildContextBlock } from '../../app/utils/rag_prompt.js'
 
 const chunk = (metadata: Record<string, any>) => ({ text: 'body', score: 0.5, metadata })
 
@@ -106,4 +106,27 @@ test('buildCitations preserves injection order', () => {
     sources.map((s) => s.title),
     ['Second', 'First']
   )
+})
+
+test('documento oficial das fichas vem primeiro, com as páginas e o link para a primeira', () => {
+  const samu = '/x/storage/referencias/ms-samu.pdf'
+  const sources = buildCitations([
+    chunk({ source: '/x/storage/zim/wikipedia_pt.zim', archive_title: 'Wikipédia' }),
+    chunk({ source: samu, archive_title: 'Protocolos SAMU (Ministério da Saúde, 2016)', reference_id: 'ms-samu', page: 134 }),
+    chunk({ source: samu, archive_title: 'Protocolos SAMU (Ministério da Saúde, 2016)', reference_id: 'ms-samu', page: 133 }),
+  ])
+  assert.deepEqual(sources[0], {
+    title: 'Protocolos SAMU (Ministério da Saúde, 2016), p. 133, 134',
+    href: '/referencias/ms-samu#page=133',
+    pages: [133, 134],
+  })
+  assert.equal(sources[1].title, 'Wikipédia')
+  assert.equal(sources.length, 2)
+})
+
+test('o trecho do documento oficial chega à IA com a página no rótulo', () => {
+  const block = buildContextBlock([
+    { text: 'Resfrie com água corrente.', metadata: { archive_title: 'Cartilha Queimaduras (Ministério da Saúde, 2012)', reference_id: 'q', page: 6 } },
+  ])
+  assert.equal(block, '[Context 1 — Cartilha Queimaduras (Ministério da Saúde, 2012), p. 6]\nResfrie com água corrente.')
 })

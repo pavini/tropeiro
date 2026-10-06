@@ -267,7 +267,11 @@ export default class NovoController {
         installed: services.some((s) => s.service_name === SERVICE_NAMES.OLLAMA),
         model,
       },
-      references: { total: docs.length, available: docs.filter((d) => d.available).length },
+      references: {
+        total: docs.length,
+        available: docs.filter((d) => d.available).length,
+        ai: await new ReferenceDocsService().aiStatus().catch(() => null),
+      },
     })
   }
 
