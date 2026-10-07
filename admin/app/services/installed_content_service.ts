@@ -7,6 +7,7 @@ import { OllamaService } from '#services/ollama_service'
 import { DockerService } from '#services/docker_service'
 import { KiwixLibraryService } from '#services/kiwix_library_service'
 import { getFileStatsIfExists } from '../utils/fs.js'
+import InstalledResource from '#models/installed_resource'
 import { bookTitle, isWikipediaFile, mapTitle } from '../utils/installed_content.js'
 import { SERVICE_NAMES } from '../../constants/service_names.js'
 import type { ContentKind, InstalledItem } from '../../types/installed_content.js'
@@ -26,9 +27,38 @@ export class InstalledContentService {
   ) {}
 
   async list(): Promise<{ books: InstalledItem[]; maps: InstalledItem[]; models: InstalledItem[] }> {
-    const [books, maps, models] = await Promise.all([this.books(), this.maps(), this.models()])
+    const [books, maps, models, updates] = await Promise.all([this.books(), this.maps(), this.models(), this.updates()])
     const bySize = (a: InstalledItem, b: InstalledItem) => (b.sizeBytes ?? 0) - (a.sizeBytes ?? 0)
-    return { books: books.sort(bySize), maps: maps.sort(bySize), models: models.sort(bySize) }
+    const withUpdate = (item: InstalledItem) => ({ ...item, update: updates.get(item.id) ?? null })
+    return {
+      books: books.map(withUpdate).sort(bySize),
+      maps: maps.map(withUpdate).sort(bySize),
+      models: models.sort(bySize),
+    }
+  }
+
+  /**
+   * Versões novas já encontradas no catálogo (a verificação roda sozinha de
+   * hora em hora, ou pelo botão), pelo nome do arquivo instalado.
+   */
+  private async updates(): Promise<Map<string, NonNullable<InstalledItem['update']>>> {
+    try {
+      const rows = await InstalledResource.query().whereNotNull('available_update_version').whereNot('resource_type', 'dataset')
+      return new Map(
+        rows.map((r) => [
+          basename(r.file_path),
+          {
+            resourceId: r.resource_id,
+            installedVersion: r.version,
+            version: r.available_update_version!,
+            sizeBytes: r.available_update_size_bytes,
+          },
+        ])
+      )
+    } catch (err) {
+      logger.warn(`[InstalledContent] versões novas ilegíveis: ${(err as Error).message}`)
+      return new Map()
+    }
   }
 
   async remove(kind: ContentKind, id: string): Promise<void> {

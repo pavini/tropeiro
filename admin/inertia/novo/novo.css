@@ -2118,3 +2118,15 @@ a.nv-app-button:not(.nv-secondary) {
   padding-top: 8px;
   border-top: 1px solid var(--nv-line);
 }
+
+/* Versões novas do conteúdo */
+.nv-updates .nv-content-actions {
+  align-items: center;
+}
+
+.nv-content-update {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}

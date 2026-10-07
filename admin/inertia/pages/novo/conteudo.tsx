@@ -11,6 +11,8 @@ interface Props {
   maps: InstalledItem[]
   models: InstalledItem[]
   result: string
+  count: number
+  wikipediaFile: string | null
 }
 
 /** O que acontece quando o item some, por tipo. */
@@ -27,6 +29,13 @@ export default function NovoConteudo(props: Props) {
   const disk = getPrimaryDiskInfo(systemInfo?.disk, systemInfo?.fsSize)
   const [confirming, setConfirming] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [updating, setUpdating] = useState<string | null>(null)
+  const withUpdate = [...props.books, ...props.maps].filter((item) => item.update)
+
+  const post = (path: string, data: Record<string, string>, key: string) => {
+    setUpdating(key)
+    router.post(path, data, { onFinish: () => setUpdating(null) })
+  }
 
   const size = (bytes: number | null) => {
     if (bytes === null) return null
@@ -82,6 +91,31 @@ export default function NovoConteudo(props: Props) {
           <span className="nv-text">{t('The space is free again.')}</span>
         </div>
       )}
+      {props.result === 'versoes' && (
+        <div className="nv-card nv-card-ok" role="status">
+          <span className="nv-tile-label">
+            {props.count > 0 ? t('{{count}} items have a new version', { count: props.count }) : t('Everything is up to date')}
+          </span>
+        </div>
+      )}
+      {props.result === 'atualizando' && props.count === 0 && (
+        <div className="nv-card nv-card-ok" role="status">
+          <span className="nv-tile-label">{t('Nothing to update')}</span>
+          <span className="nv-text">{t('The catalog no longer has a newer version, or it is already downloading.')}</span>
+        </div>
+      )}
+      {props.result === 'atualizando' && props.count > 0 && (
+        <Link href="/montar#downloads" className="nv-card nv-card-ok nv-card-link" role="status">
+          <span className="nv-tile-label">{t('Downloading {{count}} new versions', { count: props.count })}</span>
+          <span className="nv-text">{t('The old version stays until the new one finishes downloading. See the progress in Downloads.')}</span>
+        </Link>
+      )}
+      {props.result === 'sem-catalogo' && (
+        <div className="nv-card nv-card-error" role="alert">
+          <span className="nv-tile-label">{t('Could not check the catalog')}</span>
+          <span className="nv-text">{t('Checking for new versions needs internet. Everything already downloaded keeps working.')}</span>
+        </div>
+      )}
       {props.result === 'erro' && (
         <div className="nv-card nv-card-error" role="alert">
           <span className="nv-tile-label">{t('Could not delete')}</span>
@@ -104,6 +138,27 @@ export default function NovoConteudo(props: Props) {
         </span>
       </div>
 
+      <section className="nv-card nv-updates" aria-labelledby="nv-versoes">
+        <h2 id="nv-versoes" className="nv-tile-label">
+          {withUpdate.length > 0 ? t('{{count}} items have a new version', { count: withUpdate.length }) : t('New versions')}
+        </h2>
+        <span className="nv-text">
+          {withUpdate.length > 0
+            ? t('Updating downloads the new version; the old one is replaced only when it finishes.')
+            : t('The server checks the catalog by itself when there is internet.')}
+        </span>
+        <span className="nv-content-actions">
+          {withUpdate.length > 0 && (
+            <button type="button" className="nv-primary nv-app-button" disabled={updating !== null} onClick={() => post('/conteudo/atualizar', {}, 'all')}>
+              {updating === 'all' ? t('Starting…') : t('Update all')}
+            </button>
+          )}
+          <button type="button" className="nv-link-button nv-text-button" disabled={updating !== null} onClick={() => post('/conteudo/versoes', {}, 'check')}>
+            {updating === 'check' ? t('Checking…') : t('Check for new versions now')}
+          </button>
+        </span>
+      </section>
+
       {groups.map((group) => (
         <section key={group.label} className="nv-content-group">
           <h2 className="nv-section-label">{group.label}</h2>
@@ -121,6 +176,30 @@ export default function NovoConteudo(props: Props) {
                       {itemSize && <span className="nv-content-size">{itemSize}</span>}
                     </span>
                     {item.description && <span className="nv-text">{item.description}</span>}
+                    {item.update && (
+                      <span className="nv-content-update">
+                        <span className="nv-badge nv-badge-warn">
+                          {t('New version: {{version}}', { version: item.update.version })}
+                        </span>
+                        <button
+                          type="button"
+                          className="nv-link-button nv-text-button"
+                          disabled={updating !== null}
+                          onClick={() => post('/conteudo/atualizar', { resourceId: item.update!.resourceId }, item.id)}
+                        >
+                          {updating === item.id
+                            ? t('Starting…')
+                            : item.update.sizeBytes
+                              ? t('Update ({{size}})', { size: size(item.update.sizeBytes) })
+                              : t('Update')}
+                        </button>
+                      </span>
+                    )}
+                    {item.id === props.wikipediaFile && (
+                      <Link href="/conteudo/wikipedia" className="nv-link-button nv-text-button">
+                        {t('Change the Wikipedia edition')}
+                      </Link>
+                    )}
 
                     {confirming === key ? (
                       <div className="nv-content-confirm" role="alert">
@@ -154,6 +233,10 @@ export default function NovoConteudo(props: Props) {
       <Link href="/montar" className="nv-card nv-card-link">
         <span className="nv-tile-label">{t('Add content')}</span>
         <span className="nv-text">{t('Choose a kit to download more.')}</span>
+      </Link>
+      <Link href="/conteudo/wikipedia" className="nv-card nv-card-link">
+        <span className="nv-tile-label">{t('Wikipedia')}</span>
+        <span className="nv-text">{t('Choose which edition this server keeps, from a quick reference to the full one with images.')}</span>
       </Link>
     </NovoLayout>
   )
