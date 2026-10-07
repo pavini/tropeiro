@@ -1770,3 +1770,154 @@ a.nv-app-button:not(.nv-secondary) {
     opacity: 1;
   }
 }
+
+/* Conversas com a IA */
+.nv-chat-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.nv-sessions summary {
+  cursor: pointer;
+}
+
+.nv-sessions-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nv-session {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+
+.nv-session-current {
+  background: var(--nv-accent-tint);
+}
+
+.nv-session-link {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nv-session-title {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nv-session-date {
+  font-size: 14px;
+  color: var(--nv-muted);
+}
+
+.nv-danger-text {
+  color: #8a1c12;
+  font-weight: 700;
+}
+
+.nv-thinking {
+  border-left: 3px solid var(--nv-line-strong);
+  padding-left: 12px;
+}
+
+.nv-thinking summary {
+  cursor: pointer;
+  color: var(--nv-muted);
+  font-size: 15px;
+}
+
+.nv-thinking-text {
+  margin-top: 8px;
+  white-space: pre-wrap;
+  color: var(--nv-muted);
+  font-size: 15px;
+}
+
+.nv-answer-cut {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--nv-line);
+}
+
+.nv-ask-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.nv-ask-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.nv-ask-option input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--nv-accent);
+}
+
+.nv-select {
+  height: 40px;
+  max-width: 100%;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--nv-line-strong);
+  background: var(--nv-surface);
+  color: var(--nv-ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.nv-attached {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nv-attached-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.nv-question-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.nv-question-images img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+@media (max-width: 520px) {
+  .nv-chat-head {
+    flex-direction: column;
+  }
+}
