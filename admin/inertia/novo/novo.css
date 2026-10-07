@@ -2093,3 +2093,28 @@ a.nv-app-button:not(.nv-secondary) {
     bottom: calc(112px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* Downloads */
+.nv-progress-failed .nv-progress-status {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.nv-progress-reason summary {
+  cursor: pointer;
+  color: var(--nv-muted);
+  font-size: 14px;
+}
+
+.nv-progress-reason code {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--nv-muted);
+  overflow-wrap: anywhere;
+}
+
+.nv-downloads-all {
+  padding-top: 8px;
+  border-top: 1px solid var(--nv-line);
+}

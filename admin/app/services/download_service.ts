@@ -151,7 +151,8 @@ export class DownloadService {
     })
   }
 
-  async removeFailedJob(jobId: string): Promise<void> {
+  /** Descarta um download; devolve false se ele continuar na fila (por exemplo, ainda travado pelo worker). */
+  async removeFailedJob(jobId: string): Promise<boolean> {
     for (const queueName of [
       RunDownloadJob.queue,
       RunExtractPmtilesJob.queue,
@@ -173,9 +174,10 @@ export class DownloadService {
             // Last resort: already removed or truly stuck
           }
         }
-        return
+        return !(await queue.getJob(jobId))
       }
     }
+    return true
   }
 
   async retryFailedJob(jobId: string): Promise<{ success: boolean; message: string }> {
