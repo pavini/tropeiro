@@ -12,15 +12,18 @@ import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
 import { ChatService } from '#services/chat_service'
+import { ZimService } from '#services/zim_service'
 import { RemoteOllamaService } from '#services/remote_ollama_service'
 import { EMBEDDING_MODEL_NAME } from '../../constants/ollama.js'
 import { InstalledContentService } from '#services/installed_content_service'
+import { CollectionUpdateService } from '#services/collection_update_service'
 import { DockerService } from '#services/docker_service'
 import { MapService } from '#services/map_service'
 import { mapTitle } from '../utils/installed_content.js'
 import { localizeLabels } from '../utils/map_labels.js'
 import { PlaceSearchService } from '#services/place_search_service'
 import KVStore from '#models/kv_store'
+import WikipediaSelection from '#models/wikipedia_selection'
 import { FICHAS } from '../content/fichas.js'
 import { searchFichas } from '../utils/fichas_search.js'
 import { CONTENT, CONTENT_ITEMS, CONTENT_THEMES } from '../content/index.js'
@@ -48,6 +51,10 @@ const aiAddressValidator = vine.compile(
 const aiModelValidator = vine.compile(
   vine.object({ model: vine.string().trim().minLength(1).maxLength(255) })
 )
+const updateContentValidator = vine.compile(
+  vine.object({ resourceId: vine.string().trim().maxLength(255).optional() })
+)
+const wikipediaOptionValidator = vine.compile(vine.object({ option: vine.string().trim().minLength(1).maxLength(100) }))
 const removeContentValidator = vine.compile(
   vine.object({ kind: vine.enum(['book', 'map', 'model'] as const), id: vine.string().trim().minLength(1).maxLength(255) })
 )
@@ -65,7 +72,8 @@ export default class NovoController {
     private docker: DockerService,
     private maps: MapService,
     private remoteOllama: RemoteOllamaService,
-    private chats: ChatService
+    private chats: ChatService,
+    private zim: ZimService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -143,7 +151,52 @@ export default class NovoController {
     return inertia.render('novo/conteudo', {
       ...(await this.installed.list()),
       result: String(request.input('resultado', '')),
+      count: Number(request.input('n', 0)) || 0,
+      // A edição da Wikipedia escolhida (as outras Wikipedias, como a de medicina, são livros comuns).
+      wikipediaFile: (await WikipediaSelection.query().first().catch(() => null))?.filename ?? null,
     })
+  }
+
+  /** Procura agora versões novas dos livros e mapas instalados (precisa de internet). */
+  async procurarVersoes({ response }: HttpContext) {
+    const result = await new CollectionUpdateService().checkForUpdates().catch((err) => ({ updates: [], error: (err as Error).message }))
+    if ('error' in result && result.error) return response.redirect().toPath('/conteudo?resultado=sem-catalogo')
+    return response.redirect().toPath(`/conteudo?resultado=versoes&n=${result.updates.length}`)
+  }
+
+  /** Baixa a versão nova de um item (resourceId) ou de todos; o download aparece em /montar. */
+  async atualizarVersoes({ request, response }: HttpContext) {
+    const { resourceId } = await request.validateUsing(updateContentValidator)
+    const service = new CollectionUpdateService()
+    const check = await service.checkForUpdates().catch(() => null)
+    if (!check || check.error) return response.redirect().toPath('/conteudo?resultado=sem-catalogo')
+    const chosen = check.updates.filter((u) => !resourceId || u.resource_id === resourceId)
+    let started = 0
+    for (const update of chosen) {
+      const result = await service.applyUpdate(update).catch(() => ({ success: false }))
+      if (result.success) started++
+    }
+    return response.redirect().toPath(`/conteudo?resultado=atualizando&n=${started}`)
+  }
+
+  /** Escolher a edição da Wikipedia (ou nenhuma). A lista vem do catálogo, com internet. */
+  async wikipedia({ inertia, request }: HttpContext) {
+    const state = await this.zim
+      .getWikipediaState()
+      .catch(() => null)
+    return inertia.render('novo/wikipedia', { state, result: String(request.input('resultado', '')) })
+  }
+
+  async escolherWikipedia({ request, response }: HttpContext) {
+    const { option } = await request.validateUsing(wikipediaOptionValidator)
+    try {
+      const result = await this.zim.selectWikipedia(option)
+      if (!result.success) return response.redirect().toPath('/conteudo/wikipedia?resultado=ocupado')
+      return response.redirect().toPath(option === 'none' ? '/conteudo/wikipedia?resultado=removida' : '/montar#downloads')
+    } catch (err) {
+      logger.error(`[NovoController] falha ao trocar a Wikipedia: ${(err as Error).message}`)
+      return response.redirect().toPath('/conteudo/wikipedia?resultado=erro')
+    }
   }
 
   async apagarConteudo({ request, response }: HttpContext) {
