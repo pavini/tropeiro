@@ -95,11 +95,11 @@ export function healthChecks(input: HealthInput): HealthCheck[] {
   if (dl) {
     const pending = dl.active > 0
     if (pending && dl.workerAlive === false) {
-      checks.push({ id: 'downloads', level: 'error', title: 'Downloads are stopped', detail: 'The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.', action: { href: '/montar', label: 'See downloads' } })
+      checks.push({ id: 'downloads', level: 'error', title: 'Downloads are stopped', detail: 'The process that downloads the files is not responding. It usually comes back on its own within a few minutes; if it does not, restart the server.', action: { href: '/montar#downloads', label: 'See downloads' } })
     } else if (dl.failed > 0) {
-      checks.push({ id: 'downloads', level: 'warn', title: '{{count}} downloads failed', titleParams: { count: dl.failed }, detail: 'They can be tried again in the classic content manager.', action: { href: '/montar', label: 'See downloads' } })
+      checks.push({ id: 'downloads', level: 'warn', title: '{{count}} downloads failed', titleParams: { count: dl.failed }, detail: 'Try them again or discard them in the downloads list.', action: { href: '/montar#downloads', label: 'See downloads' } })
     } else if (pending) {
-      checks.push({ id: 'downloads', level: 'info', title: 'Downloading {{count}} items', titleParams: { count: dl.active }, action: { href: '/montar', label: 'See downloads' } })
+      checks.push({ id: 'downloads', level: 'info', title: 'Downloading {{count}} items', titleParams: { count: dl.active }, action: { href: '/montar#downloads', label: 'See downloads' } })
     } else {
       checks.push({ id: 'downloads', level: 'ok', title: 'No downloads pending' })
     }

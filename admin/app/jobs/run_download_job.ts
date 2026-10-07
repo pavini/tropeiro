@@ -2,6 +2,7 @@ import { Job, UnrecoverableError } from 'bullmq'
 import { RunDownloadJobParams, DownloadProgressData } from '../../types/downloads.js'
 import { QueueService } from '#services/queue_service'
 import { doResumableDownload, GatedContentAuthError } from '../utils/downloads.js'
+import { permanentDownloadError } from '../utils/download_errors.js'
 import { createHash } from 'crypto'
 import { DockerService } from '#services/docker_service'
 import { ZimService } from '#services/zim_service'
@@ -323,6 +324,8 @@ export class RunDownloadJob {
       if (error instanceof GatedContentAuthError) {
         throw new UnrecoverableError(error.message)
       }
+      const permanent = permanentDownloadError(error)
+      if (permanent) throw new UnrecoverableError(permanent)
       throw error
     } finally {
       if (cancelPollInterval !== null) {

@@ -9,19 +9,14 @@ import useInternetStatus from '~/hooks/useInternetStatus'
 import type { KitPlan } from '../../../types/kits'
 import type { KitId } from '../../../constants/kits'
 import type { DownloadJobWithProgress } from '../../../types/downloads'
+import Downloads from '~/novo/Downloads'
 
 /** Folga exigida no disco além do tamanho do kit. */
 const DISK_MARGIN = 1.15
-/** Download ativo sem avançar há mais que isso aparece como parado. */
-const STALLED_MS = 5 * 60_000
-
 interface DownloadStatus {
   workerAlive: boolean | null
   jobs: DownloadJobWithProgress[]
 }
-
-const isStalled = (job: DownloadJobWithProgress, now: number) =>
-  job.status === 'active' && !!job.lastProgressTime && now - job.lastProgressTime > STALLED_MS
 
 /** Montagem do servidor por kits de conteúdo. */
 export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
@@ -50,9 +45,10 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
       return res.json()
     },
     refetchInterval: (query) => ((query.state.data?.jobs.length ?? 0) > 0 ? 3000 : 15000),
+    // Quem acompanha com a janela ao lado também vê o andamento.
+    refetchIntervalInBackground: true,
   })
   const jobs = downloads?.jobs
-  const now = Date.now()
   const workerDown = downloads?.workerAlive === false && (jobs?.length ?? 0) > 0
 
   const apply = () => {
@@ -169,30 +165,7 @@ export default function NovoMontar(props: { kits: KitPlan[]; result: string }) {
         </div>
       )}
 
-      {jobs && jobs.length > 0 && (
-        <section className="nv-card" aria-live="polite">
-          <h2 className="nv-section-label">{t('Downloads in progress')}</h2>
-          {jobs.map((job) => (
-            <div key={job.jobId} className="nv-progress">
-              <div className="nv-progress-head">
-                <span className="nv-progress-name">{job.title || job.filepath.split('/').pop()}</span>
-                <span className="nv-progress-status">
-                  {job.status === 'failed'
-                    ? t('Failed')
-                    : isStalled(job, now)
-                      ? t('No progress')
-                      : job.status === 'waiting' || job.status === 'delayed'
-                      ? t('In line')
-                      : `${Math.round(job.progress)}%`}
-                </span>
-              </div>
-              <div className="nv-bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(job.progress)}>
-                <div className="nv-bar-fill" style={{ width: `${Math.min(100, Math.max(0, job.progress))}%` }} />
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
+      {jobs && jobs.length > 0 && <Downloads jobs={jobs} queryKey={['novo-montar-downloads']} />}
     </NovoLayout>
   )
 }
