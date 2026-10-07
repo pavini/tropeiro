@@ -1028,6 +1028,11 @@ ul.nv-ficha-list {
   cursor: pointer;
 }
 
+/* Ação de texto que não apaga nada: na cor de destaque, não em vermelho. */
+.nv-link-button.nv-text-button {
+  color: var(--nv-accent-dark);
+}
+
 .nv-content-confirm {
   display: flex;
   flex-direction: column;
@@ -1919,5 +1924,170 @@ a.nv-app-button:not(.nv-secondary) {
 @media (max-width: 520px) {
   .nv-chat-head {
     flex-direction: column;
+
+/* Mapa: formulário do lugar, coordenadas e escala, lista */
+.nv-place-form {
+  min-width: 240px;
+}
+
+.nv-place-colors {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.nv-place-colors legend {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.nv-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  box-shadow: 0 0 0 1px var(--nv-line-strong);
+  cursor: pointer;
+}
+
+.nv-swatch-on {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px var(--nv-ink);
+}
+
+.nv-place-icon-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+}
+
+.nv-place-icons {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.nv-icon-choice {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--nv-line);
+  background: var(--nv-surface);
+  color: var(--nv-ink);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.nv-icon-choice:first-child {
+  grid-column: span 6;
+}
+
+.nv-icon-choice-on {
+  border-color: var(--nv-accent);
+  background: var(--nv-accent-tint);
+  color: var(--nv-accent-dark);
+}
+
+.nv-map-popup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+}
+
+.nv-map-link {
+  font-size: 13px;
+  height: 36px;
+}
+
+.nv-map-toast-action {
+  font-size: 15px !important;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.nv-map-status {
+  position: absolute;
+  right: 10px;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.nv-map-coords {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(21, 32, 26, 0.75);
+  color: #ffffff;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nv-map-scale {
+  pointer-events: auto;
+  display: inline-flex;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--nv-line-strong);
+}
+
+.nv-map-scale button {
+  border: none;
+  padding: 3px 8px;
+  background: var(--nv-surface);
+  color: var(--nv-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nv-map-scale .nv-map-scale-on {
+  background: var(--nv-accent);
+  color: #ffffff;
+}
+
+.nv-map-list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.nv-map-list-tools .nv-input {
+  flex: 1 1 160px;
+  height: 40px;
+}
+
+.nv-map-place-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nv-map-place-row .nv-map-place {
+  flex: 1;
+  min-width: 0;
+}
+
+.nv-map-place-hidden {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+@media (max-width: 520px) {
+  .nv-map-status {
+    bottom: calc(112px + env(safe-area-inset-bottom, 0px));
   }
 }
