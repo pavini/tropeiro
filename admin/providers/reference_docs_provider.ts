@@ -22,6 +22,9 @@ export default class ReferenceDocsProvider {
         await service.ensureAll()
         // Depois de baixados, vão para a base da IA (se ela estiver instalada).
         await service.queueForAi()
+        // Índice das monografias do Formulário Terapêutico Nacional, para Remédios e a IA.
+        const { FtnService } = await import('#services/ftn_service')
+        await new FtnService().monografias()
         // O conteúdo do Tropeiro (guias e referências) também.
         const { ContentKbService } = await import('#services/content_kb_service')
         await new ContentKbService().sync()

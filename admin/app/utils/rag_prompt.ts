@@ -130,8 +130,16 @@ export function buildCitations(docs: BudgetableChunk[]): ChatSource[] {
     })
   }
 
+  // Bulas da FDA usadas na resposta abrem na tela de Remédios.
   for (const doc of docs) {
-    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug || doc.metadata?.content_id) continue
+    const id = doc.metadata?.drug_label_id as number | undefined
+    if (!id || seen.has(`/remedios/${id}`)) continue
+    seen.add(`/remedios/${id}`)
+    sources.push({ title: doc.metadata!.archive_title as string, href: `/remedios/${id}` })
+  }
+
+  for (const doc of docs) {
+    if (doc.metadata?.reference_id || doc.metadata?.ficha_slug || doc.metadata?.content_id || doc.metadata?.drug_label_id) continue
     const title =
       doc.metadata?.archive_title || doc.metadata?.full_title || doc.metadata?.article_title
     const path = doc.metadata?.source as string | undefined

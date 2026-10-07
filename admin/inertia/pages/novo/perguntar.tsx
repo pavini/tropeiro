@@ -133,11 +133,11 @@ export default function NovoPerguntar(props: { q: string; model: string | null }
 
                 <div className="nv-card nv-answer">
                   {turn.answer ? (
-                    <div className="nv-article nv-answer-text">
+                    <div className={`nv-article nv-answer-text${turn.done ? '' : ' nv-answer-writing'}`}>
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{turn.answer}</ReactMarkdown>
                     </div>
                   ) : !turn.done ? (
-                    <span className="nv-text">{t('Thinking…')}</span>
+                    <Waiting />
                   ) : null}
                   {turn.error && <span className="nv-answer-error">{turn.error}</span>}
                   {turn.done && !turn.error && !turn.answer && (
@@ -208,5 +208,36 @@ export default function NovoPerguntar(props: { q: string; model: string | null }
         </>
       )}
     </NovoLayout>
+  )
+}
+
+/**
+ * Espera até a primeira palavra da resposta: pontos que pulsam, o que está
+ * acontecendo e há quanto tempo. Num computador sem placa de vídeo a IA pode
+ * levar minutos, e uma tela parada parece travada.
+ */
+function Waiting() {
+  const { t } = useTranslation()
+  const [seconds, setSeconds] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => setSeconds((s) => s + 1), 1000)
+    return () => clearInterval(timer)
+  }, [])
+  const message =
+    seconds < 6
+      ? t('Looking in the sources on this server…')
+      : seconds < 30
+        ? t('Preparing the answer…')
+        : t('Still working. Without a graphics card, the AI can take a few minutes.')
+  return (
+    <div className="nv-waiting" role="status">
+      <span className="nv-waiting-dots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </span>
+      <span className="nv-text">{message}</span>
+      {seconds >= 3 && <span className="nv-waiting-time">{t('{{seconds}} s', { seconds })}</span>}
+    </div>
   )
 }

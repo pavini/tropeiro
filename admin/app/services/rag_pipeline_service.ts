@@ -15,7 +15,13 @@ import {
   SYSTEM_PROMPTS,
 } from '../../constants/ollama.js'
 import type { OllamaChatMessage } from '../../types/ollama.js'
-import { AI_LANGUAGE_PROMPT, EMERGENCY_PROMPT } from '../../constants/tropeiro.js'
+import {
+  AI_LANGUAGE_PROMPT,
+  EMERGENCY_PROMPT,
+  MEDICINE_IN_EMERGENCY_PROMPT,
+  MEDICINE_PROMPT,
+} from '../../constants/tropeiro.js'
+import { MedicineContextService } from '#services/medicine_context_service'
 import { FICHAS } from '../content/fichas.js'
 import { REFERENCE_DOCS } from '../content/referencias.js'
 import { searchFichas } from '../utils/fichas_search.js'
@@ -202,20 +208,42 @@ export class RagPipelineService {
       const [ficha] = searchFichas(FICHAS, String(query.content ?? ''), 1, 3)
       // O trecho mais relevante da busca, antes de a ficha entrar na frente.
       const topChunk = relevantDocs[0]
-      if (ficha) {
-        relevantDocs = [
-          {
-            text: fichaContextText(ficha, REFERENCE_DOCS),
-            score: 1,
-            metadata: { archive_title: fichaContextTitle(ficha), ficha_slug: ficha.slug },
-          } as RetrievedChunk,
-          ...relevantDocs,
-        ]
-      }
+      // Remédio citado (também numa pergunta seguinte, pela reescrita): a
+      // monografia do Formulário Terapêutico Nacional e a bula da FDA, achadas
+      // pelo nome.
+      const medicine = await new MedicineContextService()
+        .chunksFor(`${query.content ?? ''} ${trace.rewrittenQuery ?? ''}`)
+        .catch((err) => {
+          logger.warn(`[RagPipeline] remédios: ${(err as Error).message}`)
+          return [] as RetrievedChunk[]
+        })
+      const fichaChunk: RetrievedChunk[] = ficha
+        ? [
+            {
+              text: fichaContextText(ficha, REFERENCE_DOCS),
+              score: 1,
+              metadata: { archive_title: fichaContextTitle(ficha), ficha_slug: ficha.slug },
+            } as RetrievedChunk,
+          ]
+        : []
+      // As páginas do FTN que entram inteiras não se repetem como trecho da busca.
+      const pages = new Set(medicine.map((c) => `${c.metadata?.reference_id}#${c.metadata?.page}`))
+      relevantDocs = [
+        ...fichaChunk,
+        ...medicine,
+        ...relevantDocs.filter((d) => !pages.has(`${d.metadata?.reference_id}#${d.metadata?.page}`)),
+      ]
       // Um trecho de saúde perdido no meio (o protocolo do SAMU também fala de
       // rádio) não basta: vale o mais relevante.
       const healthTop = REFERENCE_DOCS.find((r) => r.id === topChunk?.metadata?.reference_id)?.theme === 'saude'
-      if (ficha || healthTop) {
+      // Com ficha, ela manda e o remédio entra só pela dose; sem ficha, a
+      // resposta é organizada em torno do remédio.
+      if (ficha) {
+        systemBlocks.push({ role: 'system', content: EMERGENCY_PROMPT })
+        if (medicine.length) systemBlocks.push({ role: 'system', content: MEDICINE_IN_EMERGENCY_PROMPT })
+      } else if (medicine.length) {
+        systemBlocks.push({ role: 'system', content: MEDICINE_PROMPT })
+      } else if (healthTop) {
         systemBlocks.push({ role: 'system', content: EMERGENCY_PROMPT })
       }
     }

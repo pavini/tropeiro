@@ -121,3 +121,26 @@ export const FORA_DOS_EUA: Record<string, { motivo: string; parecido?: string }>
   'butilescopolamina': { motivo: 'Hyoscine butylbromide is not sold in the United States, so it has no FDA label.' },
   'buscopan': { motivo: 'Hyoscine butylbromide is not sold in the United States, so it has no FDA label.' },
 }
+
+/**
+ * Como as pessoas chamam alguns remédios → nome da monografia no Formulário
+ * Terapêutico Nacional (sem acento). Inclui marcas muito conhecidas.
+ */
+export const APELIDOS_NO_FTN: Record<string, string> = {
+  'aas': 'acido acetilsalicilico',
+  'aspirina': 'acido acetilsalicilico',
+  'soro caseiro': 'sais para reidratacao oral',
+  'soro de reidratacao': 'sais para reidratacao oral',
+  'soro de reidratacao oral': 'sais para reidratacao oral',
+  'sro': 'sais para reidratacao oral',
+  'soro fisiologico': 'cloreto de sodio',
+  'adrenalina': 'epinefrina',
+  'novalgina': 'dipirona',
+  'metamizol': 'dipirona',
+  'tylenol': 'paracetamol',
+  'bactrim': 'sulfametoxazol + trimetoprima',
+  'amoxil': 'amoxicilina',
+  'aerolin': 'salbutamol',
+  'rivotril': 'clonazepam',
+  'puran': 'levotiroxina',
+}

@@ -6,7 +6,13 @@ import type { DrugLabelDetail } from '../../../types/drug_reference'
 import type { ConditionSummary } from '../../../types/conditions'
 
 /** Bula de um remédio, com as seções na ordem de quem precisa decidir rápido. */
-export default function NovoRemedio(props: { label: DrugLabelDetail; situacoes: ConditionSummary[]; comparar: Escolhido[] }) {
+export default function NovoRemedio(props: {
+  label: DrugLabelDetail
+  situacoes: ConditionSummary[]
+  comparar: Escolhido[]
+  ftn: { nome: string; pagina: number } | null
+  ftnId: string
+}) {
   const { t } = useTranslation()
   const text = useDrugText()
   const { label } = props
@@ -36,6 +42,15 @@ export default function NovoRemedio(props: { label: DrugLabelDetail; situacoes: 
           {[text.route(label.route), text.type(label.product_type), label.manufacturer].filter(Boolean).join(' · ')}
         </p>
       </div>
+
+      {props.ftn && (
+        <a href={`/referencias/${props.ftnId}#page=${props.ftn.pagina}`} target="_blank" rel="noreferrer" className="nv-card nv-card-link nv-card-ficha">
+          <span className="nv-tile-label">{t('Read in Portuguese')}</span>
+          <span className="nv-text">
+            {t('National Therapeutic Formulary (Ministry of Health), page {{page}}: {{name}}.', { page: props.ftn.pagina, name: props.ftn.nome })}
+          </span>
+        </a>
+      )}
 
       {label.product_type === RX && (
         <p className="nv-card nv-guide-note nv-text" role="note">

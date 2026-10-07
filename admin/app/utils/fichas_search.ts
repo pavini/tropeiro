@@ -10,7 +10,7 @@ export function normalizeText(text: string): string {
 }
 
 /** Palavras pequenas demais, comuns demais ou de pergunta ("como", "posso"): não contam como acerto. */
-const STOPWORDS = new Set(['de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'com', 'para', 'por', 'um', 'uma', 'o', 'a', 'e', 'que', 'se', 'como', 'qual', 'quais', 'quando', 'onde', 'porque', 'faco', 'fazer', 'faz', 'preciso', 'precisa', 'posso', 'pode', 'devo', 'sobre', 'isso', 'esse', 'essa', 'tem', 'ter'])
+const STOPWORDS = new Set(['de', 'da', 'do', 'das', 'dos', 'em', 'no', 'na', 'com', 'para', 'por', 'um', 'uma', 'o', 'a', 'e', 'que', 'se', 'como', 'qual', 'quais', 'quando', 'onde', 'porque', 'faco', 'fazer', 'faz', 'preciso', 'precisa', 'posso', 'pode', 'devo', 'sobre', 'isso', 'esse', 'essa', 'tem', 'ter', 'nao', 'meu', 'minha'])
 
 const words = (text: string) =>
   normalizeText(text)
@@ -37,15 +37,20 @@ export function searchFichas<T extends Searchable>(fichas: T[], query: string, l
     let score = 0
     if (title.includes(q)) score += 5
     if (keywords.some((k) => k === q)) score += 5
-    // Cada palavra-chave contida na busca (ou que contém a busca) soma.
-    score += 3 * keywords.filter((k) => k !== q && (k.includes(q) || q.includes(k))).length
+    // Cada palavra-chave contida na busca (ou que contém a busca) soma. Palavra
+    // inteira: a palavra-chave "mar" não está em "tomar".
+    const padded = ` ${q.replace(/[^a-z0-9]+/g, ' ')} `
+    score += 3 * keywords.filter((k) => k !== q && (k.includes(q) || padded.includes(` ${k.replace(/[^a-z0-9]+/g, ' ').trim()} `))).length
     // Palavras da busca no título valem mais que nas palavras-chave: "água para
     // beber" deve achar "Água para beber: como tratar" antes de "Afogamento".
     const titleWords = words(ficha.title)
     const vocab = new Set([...titleWords, ...ficha.keywords.flatMap(words)])
+    // "queim" acha "queimadura", e "respirando" acha "respira" (palavra da
+    // ficha com 5 letras ou mais no começo da palavra da pergunta).
+    const matches = (v: string, w: string) => v === w || v.startsWith(w) || (v.length >= 5 && w.startsWith(v))
     for (const w of qWords) {
-      if (titleWords.some((v) => v === w || v.startsWith(w))) score += 2
-      else if ([...vocab].some((v) => v === w || v.startsWith(w))) score += 1
+      if (titleWords.some((v) => matches(v, w))) score += 2
+      else if ([...vocab].some((v) => matches(v, w))) score += 1
     }
     return { ficha, score }
   })

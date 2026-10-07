@@ -17,6 +17,8 @@ export default function NovoRemedios(props: {
   situacoes: ConditionSummary[]
   q: string
   busca: BuscaDeRemedio | null
+  ftn: { nome: string; pagina: number }[]
+  ftnId: string
   resultados: DrugSearchResult[]
   comparar: Escolhido[]
   resultado: string
@@ -122,8 +124,7 @@ export default function NovoRemedios(props: {
         </div>
       )}
 
-      {pronta && (
-        <>
+      <>
           <form
             className="nv-search"
             role="search"
@@ -177,7 +178,19 @@ export default function NovoRemedios(props: {
                 </div>
               )}
 
-              {situacoesDaBusca.length > 0 && (
+              {props.ftn.length > 0 && (
+                <section className="nv-book">
+                  <h2 className="nv-section-label">{t('In Portuguese · Ministry of Health')}</h2>
+                  {props.ftn.map((m) => (
+                    <a key={m.pagina} href={`/referencias/${props.ftnId}#page=${m.pagina}`} target="_blank" rel="noreferrer" className="nv-card nv-card-link">
+                      <span className="nv-tile-label nv-capitalize">{m.nome}</span>
+                      <span className="nv-text">{t('National Therapeutic Formulary, page {{page}}: what it is for, doses for children and adults, interactions and patient guidance.', { page: m.pagina })}</span>
+                    </a>
+                  ))}
+                </section>
+              )}
+
+              {pronta && situacoesDaBusca.length > 0 && (
                 <section className="nv-book">
                   <h2 className="nv-section-label">{t('Problems')}</h2>
                   <div className="nv-chips">
@@ -192,7 +205,7 @@ export default function NovoRemedios(props: {
 
               {props.resultados.length > 0 ? (
                 <section className="nv-book">
-                  <h2 className="nv-section-label">{t('Medicines')}</h2>
+                  <h2 className="nv-section-label">{t('United States labels (FDA, in English)')}</h2>
                   <ul className="nv-content-list">
                     {props.resultados.map((d) => (
                       <DrugRow key={d.id} drug={d} compare={props.comparar} />
@@ -200,7 +213,8 @@ export default function NovoRemedios(props: {
                   </ul>
                 </section>
               ) : (
-                situacoesDaBusca.length === 0 &&
+                (!pronta || situacoesDaBusca.length === 0) &&
+                props.ftn.length === 0 &&
                 !props.busca?.foraDosEua && (
                   <div className="nv-card">
                     <span className="nv-tile-label">{t('Nothing found for “{{q}}”', { q: props.q })}</span>
@@ -211,11 +225,13 @@ export default function NovoRemedios(props: {
                 )
               )}
 
-              <Link href={`/remedios${compareParam}`} className="nv-link-button">
-                {t('See all problems')}
-              </Link>
+              {pronta && (
+                <Link href={`/remedios${compareParam}`} className="nv-link-button">
+                  {t('See all problems')}
+                </Link>
+              )}
             </section>
-          ) : (
+          ) : pronta ? (
             <section className="nv-results">
               <h2 className="nv-section-label">{t('By problem')}</h2>
               <p className="nv-text">{t('Over-the-counter medicines whose label says they treat it.')}</p>
@@ -232,9 +248,8 @@ export default function NovoRemedios(props: {
                 </section>
               ))}
             </section>
-          )}
-        </>
-      )}
+          ) : null}
+      </>
 
       <DrugNotice />
 
