@@ -1924,6 +1924,8 @@ a.nv-app-button:not(.nv-secondary) {
 @media (max-width: 520px) {
   .nv-chat-head {
     flex-direction: column;
+  }
+}
 
 /* Mapa: formulário do lugar, coordenadas e escala, lista */
 .nv-place-form {
