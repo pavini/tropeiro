@@ -4,27 +4,43 @@ import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Protocol } from 'pmtiles'
 import { Head, Link } from '@inertiajs/react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import '@fontsource/atkinson-hyperlegible/400.css'
 import '@fontsource/atkinson-hyperlegible/700.css'
 import '~/novo/novo.css'
 import { BRAZIL_VIEW, parseCoordinates } from '~/novo/mapStyle'
+import { listPlaces, mapLink, parseMapLink, type PlaceSort } from '~/novo/mapPlaces'
+import PlaceForm, { type PlaceValues } from '~/novo/PlaceForm'
+import MarkerPin from '~/components/maps/MarkerPin'
 import { PIN_COLORS, useMapMarkers, type MapMarker } from '~/hooks/useMapMarkers'
 
 const VIEW_KEY = 'tropeiro:mapa-view'
+const SCALE_KEY = 'tropeiro:mapa-escala'
 
 type View = { longitude: number; latitude: number; zoom: number }
+type ScaleUnit = 'metric' | 'nautical'
 
-function savedView(): View | null {
+function stored<T>(key: string, valid: (v: unknown) => v is T): T | null {
   try {
-    const view = JSON.parse(localStorage.getItem(VIEW_KEY) ?? 'null')
-    if (view && [view.longitude, view.latitude, view.zoom].every(Number.isFinite)) return view
+    const value = JSON.parse(localStorage.getItem(key) ?? 'null')
+    return valid(value) ? value : null
   } catch {
-    // sem armazenamento ou valor inválido: abre no Brasil
+    return null // sem armazenamento ou valor inválido
   }
-  return null
 }
+
+function store(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // sem armazenamento: só não lembra
+  }
+}
+
+const isView = (v: unknown): v is View =>
+  !!v && typeof v === 'object' && ['longitude', 'latitude', 'zoom'].every((k) => Number.isFinite((v as any)[k]))
+const isScale = (v: unknown): v is ScaleUnit => v === 'metric' || v === 'nautical'
 
 interface PlaceHit {
   name: string
@@ -33,6 +49,9 @@ interface PlaceHit {
   longitude: number
   near: string | null
 }
+
+/** O que a busca achou: um lugar do mapa ou coordenadas digitadas. */
+type Found = { name: string; latitude: number; longitude: number; coords: boolean }
 
 const PLACE_KIND: Record<PlaceHit['kind'], string> = {
   city: 'City',
@@ -47,6 +66,8 @@ const PLACE_ZOOM: Record<PlaceHit['kind'], number> = { city: 11, town: 13, villa
 const pinColor = (marker: MapMarker) =>
   marker.customColor || PIN_COLORS.find((c) => c.id === marker.color)?.hex || PIN_COLORS[0].hex
 
+const coords = (latitude: number, longitude: number) => `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
+
 /**
  * Mapa offline em português, em tela cheia, com os lugares marcados (os mesmos
  * da interface clássica). Os controles flutuam sobre o mapa.
@@ -55,24 +76,35 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
   const { t } = useTranslation()
   const mapRef = useRef<MapRef>(null)
   const [styleError, setStyleError] = useState(false)
-  const [initialView] = useState<View>(() => savedView() ?? BRAZIL_VIEW)
-  const { markers, addMarker, deleteMarker } = useMapMarkers()
+  const [link] = useState(() => parseMapLink(window.location.search))
+  const [initialView] = useState<View>(
+    () => (link ? { longitude: link.longitude, latitude: link.latitude, zoom: link.zoom } : null) ?? stored(VIEW_KEY, isView) ?? BRAZIL_VIEW
+  )
+  const [scale, setScale] = useState<ScaleUnit>(() => stored(SCALE_KEY, isScale) ?? 'metric')
+  const { markers, addMarker, updateMarker, deleteMarker } = useMapMarkers()
 
   const [marking, setMarking] = useState(false)
   const [draft, setDraft] = useState<{ longitude: number; latitude: number } | null>(null)
-  const [draftName, setDraftName] = useState('')
-  const [draftNotes, setDraftNotes] = useState('')
   const [saving, setSaving] = useState(false)
-  const [selected, setSelected] = useState<MapMarker | null>(null)
+  const [selectedId, setSelectedId] = useState<number | null>(link?.placeId ?? null)
+  const [editing, setEditing] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [shared, setShared] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [hits, setHits] = useState<PlaceHit[]>([])
   const [hitsOpen, setHitsOpen] = useState(false)
   const [activeHit, setActiveHit] = useState(0)
   const [notFound, setNotFound] = useState(false)
-  const [found, setFound] = useState<PlaceHit | null>(null)
+  const [found, setFound] = useState<Found | null>(null)
   const [listOpen, setListOpen] = useState(false)
+  const [listQuery, setListQuery] = useState('')
+  const [listSort, setListSort] = useState<PlaceSort>('name')
+  const [showHidden, setShowHidden] = useState(false)
   const [hideNotice, setHideNotice] = useState(false)
+  const [pointer, setPointer] = useState<{ latitude: number; longitude: number } | null>(null)
+  const [center, setCenter] = useState({ latitude: initialView.latitude, longitude: initialView.longitude })
+
+  const selected = markers.find((m) => m.id === selectedId) ?? null
 
   useEffect(() => {
     const protocol = new Protocol()
@@ -83,22 +115,51 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
   const flyTo = (longitude: number, latitude: number, zoom = 13) =>
     mapRef.current?.flyTo({ center: [longitude, latitude], zoom, duration: 1200 })
 
-  const onMapClick = (e: MapLayerMouseEvent) => {
-    if (!marking) return
-    setSelected(null)
-    setDraft({ longitude: e.lngLat.lng, latitude: e.lngLat.lat })
-    setDraftName('')
-    setDraftNotes('')
+  const select = (marker: MapMarker | null) => {
+    setSelectedId(marker?.id ?? null)
+    setEditing(false)
+    setConfirmDelete(false)
+    setShared(null)
   }
 
-  const saveDraft = async () => {
-    if (!draft || !draftName.trim()) return
+  const startDraft = (longitude: number, latitude: number) => {
+    select(null)
+    setDraft({ longitude, latitude })
+  }
+
+  const onMapClick = (e: MapLayerMouseEvent) => {
+    if (marking) startDraft(e.lngLat.lng, e.lngLat.lat)
+  }
+
+  const saveDraft = async (values: PlaceValues) => {
+    if (!draft) return
     setSaving(true)
-    const marker = await addMarker({ ...draft, name: draftName.trim(), notes: draftNotes.trim() || null })
+    const marker = await addMarker({ ...draft, ...values })
     setSaving(false)
     if (marker) {
       setDraft(null)
       setMarking(false)
+      setFound(null)
+      select(marker)
+    }
+  }
+
+  const saveEdit = async (values: PlaceValues) => {
+    if (!selected) return
+    setSaving(true)
+    await updateMarker(selected.id, values)
+    setSaving(false)
+    setEditing(false)
+  }
+
+  /** Copia o link do lugar; sem área de transferência (rede local sem https), mostra o link para copiar à mão. */
+  const share = async (marker: MapMarker) => {
+    const url = mapLink(window.location.origin, marker)
+    try {
+      await navigator.clipboard.writeText(url)
+      setShared('copied')
+    } catch {
+      setShared(url)
     }
   }
 
@@ -128,16 +189,16 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
   const goToPlace = (place: PlaceHit) => {
     setQuery(place.name)
     setHitsOpen(false)
-    setFound(place)
+    setFound({ name: place.name, latitude: place.latitude, longitude: place.longitude, coords: false })
     flyTo(place.longitude, place.latitude, PLACE_ZOOM[place.kind])
   }
 
   const search = async () => {
-    const coords = parseCoordinates(query)
-    if (coords) {
-      setFound(null)
+    const typed = parseCoordinates(query)
+    if (typed) {
       setHitsOpen(false)
-      return flyTo(coords.longitude, coords.latitude)
+      setFound({ name: coords(typed.latitude, typed.longitude), ...typed, coords: true })
+      return flyTo(typed.longitude, typed.latitude, 15)
     }
     let places = hits
     if (places.length === 0 && query.trim().length >= 2) {
@@ -154,7 +215,13 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
     place.near ? t('{{kind}} · near {{city}}', { kind: t(PLACE_KIND[place.kind]), city: place.near }) : t(PLACE_KIND[place.kind])
 
   const visible = markers.filter((m) => m.visible)
+  const hiddenCount = markers.length - visible.length
+  const listed = useMemo(
+    () => listPlaces(markers, { query: listQuery, sort: listSort, showHidden }),
+    [markers, listQuery, listSort, showHidden]
+  )
   const unavailable = !props.ready || styleError
+  const shownCoords = pointer ?? center
 
   const back = (
     <Link href="/" className="nv-map-fab nv-map-back" aria-label={t('Home')}>
@@ -183,129 +250,115 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
       <Head title={t('Map')} />
 
       <div className="nv-map-canvas">
-      <Map
-        mapLib={maplibregl}
-        mapStyle={`${window.location.origin}/mapa/estilo`}
-        initialViewState={initialView}
-        style={{ width: '100%', height: '100%' }}
-        onClick={onMapClick}
-        ref={mapRef}
-        onError={(e) => {
-          // Sem o estilo não há mapa; erros de um bloco isolado não derrubam a tela.
-          if (!e.target.isStyleLoaded()) setStyleError(true)
-        }}
-        onMoveEnd={(e) => {
-          const { longitude, latitude, zoom } = e.viewState
-          try {
-            localStorage.setItem(VIEW_KEY, JSON.stringify({ longitude, latitude, zoom }))
-          } catch {
-            // sem armazenamento: só não lembra a posição
-          }
-        }}
-      >
-        <NavigationControl position="top-right" showCompass={false} />
-        <ScaleControl position="bottom-right" unit="metric" />
+        <Map
+          mapLib={maplibregl}
+          mapStyle={`${window.location.origin}/mapa/estilo`}
+          initialViewState={initialView}
+          style={{ width: '100%', height: '100%' }}
+          onClick={onMapClick}
+          ref={mapRef}
+          onError={(e) => {
+            // Sem o estilo não há mapa; erros de um bloco isolado não derrubam a tela.
+            if (!e.target.isStyleLoaded()) setStyleError(true)
+          }}
+          onMouseMove={(e) => setPointer({ latitude: e.lngLat.lat, longitude: e.lngLat.lng })}
+          onMouseOut={() => setPointer(null)}
+          onMoveEnd={(e) => {
+            const { longitude, latitude, zoom } = e.viewState
+            setCenter({ latitude, longitude })
+            store(VIEW_KEY, { longitude, latitude, zoom })
+          }}
+        >
+          <NavigationControl position="top-right" showCompass={false} />
+          <ScaleControl position="bottom-right" unit={scale} />
 
-        {found && (
-          <Marker longitude={found.longitude} latitude={found.latitude} anchor="center">
-            <span className="nv-map-found" role="img" aria-label={found.name} />
-          </Marker>
-        )}
+          {found && (
+            <Marker longitude={found.longitude} latitude={found.latitude} anchor="center">
+              <span className="nv-map-found" role="img" aria-label={found.name} />
+            </Marker>
+          )}
 
-        {visible.map((marker) => (
-          <Marker
-            key={marker.id}
-            longitude={marker.longitude}
-            latitude={marker.latitude}
-            anchor="bottom"
-            onClick={(e) => {
-              e.originalEvent.stopPropagation()
-              setDraft(null)
-              setConfirmDelete(false)
-              setSelected(marker)
-            }}
-          >
-            <svg width="30" height="38" viewBox="0 0 30 38" aria-label={marker.name} role="img" style={{ cursor: 'pointer' }}>
-              <path d="M15 37 C15 37 28 22 28 14 A13 13 0 0 0 2 14 C2 22 15 37 15 37 Z" fill={pinColor(marker)} stroke="#ffffff" strokeWidth="2" />
-              <circle cx="15" cy="14" r="4.5" fill="#ffffff" />
-            </svg>
-          </Marker>
-        ))}
-
-        {selected && (
-          <Popup longitude={selected.longitude} latitude={selected.latitude} anchor="top" onClose={() => setSelected(null)} closeOnClick={false} maxWidth="280px">
-            <div className="nv-map-popup">
-              <strong>{selected.name}</strong>
-              {selected.notes && <span>{selected.notes}</span>}
-              <span className="nv-map-popup-coords">
-                {selected.latitude.toFixed(5)}, {selected.longitude.toFixed(5)}
-              </span>
-              {confirmDelete ? (
-                <span className="nv-content-actions">
-                  <button
-                    type="button"
-                    className="nv-primary nv-danger nv-app-button"
-                    onClick={async () => {
-                      await deleteMarker(selected.id)
-                      setSelected(null)
-                    }}
-                  >
-                    {t('Yes, delete')}
-                  </button>
-                  <button type="button" className="nv-primary nv-secondary nv-app-button" onClick={() => setConfirmDelete(false)}>
-                    {t('Cancel')}
-                  </button>
-                </span>
-              ) : (
-                <button type="button" className="nv-link-button" onClick={() => setConfirmDelete(true)}>
-                  {t('Delete place')}
-                </button>
-              )}
-            </div>
-          </Popup>
-        )}
-
-        {draft && (
-          <Popup longitude={draft.longitude} latitude={draft.latitude} anchor="top" onClose={() => setDraft(null)} closeOnClick={false} maxWidth="300px">
-            <form
-              className="nv-map-popup"
-              onSubmit={(e) => {
-                e.preventDefault()
-                void saveDraft()
+          {visible.map((marker) => (
+            <Marker
+              key={marker.id}
+              longitude={marker.longitude}
+              latitude={marker.latitude}
+              anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation()
+                setDraft(null)
+                select(marker)
               }}
             >
-              <label htmlFor="nv-place-name">
-                <strong>{t('Name of the place')}</strong>
-              </label>
-              <input
-                id="nv-place-name"
-                className="nv-input"
-                value={draftName}
-                onChange={(e) => setDraftName(e.target.value)}
-                placeholder={t('E.g.: drinking water, shelter, health post')}
-                maxLength={255}
-                autoFocus
-              />
-              <textarea
-                className="nv-input nv-textarea"
-                value={draftNotes}
-                onChange={(e) => setDraftNotes(e.target.value)}
-                placeholder={t('Notes (optional)')}
-                maxLength={500}
-                rows={2}
-              />
-              <span className="nv-content-actions">
-                <button type="submit" className="nv-primary nv-app-button" disabled={saving || !draftName.trim()}>
-                  {saving ? t('Saving…') : t('Save place')}
-                </button>
-                <button type="button" className="nv-primary nv-secondary nv-app-button" onClick={() => setDraft(null)}>
-                  {t('Cancel')}
-                </button>
+              <span role="img" aria-label={marker.name}>
+                <MarkerPin color={marker.color} customColor={marker.customColor} icon={marker.icon} iconColor={marker.iconColor} active={marker.id === selectedId} />
               </span>
-            </form>
-          </Popup>
-        )}
-      </Map>
+            </Marker>
+          ))}
+
+          {selected && (
+            <Popup longitude={selected.longitude} latitude={selected.latitude} anchor="top" onClose={() => select(null)} closeOnClick={false} maxWidth="320px">
+              {editing ? (
+                <PlaceForm
+                  initial={{ name: selected.name, notes: selected.notes ?? null, color: selected.color, icon: selected.icon ?? null }}
+                  saving={saving}
+                  submitLabel={t('Save changes')}
+                  onSubmit={(values) => void saveEdit(values)}
+                  onCancel={() => setEditing(false)}
+                />
+              ) : (
+                <div className="nv-map-popup">
+                  <strong>{selected.name}</strong>
+                  {!selected.visible && <span className="nv-badge nv-badge-warn">{t('Hidden')}</span>}
+                  {selected.notes && <span>{selected.notes}</span>}
+                  <span className="nv-map-popup-coords">{coords(selected.latitude, selected.longitude)}</span>
+                  {shared === 'copied' && <span className="nv-text">{t('Link copied.')}</span>}
+                  {shared && shared !== 'copied' && (
+                    <input className="nv-input nv-map-link" readOnly value={shared} aria-label={t('Link to this place')} onFocus={(e) => e.target.select()} autoFocus />
+                  )}
+                  {confirmDelete ? (
+                    <span className="nv-content-actions">
+                      <button
+                        type="button"
+                        className="nv-primary nv-danger nv-app-button"
+                        onClick={async () => {
+                          await deleteMarker(selected.id)
+                          select(null)
+                        }}
+                      >
+                        {t('Yes, delete')}
+                      </button>
+                      <button type="button" className="nv-primary nv-secondary nv-app-button" onClick={() => setConfirmDelete(false)}>
+                        {t('Cancel')}
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="nv-map-popup-actions">
+                      <button type="button" className="nv-link-button nv-text-button" onClick={() => setEditing(true)}>
+                        {t('Edit')}
+                      </button>
+                      <button type="button" className="nv-link-button nv-text-button" onClick={() => void updateMarker(selected.id, { visible: !selected.visible })}>
+                        {selected.visible ? t('Hide') : t('Show')}
+                      </button>
+                      <button type="button" className="nv-link-button nv-text-button" onClick={() => void share(selected)}>
+                        {t('Copy link')}
+                      </button>
+                      <button type="button" className="nv-link-button nv-danger-text" onClick={() => setConfirmDelete(true)}>
+                        {t('Delete place')}
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )}
+            </Popup>
+          )}
+
+          {draft && (
+            <Popup longitude={draft.longitude} latitude={draft.latitude} anchor="top" onClose={() => setDraft(null)} closeOnClick={false} maxWidth="320px">
+              <PlaceForm saving={saving} submitLabel={t('Save place')} onSubmit={(values) => void saveDraft(values)} onCancel={() => setDraft(null)} />
+            </Popup>
+          )}
+        </Map>
       </div>
 
       <div className="nv-map-topbar">
@@ -381,6 +434,16 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
             {t('No place with that name on this map. You can also type coordinates, e.g. -23.55, -46.63')}
           </span>
         )}
+        {found && !draft && (
+          <span className="nv-map-toast nv-map-toast-link">
+            <button type="button" className="nv-map-toast-action" onClick={() => startDraft(found.longitude, found.latitude)}>
+              {found.coords ? t('Mark this point') : t('Mark a place at {{name}}', { name: found.name })}
+            </button>
+            <button type="button" aria-label={t('Close')} onClick={() => setFound(null)}>
+              ×
+            </button>
+          </span>
+        )}
         {marking && <span className="nv-map-toast">{t('Tap the map where the place is.')}</span>}
         {props.regions.length === 0 && !hideNotice && (
           <span className="nv-map-toast nv-map-toast-link">
@@ -390,6 +453,28 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
             </button>
           </span>
         )}
+      </div>
+
+      <div className="nv-map-status">
+        <span className="nv-map-coords" title={pointer ? t('Coordinates under the cursor') : t('Coordinates of the map center')}>
+          {coords(shownCoords.latitude, shownCoords.longitude)}
+        </span>
+        <span className="nv-map-scale" role="group" aria-label={t('Scale unit')}>
+          {(['metric', 'nautical'] as const).map((unit) => (
+            <button
+              key={unit}
+              type="button"
+              aria-pressed={scale === unit}
+              className={scale === unit ? 'nv-map-scale-on' : ''}
+              onClick={() => {
+                setScale(unit)
+                store(SCALE_KEY, unit)
+              }}
+            >
+              {unit === 'metric' ? 'km' : t('nmi')}
+            </button>
+          ))}
+        </span>
       </div>
 
       <div className="nv-map-bottombar">
@@ -430,31 +515,68 @@ export default function NovoMapa(props: { ready: boolean; regions: string[] }) {
               ×
             </button>
           </div>
-          {visible.length === 0 ? (
+          {markers.length === 0 ? (
             <p className="nv-text">{t('No places marked yet. Mark water, shelters and health posts so everyone can find them.')}</p>
           ) : (
-            <ul className="nv-content-list">
-              {visible.map((marker) => (
-                <li key={marker.id}>
-                  <button
-                    type="button"
-                    className="nv-card nv-card-link nv-map-place"
-                    onClick={() => {
-                      setSelected(marker)
-                      setConfirmDelete(false)
-                      setListOpen(false)
-                      flyTo(marker.longitude, marker.latitude, 15)
-                    }}
-                  >
-                    <span className="nv-map-dot" style={{ background: pinColor(marker) }} aria-hidden="true" />
-                    <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                      <span className="nv-tile-label">{marker.name}</span>
-                      {marker.notes && <span className="nv-text">{marker.notes}</span>}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <>
+              <div className="nv-map-list-tools">
+                <input
+                  className="nv-input"
+                  type="search"
+                  value={listQuery}
+                  onChange={(e) => setListQuery(e.target.value)}
+                  placeholder={t('Find a marked place')}
+                  aria-label={t('Find a marked place')}
+                />
+                <select className="nv-select" value={listSort} onChange={(e) => setListSort(e.target.value as PlaceSort)} aria-label={t('Order')}>
+                  <option value="name">{t('By name')}</option>
+                  <option value="recent">{t('Most recent first')}</option>
+                </select>
+                {hiddenCount > 0 && (
+                  <label className="nv-ask-option">
+                    <input type="checkbox" checked={showHidden} onChange={(e) => setShowHidden(e.target.checked)} />
+                    <span>{t('Show hidden ({{count}})', { count: hiddenCount })}</span>
+                  </label>
+                )}
+              </div>
+              {listed.length === 0 ? (
+                <p className="nv-text">
+                  {!listQuery.trim() && !showHidden && hiddenCount > 0
+                    ? t('All marked places are hidden. Check “Show hidden” to see them.')
+                    : t('No marked place matches.')}
+                </p>
+              ) : (
+                <ul className="nv-content-list">
+                  {listed.map((marker) => (
+                    <li key={marker.id} className="nv-map-place-row">
+                      <button
+                        type="button"
+                        className={`nv-card nv-card-link nv-map-place${marker.visible ? '' : ' nv-map-place-hidden'}`}
+                        onClick={() => {
+                          if (!marker.visible) void updateMarker(marker.id, { visible: true })
+                          select(marker)
+                          setListOpen(false)
+                          flyTo(marker.longitude, marker.latitude, 15)
+                        }}
+                      >
+                        <span className="nv-map-dot" style={{ background: pinColor(marker) }} aria-hidden="true" />
+                        <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                          <span className="nv-tile-label">{marker.name}</span>
+                          {marker.notes && <span className="nv-text">{marker.notes}</span>}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        className="nv-link-button nv-text-button"
+                        onClick={() => void updateMarker(marker.id, { visible: !marker.visible })}
+                      >
+                        {marker.visible ? t('Hide') : t('Show')}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </section>
       )}
