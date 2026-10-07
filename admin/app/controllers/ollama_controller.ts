@@ -153,7 +153,7 @@ export default class OllamaController {
       const ragEnabled = (await KVStore.getValue('rag.enabled')) ?? true
       const trace = await this.ragPipelineService.buildPrompt(reqData.messages, reqData.model, {
         collection: collectionFilter ?? undefined,
-        skipRetrieval: !ragEnabled,
+        skipRetrieval: !ragEnabled || reqData.useKnowledgeBase === false,
       })
       reqData.messages = trace.messages
       const numCtx = trace.numCtx
@@ -195,7 +195,7 @@ export default class OllamaController {
 
       // Separate sessionId and the resolved thinking preference from the Ollama request payload —
       // Ollama rejects unknown fields, and `think` is re-derived above (not forwarded raw).
-      const { sessionId, think: _thinkPref, ...ollamaRequest } = reqData
+      const { sessionId, think: _thinkPref, useKnowledgeBase: _useKb, ...ollamaRequest } = reqData
       const upstreamMessages = attachImagesToLatestUserMessage(
         ollamaRequest.messages,
         normalizedImages

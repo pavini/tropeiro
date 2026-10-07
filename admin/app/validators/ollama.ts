@@ -14,6 +14,8 @@ export const chatSchema = vine.compile(
     // Effective per-request thinking preference (per-model override or global default),
     // resolved client-side. Omitted -> server falls back to the ai.autoThinking KV default.
     think: vine.boolean().optional(),
+    // false: esta pergunta não procura na base de conhecimento (só o que o modelo sabe).
+    useKnowledgeBase: vine.boolean().optional(),
   })
 )
 

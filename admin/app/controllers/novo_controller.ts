@@ -11,6 +11,7 @@ import { KITS } from '../../constants/kits.js'
 import { SERVICE_NAMES } from '../../constants/service_names.js'
 import { ReferenceDocsService } from '#services/reference_docs_service'
 import { OllamaService } from '#services/ollama_service'
+import { ChatService } from '#services/chat_service'
 import { RemoteOllamaService } from '#services/remote_ollama_service'
 import { EMBEDDING_MODEL_NAME } from '../../constants/ollama.js'
 import { InstalledContentService } from '#services/installed_content_service'
@@ -63,7 +64,8 @@ export default class NovoController {
     private installed: InstalledContentService,
     private docker: DockerService,
     private maps: MapService,
-    private remoteOllama: RemoteOllamaService
+    private remoteOllama: RemoteOllamaService,
+    private chats: ChatService
   ) {}
 
   async inicio({ inertia }: HttpContext) {
@@ -243,9 +245,46 @@ export default class NovoController {
   }
 
   /** Pergunta à IA local, que responde com base no acervo do servidor. */
-  async perguntar({ inertia, request }: HttpContext) {
+  /** Conversa com a IA; /perguntar/:id reabre uma conversa guardada. */
+  async perguntar({ inertia, request, params, response }: HttpContext) {
     const q = String(request.input('q', '')).trim().slice(0, 500)
-    return inertia.render('novo/perguntar', { q, model: await this.chatModel() })
+    const model = await this.chatModel()
+    const id = params.id ? Number(params.id) : null
+    const session = id && Number.isInteger(id) && id > 0 ? await this.chats.getSession(id) : null
+    if (id && !session) return response.redirect().toPath('/perguntar')
+
+    const [sessions, capabilities, autoThinking, collections] = await Promise.all([
+      this.chats.getAllSessions(),
+      model ? this.ollama.getModelCapabilities(model).catch(() => null) : null,
+      KVStore.getValue('ai.autoThinking'),
+      this.knowledgeCollections(),
+    ])
+    return inertia.render('novo/perguntar', {
+      q,
+      model,
+      capabilities,
+      autoThinking: autoThinking === true,
+      collections,
+      sessions: sessions.map(({ id: sid, title, timestamp }) => ({ id: Number(sid), title, timestamp })),
+      session: session
+        ? {
+            id: Number(session.id),
+            title: session.title,
+            messages: session.messages.map(({ role, content, sources }) => ({ role, content, sources: sources ?? [] })),
+          }
+        : null,
+    })
+  }
+
+  /** Coleções da base de conhecimento, para escolher onde a IA procura; vazia sem a base. */
+  private async knowledgeCollections(): Promise<string[]> {
+    try {
+      const { RagService } = await import('#services/rag_service')
+      const app = (await import('@adonisjs/core/services/app')).default
+      return await (await app.container.make(RagService)).getKnowledgeCollections()
+    } catch {
+      return []
+    }
   }
 
   /** Fichas que combinam com uma pergunta, para mostrar antes da resposta da IA. */
