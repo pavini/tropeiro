@@ -32,7 +32,7 @@ Planejado:
 
 ## Contribuindo
 
-PRs contra a branch `tropeiro`, com Conventional Commits. Correções publicadas no NOMAD podem ser trazidas à mão, num PR que cite a origem.
+Veja o [guia de contribuição](../CONTRIBUTING.md): ambiente, regras, testes e como abrir um PR. Para fichas, guias e referências, sem precisar programar, veja [conteudo/CONTRIBUINDO.md](../conteudo/CONTRIBUINDO.md).
 
 ```bash
 git clone git@github.com:pavini/tropeiro.git

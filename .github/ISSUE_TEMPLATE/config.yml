@@ -1,20 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 🔒 Report a Security Vulnerability
-    url: https://github.com/Crosstalk-Solutions/project-nomad/security/advisories/new
-    about: Report a security issue privately. Please do not open a public issue for a vulnerability.
-  - name: 💬 Discord Community
-    url: https://discord.com/invite/crosstalksolutions
-    about: Join our Discord community for general questions, support, and discussions
-  - name: 📖 Documentation
-    url: https://projectnomad.us
-    about: Check the official documentation and guides
-  - name: 🏆 Community Leaderboard
-    url: https://benchmark.projectnomad.us
-    about: View the NOMAD benchmark leaderboard
-  - name: 🤝 Contributing Guide
-    url: https://github.com/Crosstalk-Solutions/project-nomad/blob/main/CONTRIBUTING.md
-    about: Learn how to contribute to Project NOMAD
-  - name: 📅 Roadmap
-    url: https://roadmap.projectnomad.us
-    about: See our public roadmap, vote on features, and suggest new ones
+  - name: 🔒 Relatar uma falha de segurança
+    url: https://github.com/pavini/tropeiro/blob/tropeiro/SECURITY.md
+    about: Falha de segurança não vai em issue pública. Veja como relatar em particular.
+  - name: 🤝 Como contribuir
+    url: https://github.com/pavini/tropeiro/blob/tropeiro/CONTRIBUTING.md
+    about: Ambiente, regras e como abrir um PR.
+  - name: 📚 Contribuir com conteúdo (fichas, guias)
+    url: https://github.com/pavini/tropeiro/blob/tropeiro/conteudo/CONTRIBUINDO.md
+    about: Como escrever ou corrigir uma ficha, um guia ou uma referência, sem precisar programar.
